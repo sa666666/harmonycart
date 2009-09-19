@@ -75,6 +75,9 @@ HarmonyCartWindow::HarmonyCartWindow(QWidget* parent)
 
   // Find and connect to HarmonyCart (make sure ::readSettings() is called first)
   slotConnectHarmonyCart();
+
+// disable this until we get the second tab activated
+ui->actSelectROM->setDisabled(true);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
