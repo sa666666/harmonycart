@@ -128,37 +128,16 @@ const StringList& SerialPortWin32::getPortNames()
 {
   myPortNames.clear();
 
-// TODO - implement this
-/*
-  // First get all possible devices in the '/dev' directory
-  DIR* dirp = opendir("/dev");
-  if(dirp != NULL)
+  // For now, we just append all 255 possible COM ports
+  // In the future, we should only include the ones that actually exist
+  // TODO - figure out how to determine if a port exists
+
+  for(int i = 0; i < 10; ++i)
   {
-    // Search for files matching common serial port device names
-    struct dirent* dp;
-    while ((dp = readdir(dirp)) != NULL)
-    {
-      const char* ptr = dp->d_name;
-
-      if((strstr(ptr, "ttyS") == ptr) ||  // linux Serial Ports
-         (strstr(ptr, "ttyUSB") == ptr))  // for USB frobs
-      {
-        string device = "/dev/";
-        device += ptr;
-
-        if(openPort(device))
-        {
-          uInt8 c;
-          int n = readBytes(&c, 1);
-          if(n >= 0)
-            myPortNames.push_back(device);
-        }
-        closePort();
-      }
-    }
-    closedir(dirp);
+    ostringstream port;
+    port << "COM" << i;
+    myPortNames.push_back(port.str());
   }
-*/
   return myPortNames;
 }
 

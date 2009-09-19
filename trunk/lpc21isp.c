@@ -304,10 +304,11 @@ static int OpenSerialPort(ISP_ENVIRONMENT *IspEnvironment)
     DCB    dcb;
     COMMTIMEOUTS commtimeouts;
 
-    IspEnvironment->hCom = CreateFile(IspEnvironment->serial_port, GENERIC_READ | GENERIC_WRITE,0,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,NULL);
+    IspEnvironment->hCom = CreateFileA(IspEnvironment->serial_port, GENERIC_READ | GENERIC_WRITE,
+                           0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
     if (IspEnvironment->hCom == INVALID_HANDLE_VALUE)
-      return FALSE;
+        return FALSE;
 
     DebugPrintf(3, "COM-Port %s opened...\n", IspEnvironment->serial_port);
 
