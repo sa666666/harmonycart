@@ -1,0 +1,34 @@
+===========================================================================
+
+  H   H    A    RRRR   M   M   OOO   N   N  Y   Y
+  H   H   A A   R   R  MM MM  O   O  NN  N   Y Y
+  HHHHH  AAAAA  RRRR   M M M  O   O  N N N    Y    "Harmony Cart software"
+  H   H  A   A  R R    M   M  O   O  N  NN    Y
+  H   H  A   A  R  R   M   M   OOO   N   N    Y
+
+===========================================================================
+                 Release 0.1 for Linux, Mac OSX and Windows
+===========================================================================
+
+TODO - add description.
+
+The Harmony Programming Tool is a cross-platform application used to
+program the Harmony Cartridge.  Both GUI and commandline usage is
+supported.
+
+This is the 0.1 release of HarmonyCart for Linux, Mac OSX and Windows.
+The distributions currently available are:
+
+  * TODO - adapt release info from Stella
+
+Distribution Site
+================= 
+
+The HarmonyCart distributions can be obtained from the TODO Website at:
+
+  http://TODO
+
+Information about the Harmony Cartridge can be obtained from the authors
+Website:
+
+  http://TODO
