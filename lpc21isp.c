@@ -1,287 +1,6 @@
-/******************************************************************************
 
-Project:           Portable command line ISP for Philips LPC17XX / LPC2000 family
-                   and Analog Devices ADUC70xx
-
-Filename:          lpc21isp.c
-
-Compiler:          Microsoft VC 6/7, GCC Cygwin, GCC Linux, GCC ARM ELF
-
-Author:            Martin Maurer (Martin.Maurer@clibb.de)
-
-Copyright:         (c) Martin Maurer 2003-2008, All rights reserved
-Portions Copyright (c) by Aeolus Development 2004 http://www.aeolusdevelopment.com
-
-    This file is part of lpc21isp.
-
-    lpc21isp is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    any later version.
-
-    lpc21isp is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
-
-    You should have received a copy of the GNU Lesser General Public License
-    and GNU General Public License along with lpc21isp.
-    If not, see <http://www.gnu.org/licenses/>.
-*/
-
-#if defined(_WIN32)
-#if !defined __BORLANDC__
-#include "StdAfx.h"        // Precompiled Header for WIN32
-#endif
-#endif // defined(_WIN32)
-#include "lpc21isp.h"   // if using propriatory serial port communication (customize attached lpc21isp.h)
+#include "lpc21isp.h"
 #include "lpcprog.h"
-
-/*
-Change-History:
-
-1.00  2004-01-08  Initial Version, tested for MSVC6/7 and GCC under Cygwin
-1.01  2004-01-10  Porting to Linux (at least compiling must work)
-1.02  2004-01-10  Implemented conversion intel hex format -> binary
-1.03  2004-01-25  Preparation to upload to public website
-1.04  2004-02-12  Merged in bugfixes by Soeren Gust
-1.05  2004-03-14  Implement printing of error codes as text / strings
-1.06  2004-03-09  Merged in bugfixes by Charles Manning:
-                  The '?' sychronisation does not reliably respond to the first '?'.
-                  I added some retries.
-                  The LPC2106 sometimes responds to the '?' by echoing them back.
-                  This sometimes causes an attempt to match "?Synchonized".
-                  Added code to strip off any leading '?'s.
-                  Timeouts were too long.
-                  Change from RTS/CTS to no flow control.
-                  Done because many/most people will use only 3-wire comms.
-                  Added some progress tracing.
-1.07  2004-03-14  Implement handling of control lines for easier booting
-1.08  2004-04-01  Bugfix for upload problem
-1.09  2004-04-03  Redesign of upload routine
-                  Now always 180 byte blocks are uploaded, to prevent
-                  small junks in uuencoding
-1.10  2004-04-03  Clear buffers before sending commands to LPC21xx,
-                  this prevents synchronizing errors when previously loaded
-                  program does a lot of output, so FIFO of PC runs full
-1.11  2004-04-03  Small optimization for controlling reset line
-                  otherwise termonly starts LPC twice, free PC buffers
-1.12  2004-04-04  Add switch to enable logging terminal output to lpc21isp.log
-1.13  2004-05-19  Merged in improvement by Charles Manning:
-                  Instead of exiting the wrong hex file size is corrected
-1.14  2004-07-07  Merged in improvement by Alex Holden:
-                  Remove little/big endian dependancy
-1.15  2004-09-27  Temporary improvement by Cyril Holweck:
-                  Removed test (data echoed = data transmited) on the main
-                  data transfert, since this was the biggest failure
-                  reason and is covered by checksome anyway.
-                  Added COMPILE_FOR_LPC21, to have target dump it's own
-                  memory to stdout.
-1.16  2004-10-09  Merged in bugfix / improvement by Sinelnikov Evgeny
-                  I found out that Linux and Windows serial port initialization
-                  are different with pinouts states. My board don't get
-                  reset signal at first cycle of DTR pinout moving.
-                  And I add this moving to initalization cycle.
-1.17  2004-10-21  Changes by Cyril Holweck
-                  Divide main, take out the real programming function, that can
-                  also be used by a target to copy its own code to another.
-1.18  2004-10-26  Changes by Cyril Holweck
-                  Added a "G 0 A\r\n" at end of programming to run code.
-1.19  2004-11-03  Changes by Robert Adsett
-                  Add support for Analog Devices.
-                  Separate file load from programming.
-                  Change from a debug on/off flag to debug level
-                  Remove if (debug) tests and replace with DebugPrintf
-                  statements.
-                  Change serial I/O and timing so that the system
-                  dependancies are isolated to a few portability functions.
-                  Add support for binary serial I/O.
-                  Add doxygen support.
-1.20  2004-11-07  Preparation for multiport booting (factory support)
-1.21  2004-11-08  Bugfix from Robert Adsett
-                  BinaryLength was not initialized
-1.22  2004-11-08  Changes from Cyril Holweck / Evgeny Sinelnikov
-                  Forgotten IspEnvironment-> and bugfixes if COMPILE_FOR_LINUX
-                  If COMPILE_FOR_LPC21, PhilipsDownload() 'acts as' main():
-                  - it should not be static and should return int.
-                  - no sub-function can use exit() but only return ()
-                  Use 'char' instead of 'byte' ;)
-1.23  2005-01-16  Build in automatic detection of LPC chiptype
-                  (needed for 256 KByte support)
-1.24B 2005-06-02  Changes by Thiadmer Riemersma: completed support for other
-                  chip types (LPC213x series and others).
-1.24C 2005-06-11  Changes by Thiadmer Riemersma: added the device ID codes for
-                  chip types LPC2131 and LPC2132.
-1.25  2005-06-19  Martin Maurer: Setup more parameters in DCB,
-                  otherwise wrong code is downloaded (only Windows and Cygwin)
-                  when a previous program has changed these parameters
-                  Check exact string of "G 0 A\r\n0\r\n" instead of whole received buffer,
-                  to prevent checking of already received by program start
-                  (error on running program, but reports CMD_SUCCESS)
-                  Add ifdefs for all baudrates (needed only for high baudrate,
-                  which seem to be not available on Macs...)
-1.26  2005-06-26  Martin Maurer:
-                  Correct check again: "G 0 A\r\n0\r\n" is cutted, because of reboot
-                  (error on running program, but reports CMD_SUCCESS)
-1.27  2005-06-29  Martin Maurer:
-                  Add LPC chip ID's (thanks to Robert from Philips) for
-                  missing LPC213x and upcoming new LPC214x chips
-                  (currently untested, because i don't have access to these chips,
-                  please give me feedback !)
-1.28  2005-07-27  Anders Rosvall / Embedded Artists AB:
-                  Changed the reset timeout to 500 ms when entering the bootloader.
-                  Some external reset controllers have quite long timeout periods,
-                  so extening the timeout delay would be a good thing.
-1.29  2005-09-14  Rob Jansen:
-                  Added functionality to download to RAM and run from there.
-                  In LoadFile() added record types 04 (Extended Linear Address Record)
-                  and 05 (Start Linear Address Record), added address offset
-                  (IspEnvironment->BinaryOffset) and start address (...->StartAddress).
-                  Changed PhilipsDownload to skip all Flash prepare/erase/copy commands.
-                  Note: Tested with VC7 only
-1.30   2005-10-04 Rob Jansen:
-                  - forgot to change the version string in 1.29
-                  - Wrong text in LoadFile corrected (printed text mentions record type 05,
-                    this should be 04
-                  - Changed LoadFile to accept multiple record types 04
-                  - Changed LoadFile to check on memory size, will not load more than x MB
-                    if linear extended address records are used
-1.31   2005-11-13 Martin Maurer: Thanks to Frank Gutmann
-                  Updated number of sectors in device table
-                  for LPC2194, LPC2292 and LPC2294
-1.32   2005-12-02 Martin Maurer: Corrected missing control of RTS/DTR
-                  in case user selected -termonly and -control
-                  Small correction (typo in debug)
-1.33   2006-10-01 Jean-Marc Koller:
-                  Added support for MacOS X (difference on how to set termios baudrate).
-1.34   2006-10-01  Cyril Holweck:
-                  Made it compile again for lpc21isp
-                  Added const keyword to constant variables to make it better
-                  code for embeded target. (decrease RAM usage)
-                  Replaced all regular call to printf() by DebugPrintf()
-                  Removed call to scanf() (not much usefull and cost a lot to my target)
-1.35   2006-22-01 Cyril Holweck
-                  Added feature for LPC21: will start downloading at Sector 1 and upward,
-                  to finish with Sector 0, the one containing the checksum controling BSL entry
-1.36   2006-25-01 Cyril Holweck
-                  PhilipsDownload() will now return a unique error code for each error
-1.37   2006-10-03 Jeroen Domburg
-                  Added LPC2103 (and only the 2103, I can't find the IDs for 2101/2102)
-                  Corrected a loop which occured if the program completely fits in sector 0
-1.38   2007-01-05 Ray Molenkamp
-                  Added feature for LPC21: Wipe entire device before programming to enable
-                  reflashing of chips with the lpc codeprotection feature enabled.
-1.39   2007-01-12 Martin Maurer
-                  Added initial support for new processors LPC23xx and LPC24xx
-1.40   2007-01-22 Martin Maurer
-                  Correction of chip id of LPC2458
-1.41   2007-01-28 Jean-Marc Koller
-                  Modified Terminal() to disable ECHO with termios only once, instead of
-                  modifying and restoring termios in each getch and kbhit call (which caused
-                  a strange echo behaviour in MacOS X).
-1.42   2007-01-28 Rob Probin
-                  Added -localecho command to allow local echoing in terminal mode for use
-                  where target does not echo back keystrokes.
-1.43   2007-01-29 Martin Maurer
-                  Moved keyboard handling routines to own subroutines,
-                  so they can be used during aborting synchronisation.
-                  Newest cygwin made problems, StringOscillator always contained '\0x0d'
-                  at the end, when calling lpc21isp from batch file
-1.44   2007-02-23 Yang Yang
-                  Added feature for LPC21: Verify the data in Flash after every writes
-                  to sector. To detect errors in writing to Flash ROM.
-1.45   2007-02-25 Martin Maurer
-                  Replace printf syntax of DumpString by a simple pointer to a string
-                  printf syntax is a nice thing, but it is not working :-(
-                  and therefore makes debugging much more difficult...
-                  Moved VERSION_STR to top of file to avoid possible cosmetical errors
-1.46   2007-02-25 Martin Maurer
-                  Again corrected debug output: should solve output of
-                  (FFFFFFB5) instead of (B5)
-1.47   2007-02-27 Robert Adsett
-                  Raised timeout on AD send packet function.
-1.48   2007-04-20 Martin Maurer
-                  Thanks to Josef Wolf for preventing to overwrite over end of array
-1.49   2007-10-16 New Option -halfduplex allow single wire using.
-                  Implemented and tested only for Windows. Data Resend implemented.
-1.50   2007-10-31 Changes by Simon Ellwood
-                  Formated the code for readablity
-                  Fixed some c++ compiler issues
-1.51   2007-11-20 Changes by Simon Ellwood
-                  Split into seperate files
-                  Made more modular so when used in an embedded mode only the required code is built
-1.52   2008-01-22 Changes by Manuel Koeppen
-                  Made compileable again for linux and windows
-                  Fixed bug in ClearSerialPortBuffers (linux)
-1.53   2008-02-25 Changes by Michael Roth
-                  Get priority of debug messages wih -control right
-1.54   2008-03-03 Martin Maurer
-                  Try to bring lpc21isp back to a useable state in Windows, Cygwin, Linux and Mac OS.
-                  Merged in changes by Erika Stefanini, which were done only for old version 1.49:
-                  Added device ids for revision B chips
-1.55   2008-03-03 Martin Maurer
-                  Thanks to Fausto Marzoli, bugfix for compiling latest version under Linux
-1.56   2008-04-01 Steve Franks
-                  Integrate FreeBSD patch.
-                  Add support for swapping and/or inverting RTS & DTR
-1.57   2008-04-06 Mauricio Scaff
-                  Changed OpenSerialPort to work with MacOS
-                  Corrected the number of sectors in some 512K devices (28 instead of 27)
-                  Added support for LPC2387 and LPC2388
-                  Defined BL error 19 (Code Protected)
-1.58   2008-05-10 Herbert Demmel dh2@demmel.com
-                  I had the special requirement to integrate the program into my own Windows
-                  software compiled with Borland C++ Builder 5. I had to do some minor changes
-                  for Borland (see defined __BORLANDC__) and modified to code slightly to have
-                  some simple callbacks for screen i/o (see define INTEGRATED_IN_WIN_APP).
-                  Please notet that I don *not* check / modify the part for AnalogDevices !!
-                  Besides that I fixed some minor issues:
-                  added dcb.fOutxCtsFlow = FALSE and dcb.fOutxDsrFlow = FALSE (sometimes required)
-                  Now comparing one character less of answer to "Now launching ... code" command
-1.59   2008-07-07 Peter Hayward
-                  Fixed freeze under Windows XP SP2 by removing redundant call to SetCommMask.
-1.60   2008-07-21 Martin Maurer
-                  Added uptodate part ids for LPC2458, LPC2468 and LPC2478
-                  Add comment "obsolete" for older part ids for LPC2458 and LPC2468
-                  Add ", " between compile date and time
-1.61   2008-10-21 Fausto Marzoli (thanks to Geoffrey Wossum for the patches)
-                  Fix for compiling latest version under Linux and "ControlLinesSwapped" issue
-1.62   2008-11-19 Martin Maurer
-                  Added (untested) support for LPC2109
-                  Added (untested) support for LPC2361 / LPC2362
-                  Heavy update of part identification number of LPC23xx and LPC24xx
-                  Correct bug, that hex file must exist, when "-detectonly" is used
-                  Correct Makefile.vc: use /Fe instead of -o
-1.63   2008-11-23 Martin Maurer
-                  Changed to GNU Lesser General Public License
-1.64   2009-01-19 Steve Franks
-                  __FREEBSD__ changed to __FreeBSD__ at some point, plus other com port fixes
-1.65   2009-03-26 Vito Marolda
-                  Added pre-erasure of sector 0 to invalidate checksum before starting
-                  modification of the other sectors, so that the bootloader restarts
-                  if programming gets aborted while writing on a non-empty part.
-1.66   2009-03-26 Vito Marolda
-                  Corrected interpretation of intel hex record 03 which is execution start address
-                  and not data segment address
-1.67   2009-04-19 SASANO Takayoshi
-                  Add OpenBSD support
-1.68   2009-05-17 Martin Maurer
-                  Merge in changes done by Bruno Quoitin (baudrate problem when __APPLE__ is used)
-                  Remove TABs from source code and replaced them with spaces
-1.69   2009-06-18 Martin Maurer
-                  Add support for LPC17xx devices
-1.70   2009-06-29 Martin Maurer
-                  Further improvement of LPC17xx support
-                  Workaround for booter (4.1) of LPC17xx, which does not echo all sent characters (0D,0A,...)
-                  ISP command GO seems to be broken:
-                  Sending 'G 196 T(0A)'
-                  Answer(Length=15): 'G 196 T(0A)0(0D)(0A)'
-                  leads to 'prefetch_abort_exception(0D)(0A)1FFF07A5'
-                  No solution known...need your help here...
-                  Manual workaround: Use DTR and RTS toggling to start application (e.g. 2 batch files)
-*/
-
-// Please don't use TABs in the source code !!!
 
 // Don't forget to update the version string that is on the next line
 #define VERSION_STR "1.70"
@@ -361,6 +80,8 @@ static int OpenSerialPort(ISP_ENVIRONMENT *IspEnvironment)
 }
 #endif // defined COMPILE_FOR_WINDOWS || defined COMPILE_FOR_CYGWIN
 
+/////////////////////////////////////////////////////////////////////////////////////////
+///
 #if defined COMPILE_FOR_LINUX
 static int OpenSerialPort(ISP_ENVIRONMENT *IspEnvironment)
 {
@@ -448,6 +169,8 @@ static int OpenSerialPort(ISP_ENVIRONMENT *IspEnvironment)
     return TRUE;
 }
 #endif // defined COMPILE_FOR_LINUX
+///
+/////////////////////////////////////////////////////////////////////////////////////////
 
 #if defined COMPILE_FOR_WINDOWS || defined COMPILE_FOR_CYGWIN
 static void CloseSerialPort(ISP_ENVIRONMENT *IspEnvironment)
@@ -457,6 +180,8 @@ static void CloseSerialPort(ISP_ENVIRONMENT *IspEnvironment)
 
 #endif // defined COMPILE_FOR_WINDOWS || defined COMPILE_FOR_CYGWIN
 
+/////////////////////////////////////////////////////////////////////////////////////////
+///
 #if defined COMPILE_FOR_LINUX
 static void CloseSerialPort(ISP_ENVIRONMENT *IspEnvironment)
 {
@@ -467,6 +192,8 @@ static void CloseSerialPort(ISP_ENVIRONMENT *IspEnvironment)
     close(IspEnvironment->fdCom);
 }
 #endif // defined COMPILE_FOR_LINUX
+///
+/////////////////////////////////////////////////////////////////////////////////////////
 
 
 /***************************** SendComPortBlock *************************/
@@ -649,105 +376,6 @@ static int SerialTimeoutCheck(ISP_ENVIRONMENT *IspEnvironment)
         return 1;
     }
     return 0;
-}
-
-
-#if defined COMPILE_FOR_LINUX || defined COMPILE_FOR_CYGWIN
-/***************************** getch ************************************/
-/** Replacement for the common dos function of the same name. Reads a
-single unbuffered character from the 'keyboard'.
-\return The character read from the keyboard.
-*/
-int getch(void)
-{
-    char ch;
-
-    /* Read in one character */
-    read(0,&ch,1);
-
-    return ch;
-}
-#endif // defined COMPILE_FOR_LINUX || defined COMPILE_FOR_CYGWIN
-
-#if defined COMPILE_FOR_LINUX || defined COMPILE_FOR_CYGWIN
-/***************************** kbhit ************************************/
-/** Replacement for the common dos function of the same name. Indicates if
-there are characters to be read from the console.
-\retval 0 No characters ready.
-\retval 1 Characters from the console ready to be read.
-*/
-int kbhit(void)
-{
-    /* return 0 for no key pressed, 1 for key pressed */
-    int return_value = 0;
-
-    /* time struct for the select() function, to only wait a little while */
-    struct timeval select_time;
-    /* file descriptor variable for the select() call */
-    fd_set readset;
-
-    /* we're only interested in STDIN */
-    FD_ZERO(&readset);
-    FD_SET(STDIN_FILENO, &readset);
-
-    /* how long to block for - this must be > 0.0, but could be changed
-    to some other setting. 10-18msec seems to work well and only
-    minimally load the system (0% CPU loading) */
-    select_time.tv_sec = 0;
-    select_time.tv_usec = 10;
-
-    /* is there a keystroke there? */
-    if (select(1, &readset, NULL, NULL, &select_time))
-    {
-        /* yes, remember it */
-        return_value = 1;
-    }
-
-
-    /* return with what we found out */
-    return return_value;
-}
-struct termios keyboard_origtty;
-#endif // defined COMPILE_FOR_LINUX || defined COMPILE_FOR_CYGWIN
-
-
-/***************************** PrepareKeyboardTtySettings ***************/
-/** Set the keyboard tty to be able to check for new characters via kbhit
-getting them via getch
-*/
-
-void PrepareKeyboardTtySettings(void)
-{
-#if defined COMPILE_FOR_LINUX || defined COMPILE_FOR_CYGWIN
-    /* store the current tty settings */
-    if (!tcgetattr(0, &keyboard_origtty))
-    {
-        struct termios tty;
-        /* start with the current settings */
-        tty = keyboard_origtty;
-        /* make modifications to put it in raw mode, turn off echo */
-        tty.c_lflag &= ~ICANON;
-        tty.c_lflag &= ~ECHO;
-        tty.c_lflag &= ~ISIG;
-        tty.c_cc[VMIN] = 1;
-        tty.c_cc[VTIME] = 0;
-
-        /* put the settings into effect */
-        tcsetattr(0, TCSADRAIN, &tty);
-    }
-#endif
-}
-
-
-/***************************** ResetKeyboardTtySettings *****************/
-/** Reset the keyboard tty to original settings
-*/
-void ResetKeyboardTtySettings(void)
-{
-#if defined COMPILE_FOR_LINUX || defined COMPILE_FOR_CYGWIN
-    /* reset the tty to its original settings */
-    tcsetattr(0, TCSADRAIN, &keyboard_origtty);
-#endif
 }
 
 

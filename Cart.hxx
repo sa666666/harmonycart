@@ -17,7 +17,7 @@
 #ifndef __CART_HXX
 #define __CART_HXX
 
-#define MAXCARTSIZE 512*1024
+#define MAXCARTSIZE 32*1024
 
 #include <vector>
 
@@ -35,25 +35,24 @@ class Cart
   public:
     /**
       Create a new Cart object, which can be used to create single
-      cartridge or one consisting of many ROMs (aka multi-cart).
+      cartridges to upload BIOS files.
     */
     Cart();
 
   public:
+    /**
+      Loads EEPROM loader BIOS data from the given filename.
+      The filename should exist and be readable.
+    */
+    bool updateBIOS(const string& filename);
+
+
     /**
       Loads cartridge data from the given filename, creating a cart.
       The bankswitch type is autodetected if type is "".
       The filename should exist and be readable.
     */
     bool create(const string& filename, const string& type = "");
-
-    /**
-      Creates a single ROM file comprised of the given files.
-      This will be a 'multi-cart' ROM, consisting of each of the separate
-      ROMs, all with the same bankswitching scheme.
-    */
-    static bool createMultiFile(const string& romfile, const string& type,
-                                const vector<string>& filenames);
 
     //////////////////////////////////////////////////////////////////
     //  The following two methods act as an iterator through all the
@@ -79,8 +78,7 @@ class Cart
             writeNextSector() and verifyNextSector().
 
       @return  The sector number written; an exception is thrown
-               on any errors
-    */
+               on any errors    */
     uInt16 writeNextSector(SerialPort& port);
 
     /**

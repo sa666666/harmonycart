@@ -32,13 +32,14 @@ typedef vector<string> StringList;
 class SerialPort
 {
   public:
-    SerialPort() { }
+    SerialPort() : myBaud(9600) { }
     virtual ~SerialPort() { }
 
     /**
       Open the given serial port with the specified attributes.
 
       @param device  The name of the port
+      @param baud    The transfer rate for the port
       @return  False on any errors, else true
     */
     virtual bool openPort(const string& device) = 0;
@@ -86,13 +87,21 @@ class SerialPort
     virtual const StringList& getPortNames() = 0;
 
     /**
+      Get/set the baud rate for this port.
+      Note that the port must be opened for this to take effect.
+    */
+    int getBaud() const    { return myBaud; }
+    void setBaud(int baud) { myBaud = baud; }
+
+    /**
       Get/set ID string for this port.
     */
-    const string& getID() { return myID; }
-    void setID(const string& id) { myID = id; }
+    const string& getID() const  { return myID; }
+    void setID(const string& id) { myID = id;   }
 
   protected:
     StringList myPortNames;
+    int myBaud;
     string myID;
 };
 

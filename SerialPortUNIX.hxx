@@ -21,6 +21,8 @@
 #ifndef __SERIALPORT_UNIX_HXX
 #define __SERIALPORT_UNIX_HXX
 
+#include <termios.h>
+
 #include "SerialPort.hxx"
 
 /**
@@ -87,6 +89,8 @@ class SerialPortUNIX : public SerialPort
   private:
     // File descriptor for serial connection
     int myHandle;
+
+    struct termios myOldtio, myNewtio;
 };
 
 #endif

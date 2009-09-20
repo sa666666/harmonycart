@@ -128,11 +128,11 @@ const StringList& SerialPortWin32::getPortNames()
 {
   myPortNames.clear();
 
-  // For now, we just append all 255 possible COM ports
+  // For now, we just append all 256 possible COM ports
   // In the future, we should only include the ones that actually exist
   // TODO - figure out how to determine if a port exists
 
-  for(int i = 0; i < 10; ++i)
+  for(int i = 1; i <= 256; ++i)
   {
     ostringstream port;
     port << "COM" << i;
