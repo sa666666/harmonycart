@@ -21,6 +21,7 @@
 #undef UNICODE
 #include <windows.h>
 
+#include <sstream>
 #include "SerialPortWin32.hxx"
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

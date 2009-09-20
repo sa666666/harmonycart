@@ -31,11 +31,6 @@ Portions Copyright (c) by Aeolus Development 2004 http://www.aeolusdevelopment.c
 
 // This file is for the Actual Programming of the LPC Chips
 
-#if defined(_WIN32)
-#if !defined __BORLANDC__
-#include "StdAfx.h"
-#endif
-#endif // defined(_WIN32)
 #include "lpc21isp.h"
 
 #include "lpcprog.h"
