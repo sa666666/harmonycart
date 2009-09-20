@@ -77,6 +77,7 @@ static int OpenSerialPort(ISP_ENVIRONMENT *IspEnvironment)
     commtimeouts.WriteTotalTimeoutMultiplier =    0;
     commtimeouts.WriteTotalTimeoutConstant   =    0;
     SetCommTimeouts(IspEnvironment->hCom, &commtimeouts);
+    return TRUE;
 }
 #endif // defined COMPILE_FOR_WINDOWS || defined COMPILE_FOR_CYGWIN
 
