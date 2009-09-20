@@ -37,20 +37,19 @@ Cart::Cart()
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+bool Cart::updateBIOS(const string& filename)
+{
+cerr << "update BIOS from " << filename << endl;
+  return false;
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 bool Cart::create(const string& filename, const string& type)
 {
   memset(myCart, 0, MAXCARTSIZE);
   myCartSize = readFile(filename, myCart, MAXCARTSIZE, type);
   myIsValid = myCartSize > 0;
   return myIsValid;
-}
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool Cart::createMultiFile(const string& romfile, const string& type,
-                           const vector<string>& filenames)
-{
-
-  return false;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

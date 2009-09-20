@@ -29,6 +29,8 @@
 #include <dirent.h>
 #include <cstring>
 
+#include "lpc21isp.h"
+#include "lpcprog.h"
 #include "SerialPortUNIX.hxx"
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -46,21 +48,70 @@ SerialPortUNIX::~SerialPortUNIX()
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 bool SerialPortUNIX::openPort(const string& device)
+//static int OpenSerialPort(ISP_ENVIRONMENT *IspEnvironment)
 {
-  closePort();  // paranoia: make sure port is in consistent state
-
   myHandle = open(device.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);
-  if(myHandle <= 0)
+  if(myHandle < 0)
     return false;
 
-  struct termios termios;
-  memset(&termios, 0, sizeof(struct termios));
-
-  termios.c_cflag = CREAD | CLOCAL;
-  termios.c_cflag |= B115200;
-  termios.c_cflag |= CS8;
+  // clear input & output buffers, then switch to "blocking mode"
+  tcflush(myHandle, TCOFLUSH);
   tcflush(myHandle, TCIFLUSH);
-  tcsetattr(myHandle, TCSANOW, &termios);
+  fcntl(myHandle, F_SETFL, fcntl(myHandle, F_GETFL) & ~O_NONBLOCK);
+
+  tcgetattr(myHandle, &myOldtio); // save current port settings
+
+  bzero(&myNewtio, sizeof(myNewtio));
+  myNewtio.c_cflag = CS8 | CLOCAL | CREAD;
+
+#if defined(__FreeBSD__) || defined(__OpenBSD__)
+
+  if(cfsetspeed(&IspEnvironment->newtio,(speed_t) strtol(IspEnvironment->baud_rate,NULL,10)))
+  {
+    DebugPrintf(1, "baudrate %s not supported\n", IspEnvironment->baud_rate);
+    exit(3);
+  };
+#else
+  #ifdef __APPLE__
+    #define NEWTERMIOS_SETBAUDRATE(bps) IspEnvironment->newtio.c_ispeed = IspEnvironment->newtio.c_ospeed = bps;
+  #else
+    #define NEWTERMIOS_SETBAUDRATE(bps) myNewtio.c_cflag |= bps;
+  #endif
+
+  switch (myBaud)
+  {
+    case 1152000: NEWTERMIOS_SETBAUDRATE(B1152000); break;
+    case  576000: NEWTERMIOS_SETBAUDRATE(B576000);  break;
+    case  230400: NEWTERMIOS_SETBAUDRATE(B230400);  break;
+    case  115200: NEWTERMIOS_SETBAUDRATE(B115200);  break;
+    case   57600: NEWTERMIOS_SETBAUDRATE(B57600);   break;
+    case   38400: NEWTERMIOS_SETBAUDRATE(B38400);   break;
+    case   19200: NEWTERMIOS_SETBAUDRATE(B19200);   break;
+    case    9600: NEWTERMIOS_SETBAUDRATE(B9600);    break;
+    default:
+    {
+      cerr << "ERROR: unknown baudrate " << myBaud << endl;
+      return false;
+    }
+  }
+#endif
+
+  myNewtio.c_iflag = IGNPAR | IGNBRK | IXON | IXOFF;
+  myNewtio.c_oflag = 0;
+
+  // set input mode (non-canonical, no echo,...)
+  myNewtio.c_lflag = 0;
+
+  cfmakeraw(&myNewtio);
+  myNewtio.c_cc[VTIME] = 1;   /* inter-character timer used */
+  myNewtio.c_cc[VMIN]  = 0;   /* blocking read until 0 chars received */
+
+  tcflush(myHandle, TCIFLUSH);
+  if(tcsetattr(myHandle, TCSANOW, &myNewtio))
+  {
+    cerr << "Could not change serial port behaviour (wrong baudrate?)\n";
+    return false;
+  }
 
   return true;
 }
@@ -70,6 +121,10 @@ void SerialPortUNIX::closePort()
 {
   if(myHandle)
   {
+    tcflush(myHandle, TCOFLUSH);
+    tcflush(myHandle, TCIFLUSH);
+    tcsetattr(myHandle, TCSANOW, &myOldtio);
+
     close(myHandle);
     myHandle = 0;
   }
