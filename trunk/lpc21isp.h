@@ -93,9 +93,6 @@ extern void Sleep(unsigned long MilliSeconds);
 #include <termios.h>
 #include <unistd.h>     // for read and return value of lseek
 #include <sys/time.h>   // for select_time
-extern int kbhit(void);
-extern int getch(void);
-extern struct termios keyboard_origtty;
 #endif // defined COMPILE_FOR_LINUX || defined COMPILE_FOR_CYGWIN
 
 #include <ctype.h>      // isdigit()
@@ -110,13 +107,7 @@ extern struct termios keyboard_origtty;
 #endif
 #endif
 
-#if defined COMPILE_FOR_LPC21
-#include <stdlib.h>
-#include <string.h>
-//#include <lpc_ioctl.h>  // if using libc serial port communication
-#else
 #include <fcntl.h>
-#endif
 
 typedef enum
 {

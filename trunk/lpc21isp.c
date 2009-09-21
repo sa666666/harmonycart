@@ -5,11 +5,6 @@
 // Don't forget to update the version string that is on the next line
 #define VERSION_STR "1.70"
 
-#if defined COMPILE_FOR_WINDOWS || defined COMPILE_FOR_CYGWIN
-static char RxTmpBuf[256];        // save received data to this buffer for half-duplex
-char * pRxTmpBuf = RxTmpBuf;
-#endif
-
 #if !defined COMPILE_FOR_LPC21
 int debug_level = 2;
 #endif
@@ -17,69 +12,9 @@ int debug_level = 2;
 /************* Portability layer. Serial and console I/O differences    */
 /* are taken care of here.                                              */
 
-#if defined COMPILE_FOR_WINDOWS || defined COMPILE_FOR_CYGWIN
-static int OpenSerialPort(ISP_ENVIRONMENT *IspEnvironment)
-{
-    DCB    dcb;
-    COMMTIMEOUTS commtimeouts;
-
-    IspEnvironment->hCom = CreateFileA(IspEnvironment->serial_port, GENERIC_READ | GENERIC_WRITE,
-                           0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-
-    if (IspEnvironment->hCom == INVALID_HANDLE_VALUE)
-        return FALSE;
-
-    DebugPrintf(3, "COM-Port %s opened...\n", IspEnvironment->serial_port);
-
-    GetCommState(IspEnvironment->hCom, &dcb);
-    dcb.BaudRate    = atol(IspEnvironment->baud_rate);
-    dcb.ByteSize    = 8;
-    dcb.StopBits    = ONESTOPBIT;
-    dcb.Parity      = NOPARITY;
-    dcb.fDtrControl = DTR_CONTROL_DISABLE;
-    dcb.fOutX       = FALSE;
-    dcb.fInX        = FALSE;
-    dcb.fNull       = FALSE;
-    dcb.fRtsControl = RTS_CONTROL_DISABLE;
-
-    // added by Herbert Demmel - iF CTS line has the wrong state, we would never send anything!
-    dcb.fOutxCtsFlow = FALSE;
-    dcb.fOutxDsrFlow = FALSE;
-
-    if (SetCommState(IspEnvironment->hCom, &dcb) == 0)
-    {
-        DebugPrintf(1, "Can't set baudrate %s ! - Error: %ld", IspEnvironment->baud_rate, GetLastError());
-        exit(3);
-    }
-
-   /*
-    *  Peter Hayward 02 July 2008
-    *
-    *  The following call is only needed if the WaitCommEvent
-    *  or possibly the GetCommMask functions are used.  They are
-    *  *not* in this implimentation.  However, under Windows XP SP2
-    *  on my laptop the use of this call causes XP to freeze (crash) while
-    *  this program is running, e.g. in section 5/6/7 ... of a largish
-    *  download.  Removing this *unnecessary* call fixed the problem.
-    *  At the same time I've added a call to SetupComm to request
-    *  (not necessarity honoured) the operating system to provide
-    *  large I/O buffers for high speed I/O without handshaking.
-    *
-    *   SetCommMask(IspEnvironment->hCom,EV_RXCHAR | EV_TXEMPTY);
-    */
-    SetupComm(IspEnvironment->hCom, 32000, 32000);
-
-    SetCommMask(IspEnvironment->hCom, EV_RXCHAR | EV_TXEMPTY);
-
-    commtimeouts.ReadIntervalTimeout         = MAXDWORD;
-    commtimeouts.ReadTotalTimeoutMultiplier  =    0;
-    commtimeouts.ReadTotalTimeoutConstant    =    1;
-    commtimeouts.WriteTotalTimeoutMultiplier =    0;
-    commtimeouts.WriteTotalTimeoutConstant   =    0;
-    SetCommTimeouts(IspEnvironment->hCom, &commtimeouts);
-    return TRUE;
-}
-#endif // defined COMPILE_FOR_WINDOWS || defined COMPILE_FOR_CYGWIN
+/////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////////////////////////
 ///
@@ -173,14 +108,6 @@ static int OpenSerialPort(ISP_ENVIRONMENT *IspEnvironment)
 ///
 /////////////////////////////////////////////////////////////////////////////////////////
 
-#if defined COMPILE_FOR_WINDOWS || defined COMPILE_FOR_CYGWIN
-static void CloseSerialPort(ISP_ENVIRONMENT *IspEnvironment)
-{
-    CloseHandle(IspEnvironment->hCom);
-}
-
-#endif // defined COMPILE_FOR_WINDOWS || defined COMPILE_FOR_CYGWIN
-
 /////////////////////////////////////////////////////////////////////////////////////////
 ///
 #if defined COMPILE_FOR_LINUX
@@ -196,7 +123,93 @@ static void CloseSerialPort(ISP_ENVIRONMENT *IspEnvironment)
 ///
 /////////////////////////////////////////////////////////////////////////////////////////
 
+// SerialPort ///////////////////////////////////////////////////////////////////////////
+///
+/***************************** SendComPort ******************************/
+/**  Sends a string out the opened com port.
+\param [in] s string to send.
+*/
+void SendComPort(ISP_ENVIRONMENT *IspEnvironment, const char *s)
+{
+    SendComPortBlock(IspEnvironment, s, strlen(s));
+}
+///
+/////////////////////////////////////////////////////////////////////////////////////////
 
+/////////////////////////////////////////////////////////////////////////////////////////
+///
+#if defined COMPILE_FOR_WINDOWS || defined COMPILE_FOR_CYGWIN
+static int OpenSerialPort(ISP_ENVIRONMENT *IspEnvironment)
+{
+    DCB    dcb;
+    COMMTIMEOUTS commtimeouts;
+
+    IspEnvironment->hCom = CreateFileA(IspEnvironment->serial_port, GENERIC_READ | GENERIC_WRITE,
+                           0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+
+    if (IspEnvironment->hCom == INVALID_HANDLE_VALUE)
+        return FALSE;
+
+    DebugPrintf(3, "COM-Port %s opened...\n", IspEnvironment->serial_port);
+
+    GetCommState(IspEnvironment->hCom, &dcb);
+    dcb.BaudRate    = atol(IspEnvironment->baud_rate);
+    dcb.ByteSize    = 8;
+    dcb.StopBits    = ONESTOPBIT;
+    dcb.Parity      = NOPARITY;
+    dcb.fDtrControl = DTR_CONTROL_DISABLE;
+    dcb.fOutX       = FALSE;
+    dcb.fInX        = FALSE;
+    dcb.fNull       = FALSE;
+    dcb.fRtsControl = RTS_CONTROL_DISABLE;
+
+    // added by Herbert Demmel - iF CTS line has the wrong state, we would never send anything!
+    dcb.fOutxCtsFlow = FALSE;
+    dcb.fOutxDsrFlow = FALSE;
+
+    if (SetCommState(IspEnvironment->hCom, &dcb) == 0)
+    {
+        DebugPrintf(1, "Can't set baudrate %s ! - Error: %ld", IspEnvironment->baud_rate, GetLastError());
+        exit(3);
+    }
+
+   /*
+    *  Peter Hayward 02 July 2008
+    *
+    *  The following call is only needed if the WaitCommEvent
+    *  or possibly the GetCommMask functions are used.  They are
+    *  *not* in this implimentation.  However, under Windows XP SP2
+    *  on my laptop the use of this call causes XP to freeze (crash) while
+    *  this program is running, e.g. in section 5/6/7 ... of a largish
+    *  download.  Removing this *unnecessary* call fixed the problem.
+    *  At the same time I've added a call to SetupComm to request
+    *  (not necessarity honoured) the operating system to provide
+    *  large I/O buffers for high speed I/O without handshaking.
+    *
+    *   SetCommMask(IspEnvironment->hCom,EV_RXCHAR | EV_TXEMPTY);
+    */
+    SetupComm(IspEnvironment->hCom, 32000, 32000);
+
+    SetCommMask(IspEnvironment->hCom, EV_RXCHAR | EV_TXEMPTY);
+
+    commtimeouts.ReadIntervalTimeout         = MAXDWORD;
+    commtimeouts.ReadTotalTimeoutMultiplier  =    0;
+    commtimeouts.ReadTotalTimeoutConstant    =    1;
+    commtimeouts.WriteTotalTimeoutMultiplier =    0;
+    commtimeouts.WriteTotalTimeoutConstant   =    0;
+    SetCommTimeouts(IspEnvironment->hCom, &commtimeouts);
+}
+
+static void CloseSerialPort(ISP_ENVIRONMENT *IspEnvironment)
+{
+    CloseHandle(IspEnvironment->hCom);
+}
+#endif // defined COMPILE_FOR_WINDOWS || defined COMPILE_FOR_CYGWIN
+///
+/////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////
+///
 /***************************** SendComPortBlock *************************/
 /**  Sends a block of bytes out the opened com port.
 \param [in] s block to send.
@@ -255,16 +268,54 @@ void SendComPortBlock(ISP_ENVIRONMENT *IspEnvironment, const void *s, size_t n)
 
 #endif // defined COMPILE_FOR_LINUX || defined COMPILE_FOR_LPC21
 }
+///
+/////////////////////////////////////////////////////////////////////////////////////////
 
-/***************************** SendComPort ******************************/
-/**  Sends a string out the opened com port.
-\param [in] s string to send.
+/////////////////////////////////////////////////////////////////////////////////////////
+///
+/***************************** SerialTimeoutSet *************************/
+/**  Sets (or resets) the timeout to the timout period requested.  Starts
+counting to this period.  This timeout support is a little odd in that the
+timeout specifies the accumulated deadtime waiting to read not the total
+time waiting to read. They should be close enought to the same for this
+use. Used by the serial input routines, the actual counting takes place in
+ReceiveComPortBlock.
+\param [in] timeout_milliseconds the time in milliseconds to use for
+timeout.  Note that just because it is set in milliseconds doesn't mean
+that the granularity is that fine.  In many cases (particularly Linux) it
+will be coarser.
 */
-void SendComPort(ISP_ENVIRONMENT *IspEnvironment, const char *s)
+static void SerialTimeoutSet(ISP_ENVIRONMENT *IspEnvironment, unsigned timeout_milliseconds)
 {
-    SendComPortBlock(IspEnvironment, s, strlen(s));
+#if defined COMPILE_FOR_LINUX
+    IspEnvironment->serial_timeout_count = timeout_milliseconds / 100;
+#else
+    IspEnvironment->serial_timeout_count = timeout_milliseconds;
+#endif
 }
+///
+/////////////////////////////////////////////////////////////////////////////////////////
 
+/////////////////////////////////////////////////////////////////////////////////////////
+///
+/***************************** SerialTimeoutCheck ***********************/
+/**  Check to see if the serial timeout timer has run down.
+\retval 1 if timer has run out.
+\retval 0 if timer still has time left.
+*/
+static int SerialTimeoutCheck(ISP_ENVIRONMENT *IspEnvironment)
+{
+    if (IspEnvironment->serial_timeout_count == 0)
+    {
+        return 1;
+    }
+    return 0;
+}
+///
+/////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////
+///
 /***************************** SerialTimeoutTick ************************/
 /**  Performs a timer tick.  In this simple case all we do is count down
 with protection against underflow and wrapping at the low end.
@@ -280,8 +331,11 @@ static void SerialTimeoutTick(ISP_ENVIRONMENT *IspEnvironment)
         IspEnvironment->serial_timeout_count--;
     }
 }
+///
+/////////////////////////////////////////////////////////////////////////////////////////
 
-
+/////////////////////////////////////////////////////////////////////////////////////////
+///
 /***************************** ReceiveComPortBlock **********************/
 /**  Receives a buffer from the open com port. Returns all the characters
 ready (waits for up to 'n' milliseconds before accepting that no more
@@ -340,47 +394,157 @@ static void ReceiveComPortBlock(ISP_ENVIRONMENT *IspEnvironment,
         SerialTimeoutTick(IspEnvironment);
     }
 }
+///
+/////////////////////////////////////////////////////////////////////////////////////////
 
-
-/***************************** SerialTimeoutSet *************************/
-/**  Sets (or resets) the timeout to the timout period requested.  Starts
-counting to this period.  This timeout support is a little odd in that the
-timeout specifies the accumulated deadtime waiting to read not the total
-time waiting to read. They should be close enought to the same for this
-use. Used by the serial input routines, the actual counting takes place in
-ReceiveComPortBlock.
-\param [in] timeout_milliseconds the time in milliseconds to use for
-timeout.  Note that just because it is set in milliseconds doesn't mean
-that the granularity is that fine.  In many cases (particularly Linux) it
-will be coarser.
+/////////////////////////////////////////////////////////////////////////////////////////
+///
+/***************************** ClearSerialPortBuffers********************/
+/**  Empty the serial port buffers.  Cleans things to a known state.
 */
-static void SerialTimeoutSet(ISP_ENVIRONMENT *IspEnvironment, unsigned timeout_milliseconds)
+void ClearSerialPortBuffers(ISP_ENVIRONMENT *IspEnvironment)
 {
 #if defined COMPILE_FOR_LINUX
-    IspEnvironment->serial_timeout_count = timeout_milliseconds / 100;
-#else
-    IspEnvironment->serial_timeout_count = timeout_milliseconds;
-#endif
+    /* variables to store the current tty state, create a new one */
+    struct termios origtty, tty;
+
+    /* store the current tty settings */
+    tcgetattr(IspEnvironment->fdCom, &origtty);
+
+    // Flush input and output buffers
+    tty=origtty;
+    tcsetattr(IspEnvironment->fdCom, TCSAFLUSH, &tty);
+
+    /* reset the tty to its original settings */
+    tcsetattr(IspEnvironment->fdCom, TCSADRAIN, &origtty);
+#endif // defined COMPILE_FOR_LINUX
+#if defined COMPILE_FOR_WINDOWS || defined COMPILE_FOR_CYGWIN
+    PurgeComm(IspEnvironment->hCom, PURGE_TXABORT | PURGE_RXABORT | PURGE_TXCLEAR | PURGE_RXCLEAR);
+#endif // defined COMPILE_FOR_WINDOWS || defined COMPILE_FOR_CYGWIN
 }
+///
+/////////////////////////////////////////////////////////////////////////////////////////
 
-
-
-/***************************** SerialTimeoutCheck ***********************/
-/**  Check to see if the serial timeout timer has run down.
-\retval 1 if timer has run out.
-\retval 0 if timer still has time left.
+/////////////////////////////////////////////////////////////////////////////////////////
+///
+/***************************** ReceiveComPortBlockComplete **************/
+/**  Receives a fixed block from the open com port. Returns when the
+block is completely filled or the timeout period has passed
+\param [out] block buffer to hold the bytes read from the serial port.
+\param [in] size the size of the buffer pointed to by block.
+\param [in] timeOut the maximum amount of time to wait before guvung up on
+completing the read.
+\return 0 if successful, non-zero otherwise.
 */
-static int SerialTimeoutCheck(ISP_ENVIRONMENT *IspEnvironment)
+int ReceiveComPortBlockComplete(ISP_ENVIRONMENT *IspEnvironment,
+                                                    void *block, size_t size, unsigned timeout)
 {
-    if (IspEnvironment->serial_timeout_count == 0)
+    unsigned long realsize = 0, read;
+    char *result;
+    char tmp_string[32];
+
+    result = (char*) block;
+
+    SerialTimeoutSet(IspEnvironment, timeout);
+
+    do
+    {
+        ReceiveComPortBlock(IspEnvironment, result + realsize, size - realsize, &read);
+
+        realsize += read;
+
+    } while ((realsize < size) && (SerialTimeoutCheck(IspEnvironment) == 0));
+
+    sprintf(tmp_string, "Answer(Length=%ld): ", realsize);
+    DumpString(3, result, realsize, tmp_string);
+
+    if (realsize != size)
     {
         return 1;
     }
     return 0;
 }
+///
+/////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////
+///
+/***************************** ReceiveComPort ***************************/
+/**  Receives a buffer from the open com port. Returns when the buffer is
+filled, the numer of requested linefeeds has been received or the timeout
+period has passed
+\param [in] ISPEnvironment.
+\param [out] Answer buffer to hold the bytes read from the serial port.
+\param [in] MaxSize the size of buffer pointed to by Answer.
+\param [out] RealSize pointer to a long that returns the amout of the
+buffer that is actually used.
+\param [in] WantedNr0x0A the maximum number of linefeeds to accept before
+returning.
+\param [in] timeOutMilliseconds the maximum amount of time to wait before
+reading with an incomplete buffer.
+*/
+void ReceiveComPort(ISP_ENVIRONMENT *IspEnvironment,
+                                    const char *Ans, unsigned long MaxSize,
+                                    unsigned long *RealSize, unsigned long WantedNr0x0A,
+                                    unsigned timeOutMilliseconds)
+{
+    unsigned long tmp_realsize;
+    unsigned long nr_of_0x0A = 0;
+    unsigned long nr_of_0x0D = 0;
+    int eof = 0;
+    unsigned long p;
+    unsigned char *Answer;
+    char tmp_string[32];
+
+    Answer = (unsigned char*) Ans;
+
+    SerialTimeoutSet(IspEnvironment, timeOutMilliseconds);
+
+    (*RealSize) = 0;
+
+    do
+    {
+        ReceiveComPortBlock(IspEnvironment, Answer + (*RealSize), MaxSize - 1 - (*RealSize), &tmp_realsize);
+
+        if (tmp_realsize != 0)
+        {
+            for (p = (*RealSize); p < (*RealSize) + tmp_realsize; p++)
+            {
+                if (Answer[p] == 0x0a)
+                {
+                    nr_of_0x0A++;
+                }
+                else if (Answer[p] == 0x0d)
+                {
+                    nr_of_0x0D++;
+                }
+                else if (((signed char) Answer[p]) < 0)
+                {
+                    eof = 1;
+                }
+            }
+        }
+
+        (*RealSize) += tmp_realsize;
+
+    } while (((*RealSize) < MaxSize) && (SerialTimeoutCheck(IspEnvironment) == 0) && (nr_of_0x0A < WantedNr0x0A) && (nr_of_0x0D < WantedNr0x0A) && !eof);
+
+    Answer[(*RealSize)] = 0;
+
+    sprintf(tmp_string, "Answer(Length=%ld): ", (*RealSize));
+    DumpString(3, Answer, (*RealSize), tmp_string);
+}
+///
+/////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
 
 
-#if !defined COMPILE_FOR_LPC21
+
+
+
 /***************************** ControlModemLines ************************/
 /**  Controls the modem lines to place the microcontroller into various
 states during the programming process.
@@ -454,32 +618,6 @@ void ControlModemLines(ISP_ENVIRONMENT *IspEnvironment, unsigned char DTR, unsig
 }
 
 
-/***************************** ClearSerialPortBuffers********************/
-/**  Empty the serial port buffers.  Cleans things to a known state.
-*/
-void ClearSerialPortBuffers(ISP_ENVIRONMENT *IspEnvironment)
-{
-#if defined COMPILE_FOR_LINUX
-    /* variables to store the current tty state, create a new one */
-    struct termios origtty, tty;
-
-    /* store the current tty settings */
-    tcgetattr(IspEnvironment->fdCom, &origtty);
-
-    // Flush input and output buffers
-    tty=origtty;
-    tcsetattr(IspEnvironment->fdCom, TCSAFLUSH, &tty);
-
-    /* reset the tty to its original settings */
-    tcsetattr(IspEnvironment->fdCom, TCSADRAIN, &origtty);
-#endif // defined COMPILE_FOR_LINUX
-#if defined COMPILE_FOR_WINDOWS || defined COMPILE_FOR_CYGWIN
-    PurgeComm(IspEnvironment->hCom, PURGE_TXABORT | PURGE_RXABORT | PURGE_TXCLEAR | PURGE_RXCLEAR);
-#endif // defined COMPILE_FOR_WINDOWS || defined COMPILE_FOR_CYGWIN
-}
-#endif // !defined COMPILE_FOR_LPC21
-
-
 #if defined COMPILE_FOR_LINUX
 /***************************** Sleep ************************************/
 /**  Provide linux replacement for windows function.
@@ -491,143 +629,6 @@ void Sleep(unsigned long MilliSeconds)
 }
 #endif // defined COMPILE_FOR_LINUX
 
-
-
-/************* Applicationlayer.                                        */
-
-/***************************** DebugPrintf ******************************/
-/**  Prints a debug string depending the current debug level. The higher
-the debug level the more detail that will be printed.  Each print
-has an associated level, the higher the level the more detailed the
-debugging information being sent.
-\param [in] level the debug level of the print statement, if the level
-is less than or equal to the current debug level it will be printed.
-\param [in] fmt a standard printf style format string.
-\param [in] ... the usual printf parameters.
-*/
-#if !defined INTEGRATED_IN_WIN_APP
-void DebugPrintf(int level, const char *fmt, ...)
-{
-    va_list ap;
-
-    if (level <= debug_level)
-    {
-        char pTemp[2000];
-        va_start(ap, fmt);
-        //vprintf(fmt, ap);
-        vsprintf(pTemp, fmt, ap);
-        TRACE(pTemp);
-        va_end(ap);
-        fflush(stdout);
-    }
-}
-#endif
-
-
-/***************************** ReceiveComPort ***************************/
-/**  Receives a buffer from the open com port. Returns when the buffer is
-filled, the numer of requested linefeeds has been received or the timeout
-period has passed
-\param [in] ISPEnvironment.
-\param [out] Answer buffer to hold the bytes read from the serial port.
-\param [in] MaxSize the size of buffer pointed to by Answer.
-\param [out] RealSize pointer to a long that returns the amout of the
-buffer that is actually used.
-\param [in] WantedNr0x0A the maximum number of linefeeds to accept before
-returning.
-\param [in] timeOutMilliseconds the maximum amount of time to wait before
-reading with an incomplete buffer.
-*/
-void ReceiveComPort(ISP_ENVIRONMENT *IspEnvironment,
-                                    const char *Ans, unsigned long MaxSize,
-                                    unsigned long *RealSize, unsigned long WantedNr0x0A,
-                                    unsigned timeOutMilliseconds)
-{
-    unsigned long tmp_realsize;
-    unsigned long nr_of_0x0A = 0;
-    unsigned long nr_of_0x0D = 0;
-    int eof = 0;
-    unsigned long p;
-    unsigned char *Answer;
-    char tmp_string[32];
-
-    Answer = (unsigned char*) Ans;
-
-    SerialTimeoutSet(IspEnvironment, timeOutMilliseconds);
-
-    (*RealSize) = 0;
-
-    do
-    {
-        ReceiveComPortBlock(IspEnvironment, Answer + (*RealSize), MaxSize - 1 - (*RealSize), &tmp_realsize);
-
-        if (tmp_realsize != 0)
-        {
-            for (p = (*RealSize); p < (*RealSize) + tmp_realsize; p++)
-            {
-                if (Answer[p] == 0x0a)
-                {
-                    nr_of_0x0A++;
-                }
-                else if (Answer[p] == 0x0d)
-                {
-                    nr_of_0x0D++;
-                }
-                else if (((signed char) Answer[p]) < 0)
-                {
-                    eof = 1;
-                }
-            }
-        }
-
-        (*RealSize) += tmp_realsize;
-
-    } while (((*RealSize) < MaxSize) && (SerialTimeoutCheck(IspEnvironment) == 0) && (nr_of_0x0A < WantedNr0x0A) && (nr_of_0x0D < WantedNr0x0A) && !eof);
-
-    Answer[(*RealSize)] = 0;
-
-    sprintf(tmp_string, "Answer(Length=%ld): ", (*RealSize));
-    DumpString(3, Answer, (*RealSize), tmp_string);
-}
-
-
-/***************************** ReceiveComPortBlockComplete **************/
-/**  Receives a fixed block from the open com port. Returns when the
-block is completely filled or the timeout period has passed
-\param [out] block buffer to hold the bytes read from the serial port.
-\param [in] size the size of the buffer pointed to by block.
-\param [in] timeOut the maximum amount of time to wait before guvung up on
-completing the read.
-\return 0 if successful, non-zero otherwise.
-*/
-int ReceiveComPortBlockComplete(ISP_ENVIRONMENT *IspEnvironment,
-                                                    void *block, size_t size, unsigned timeout)
-{
-    unsigned long realsize = 0, read;
-    char *result;
-    char tmp_string[32];
-
-    result = (char*) block;
-
-    SerialTimeoutSet(IspEnvironment, timeout);
-
-    do
-    {
-        ReceiveComPortBlock(IspEnvironment, result + realsize, size - realsize, &read);
-
-        realsize += read;
-
-    } while ((realsize < size) && (SerialTimeoutCheck(IspEnvironment) == 0));
-
-    sprintf(tmp_string, "Answer(Length=%ld): ", realsize);
-    DumpString(3, result, realsize, tmp_string);
-
-    if (realsize != size)
-    {
-        return 1;
-    }
-    return 0;
-}
 
 /***************************** ResetTarget ******************************/
 /**  Resets the target leaving it in either download (program) mode or
@@ -667,6 +668,43 @@ void ResetTarget(ISP_ENVIRONMENT *IspEnvironment, TARGET_MODE mode)
     }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+/***************************** DebugPrintf ******************************/
+/**  Prints a debug string depending the current debug level. The higher
+the debug level the more detail that will be printed.  Each print
+has an associated level, the higher the level the more detailed the
+debugging information being sent.
+\param [in] level the debug level of the print statement, if the level
+is less than or equal to the current debug level it will be printed.
+\param [in] fmt a standard printf style format string.
+\param [in] ... the usual printf parameters.
+*/
+void DebugPrintf(int level, const char *fmt, ...)
+{
+    va_list ap;
+
+    if (level <= debug_level)
+    {
+        char pTemp[2000];
+        va_start(ap, fmt);
+        //vprintf(fmt, ap);
+        vsprintf(pTemp, fmt, ap);
+        TRACE(pTemp);
+        va_end(ap);
+        fflush(stdout);
+    }
+}
 
 /***************************** Ascii2Hex ********************************/
 /**  Converts a hex character to its equivalent number value. In case of an
@@ -916,7 +954,8 @@ void DumpString(int level, const void *b, size_t size, const char *prefix_string
     DebugPrintf(level, "'\n");
 }
 
-/*
+
+#if 0
 // ***************************** ReadArguments ****************************
 // Reads the command line arguments and parses it for the various
 // options. Uses the same arguments as main.  Used to separate the command
@@ -1113,4 +1152,4 @@ static void ReadArguments(ISP_ENVIRONMENT *IspEnvironment, unsigned int argc, ch
         }
     }
 }
-*/
+#endif
