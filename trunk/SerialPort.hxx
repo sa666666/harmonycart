@@ -24,15 +24,19 @@ typedef vector<string> StringList;
 
 /**
   This class provides an interface for a standard serial port.
-  For now, this is used when connecting a Krokodile Cart,
-  and as such it always uses 115200, 8n1, no flow control.
+  For now, this is used when connecting a Harmony Cart,
+  and as such it always uses 38400, 8n1, hardware flow control
+  (with swapped control lines).
 
   @author  Stephen Anthony
 */
 class SerialPort
 {
   public:
-    SerialPort() : myBaud(9600), mySerialTimeoutCount(0) { }
+    SerialPort() :
+      myBaud(38400),
+      mySerialTimeoutCount(0),
+      myControlLinesSwapped(true) { }
     virtual ~SerialPort() { }
 
     /**
@@ -208,6 +212,14 @@ class SerialPort
         mySerialTimeoutCount--;
     }
 
+    /**
+      Controls the modem lines to place the microcontroller into various
+      states during the programming process.
+
+      @param DTR  The state to set the DTR line to
+      @param RTS  The state to set the RTS line to
+    */
+    virtual void ControlModemLines(bool DTR, bool RTS) = 0;
 
 
     /**
@@ -218,6 +230,13 @@ class SerialPort
     void setBaud(int baud) { myBaud = baud; }
 
     /**
+      Get/set the control line swap for this port.
+      Note that the port must be opened for this to take effect.
+    */
+    int getControlSwap() const      { return myControlLinesSwapped;  }
+    void setControlSwap(bool state) { myControlLinesSwapped = state; }
+
+    /**
       Get/set ID string for this port.
     */
     const string& getID() const  { return myID; }
@@ -226,6 +245,7 @@ class SerialPort
   protected:
     uInt32 myBaud;
     uInt32 mySerialTimeoutCount;
+    bool myControlLinesSwapped;
     string myID;
     StringList myPortNames;
 };
