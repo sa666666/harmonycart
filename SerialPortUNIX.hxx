@@ -96,6 +96,14 @@ class SerialPortUNIX : public SerialPort
     */
     void ClearSerialPortBuffers();
 
+    /**
+      Controls the modem lines to place the microcontroller into various
+      states during the programming process.
+
+      @param DTR  The state to set the DTR line to
+      @param RTS  The state to set the RTS line to
+    */
+    void ControlModemLines(bool DTR, bool RTS);
 
 
 

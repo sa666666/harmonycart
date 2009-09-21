@@ -185,6 +185,33 @@ void SerialPortUNIX::ClearSerialPortBuffers()
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+void SerialPortUNIX::ControlModemLines(bool DTR, bool RTS)
+{
+  // Handle whether to swap the control lines
+  if(myControlLinesSwapped)
+  {
+    bool tempRTS;
+    tempRTS = RTS;
+    RTS = DTR;
+    DTR = tempRTS;
+  }
+
+  int status;
+  if(ioctl(myHandle, TIOCMGET, &status) != 0)
+    cerr << "ioctl get failed, status = " << status << endl;
+
+  if (DTR) status |=  TIOCM_DTR;
+  else     status &= ~TIOCM_DTR;
+  if (RTS) status |=  TIOCM_RTS;
+  else     status &= ~TIOCM_RTS;
+
+  if (ioctl(myHandle, TIOCMSET, &status) != 0)
+    cerr << "ioctl set failed, status = " << status << endl;
+  if (ioctl(myHandle, TIOCMGET, &status) != 0)
+    cerr << "ioctl get failed, status = " << status << endl;
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const StringList& SerialPortUNIX::getPortNames()
 {
   myPortNames.clear();

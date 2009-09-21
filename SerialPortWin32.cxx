@@ -166,6 +166,25 @@ void SerialPortWin32::ClearSerialPortBuffers()
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+void SerialPortWin32::ControlModemLines(bool DTR, bool RTS)
+{
+  // Handle whether to swap the control lines
+  if(myControlLinesSwapped)
+  {
+    bool tempRTS;
+    tempRTS = RTS;
+    RTS = DTR;
+    DTR = tempRTS;
+  }
+
+  if (DTR) EscapeCommFunction(myHandle, SETDTR);
+  else     EscapeCommFunction(myHandle, CLRDTR);
+  if (RTS) EscapeCommFunction(myHandle, SETRTS);
+  else     EscapeCommFunction(myHandle, CLRRTS);
+}
+
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const StringList& SerialPortWin32::getPortNames()
 {
   myPortNames.clear();
