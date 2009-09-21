@@ -16,6 +16,9 @@
 
 #include "bspf.hxx"
 
+//#define BSPF_WIN32
+//#define COMPILE_FOR_WINDOWS
+
 #if defined(BSPF_WIN32)
 
 #undef UNICODE
@@ -40,32 +43,66 @@ SerialPortWin32::~SerialPortWin32()
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 bool SerialPortWin32::openPort(const string& device)
 {
-  closePort();  // paranoia: make sure port is in consistent state
-
   if(!myHandle)
+    closePort();
+
+  DCB dcb;
+  COMMTIMEOUTS commtimeouts;
+
+  myHandle = CreateFileA(device.c_str(), GENERIC_READ|GENERIC_WRITE,
+                         0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+  if(myHandle == INVALID_HANDLE_VALUE)
   {
-    myHandle = CreateFile(device.c_str(), GENERIC_READ|GENERIC_WRITE, 0,
-                          NULL, OPEN_EXISTING, 0, NULL);
-
-    if(myHandle)
-    {
-      DCB dcb;
-
-      FillMemory(&dcb, sizeof(dcb), 0);
-      dcb.DCBlength = sizeof(dcb);
-      if(!BuildCommDCB("115200,n,8,1", &dcb))
-        return false;
-
-      memset(&dcb, 0, sizeof(DCB));
-      dcb.BaudRate = CBR_19200;
-      dcb.ByteSize = 8;
-      dcb.Parity = NOPARITY;
-      dcb.StopBits = ONESTOPBIT;
-      SetCommState(myHandle, &dcb);
-    }
-    else 
-      return false;
+    myHandle = NULL;
+    return false;
   }
+
+  GetCommState(myHandle, &dcb);
+  dcb.BaudRate    = myBaud;
+  dcb.ByteSize    = 8;
+  dcb.StopBits    = ONESTOPBIT;
+  dcb.Parity      = NOPARITY;
+  dcb.fDtrControl = DTR_CONTROL_DISABLE;
+  dcb.fOutX       = 0;
+  dcb.fInX        = 0;
+  dcb.fNull       = 0;
+  dcb.fRtsControl = RTS_CONTROL_DISABLE;
+
+  // added by Herbert Demmel - iF CTS line has the wrong state, we would never send anything!
+  dcb.fOutxCtsFlow = 0;
+  dcb.fOutxDsrFlow = 0;
+
+  if(SetCommState(myHandle, &dcb) == 0)
+  {
+    cerr << "ERROR: Can't set baudrate " << myBaud << " " << GetLastError() << endl;
+    return false;
+  }
+
+  /*
+   *  Peter Hayward 02 July 2008
+   *
+   *  The following call is only needed if the WaitCommEvent
+   *  or possibly the GetCommMask functions are used.  They are
+   *  *not* in this implimentation.  However, under Windows XP SP2
+   *  on my laptop the use of this call causes XP to freeze (crash) while
+   *  this program is running, e.g. in section 5/6/7 ... of a largish
+   *  download.  Removing this *unnecessary* call fixed the problem.
+   *  At the same time I've added a call to SetupComm to request
+   *  (not necessarity honoured) the operating system to provide
+   *  large I/O buffers for high speed I/O without handshaking.
+   *
+   *   SetCommMask(myHandle, EV_RXCHAR | EV_TXEMPTY);
+   */
+  SetupComm(myHandle, 32000, 32000);
+  SetCommMask(myHandle, EV_RXCHAR | EV_TXEMPTY);
+
+  commtimeouts.ReadIntervalTimeout         = MAXDWORD;
+  commtimeouts.ReadTotalTimeoutMultiplier  =    0;
+  commtimeouts.ReadTotalTimeoutConstant    =    1;
+  commtimeouts.WriteTotalTimeoutMultiplier =    0;
+  commtimeouts.WriteTotalTimeoutConstant   =    0;
+  SetCommTimeouts(myHandle, &commtimeouts);
+
   return true;
 }
 
@@ -86,42 +123,46 @@ bool SerialPortWin32::isOpen()
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-int SerialPortWin32::readBytes(uInt8* data, uInt32 size)
+int SerialPortWin32::ReceiveComPortBlock(void* answer, uInt32 max_size, uInt32* real_size)
 {
-return 0;
-//  return myHandle ? read(myHandle, data, size) : -1;
-// TODO - implement this
-}
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-int SerialPortWin32::writeBytes(const uInt8* data, uInt32 size)
-{
-//  return myHandle ? write(myHandle, data, size) : -1;
-// TODO - implement this
+  int result = -1;
   if(myHandle)
   {
-    DWORD written;
-    return WriteFile(myHandle, data, 1, &written, 0) == TRUE;
+    ReadFile(myHandle, answer, max_size, &result, NULL);
+    if(result == 0)
+      SerialTimeoutTick(IspEnvironment);
   }
-  return false;
-
+  return result;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-uInt8 SerialPortWin32::waitForAck(uInt32 wait)
+int SerialPortWin32::SendComPortBlock(const void* data, uInt32 size)
 {
-return 0;
-// TODO - implement this
-/*
-  uInt8 result = 0;
-  for(int pass = 0; pass < 100; ++pass)
+  unsigned long realsize;
+  size_t m;
+  unsigned long rxsize;
+  char* pch;
+  char* rxpch;
+
+  if(myHandle)
   {
-    if(readBytes(&result, 1) == 1)
-      break;
-    usleep(wait);
+    WriteFile(myHandle, data, size, &realsize, NULL);
+    return realsize;
   }
-  return result;
-*/
+  else
+    return -1;
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+void SerialPortWin32::SerialTimeoutSet(uInt32 timeout_milliseconds)
+{
+  mySerialTimeoutCount = timeout_milliseconds;
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+void SerialPortWin32::ClearSerialPortBuffers()
+{
+  PurgeComm(myHandle, PURGE_TXABORT | PURGE_RXABORT | PURGE_TXCLEAR | PURGE_RXCLEAR);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

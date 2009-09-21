@@ -18,6 +18,12 @@
 
 #if defined(BSPF_UNIX)
 
+#if defined(__OpenBSD__)
+  #include <errno.h>
+#else
+  #include <sys/errno.h>
+#endif
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -137,28 +143,45 @@ bool SerialPortUNIX::isOpen()
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-int SerialPortUNIX::readBytes(uInt8* data, uInt32 size)
+int SerialPortUNIX::ReceiveComPortBlock(void* answer, uInt32 max_size, uInt32* real_size)
 {
-  return myHandle ? read(myHandle, data, size) : -1;
+  int result = -1;
+  if(myHandle)
+  {
+    result = read(myHandle, answer, max_size);
+    if(result == 0)
+      SerialTimeoutTick();
+  }
+  return result;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-int SerialPortUNIX::writeBytes(const uInt8* data, uInt32 size)
+int SerialPortUNIX::SendComPortBlock(const void* data, uInt32 size)
 {
   return myHandle ? write(myHandle, data, size) : -1;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-uInt8 SerialPortUNIX::waitForAck(uInt32 wait)
+void SerialPortUNIX::SerialTimeoutSet(uInt32 timeout_milliseconds)
 {
-  uInt8 result = 0;
-  for(int pass = 0; pass < 100; ++pass)
-  {
-    if(readBytes(&result, 1) == 1)
-      break;
-    usleep(wait);
-  }
-  return result;
+  mySerialTimeoutCount = timeout_milliseconds / 100;
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+void SerialPortUNIX::ClearSerialPortBuffers()
+{
+  // Variables to store the current tty state, create a new one
+  struct termios origtty, tty;
+
+  // Store the current tty settings
+  tcgetattr(myHandle, &origtty);
+
+  // Flush input and output buffers
+  tty = origtty;
+  tcsetattr(myHandle, TCSAFLUSH, &tty);
+
+  // Reset the tty to its original settings
+  tcsetattr(myHandle, TCSADRAIN, &origtty);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -185,7 +208,7 @@ const StringList& SerialPortUNIX::getPortNames()
         if(openPort(device))
         {
           uInt8 c;
-          int n = readBytes(&c, 1);
+          int n = ReceiveComPortBlock(&c, 1, 0);
           if(n >= 0)
             myPortNames.push_back(device);
         }

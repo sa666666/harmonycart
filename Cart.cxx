@@ -46,15 +46,19 @@ cerr << "update BIOS from " << filename << endl;
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 bool Cart::create(const string& filename, const string& type)
 {
+#if 0
   memset(myCart, 0, MAXCARTSIZE);
   myCartSize = readFile(filename, myCart, MAXCARTSIZE, type);
   myIsValid = myCartSize > 0;
   return myIsValid;
+#endif
+return false;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 uInt16 Cart::initSectors()
 {
+#if 0
   myCurrentSector = 0;
 
   if(myIsValid)
@@ -67,11 +71,14 @@ uInt16 Cart::initSectors()
     myNumSectors = 0;
 
   return myNumSectors;
+#endif
+return 0;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 uInt16 Cart::writeNextSector(SerialPort& port)
 {
+#if 0
   if(!myIsValid)
     throw "write: Invalid cart";
   else if(myCurrentSector == myNumSectors)
@@ -94,11 +101,14 @@ uInt16 Cart::writeNextSector(SerialPort& port)
 
   myCurrentSector++;
   return sector;
+#endif
+return 0;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 uInt16 Cart::verifyNextSector(SerialPort& port)
 {
+#if 0
   if(!myIsValid)
     throw "verify: Invalid cart";
   else if(myCurrentSector == myNumSectors)
@@ -121,6 +131,8 @@ uInt16 Cart::verifyNextSector(SerialPort& port)
 
   myCurrentSector++;
   return sector;
+#endif
+return 0;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -133,6 +145,7 @@ BSType Cart::autodetectType(uInt8* data, uInt32 size)
 int Cart::readFile(const string& filename, uInt8* cartridge, uInt32 maxSize,
                    const string& type)
 {
+#if 0
   cout << "Reading from file: \'" << filename << "\'" << endl;
 
   uInt32 minsize = (maxSize != MAXCARTSIZE) ? maxSize : 4096;
@@ -205,11 +218,14 @@ int Cart::readFile(const string& filename, uInt8* cartridge, uInt32 maxSize,
       myCart[MAXCARTSIZE - 2048 + i] = myCart[cartsize - 2048 + i];
 
   return cartsize;
+#endif
+return 0;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 bool Cart::downloadSector(uInt32 sector, SerialPort& port)
 {
+#if 0
   uInt8 buffer[262];
 
   buffer[0] = 1;                             // Mark start of command
@@ -250,11 +266,14 @@ bool Cart::downloadSector(uInt32 sector, SerialPort& port)
     cout << "Undefined response " << (int)result << " for sector " << sector << endl;
     return false;
   }
+#endif
+return false;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 bool Cart::verifySector(uInt32 sector, SerialPort& port)
 {
+#if 0
   uInt8 buffer[257];
 
   uInt8 chksum = 0;
@@ -309,4 +328,6 @@ bool Cart::verifySector(uInt32 sector, SerialPort& port)
   // Now that we have a valid sector read back from the device,
   // compare to the actual data to make sure they match
   return memcmp(myCart + sector*256, &buffer, 256) == 0;
+#endif
+return false;
 }

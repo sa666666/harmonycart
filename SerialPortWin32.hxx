@@ -57,29 +57,44 @@ class SerialPortWin32 : public SerialPort
     bool isOpen();
 
     /**
-      Read byte(s) from the serial port.
+      Receives a buffer from the open com port. Returns all the characters
+      ready (waits for up to 'n' milliseconds before accepting that no more
+      characters are ready) or when the buffer is full. 'n' is system dependent,
+      see SerialTimeout routines.
 
-      @param data  Destination for the byte(s) read from the port
+      @param answer    Buffer to hold the bytes read from the serial port
+      @param max_size  The size of buffer pointed to by answer
+      @param real_size Pointer to a long that returns the amount of the
+                       buffer that is actually used
       @return  The number of bytes read (-1 indicates error)
     */
-    int readBytes(uInt8* data, uInt32 size = 1);
+    int ReceiveComPortBlock(void* answer, uInt32 max_size, uInt32* real_size);
 
     /**
-      Write byte(s) to the serial port.
+      Write block of bytes to the serial port.
 
       @param data  The byte(s) to write to the port
+      @param size  The size of the block
       @return  The number of bytes written (-1 indicates error)
     */
-    int writeBytes(const uInt8* data, uInt32 size = 1);
+    int SendComPortBlock(const void* data, uInt32 size);
 
     /**
-      Wait for acknowledgment from the serial port; currently,
-      this means retry a read 100 times while waiting ~500
-      microseconds between each attempt.
+      Sets (or resets) the timeout to the timout period requested.  Starts
+      counting to this period.  This timeout support is a little odd in that
+      the timeout specifies the accumulated deadtime waiting to read not the
+      total time waiting to read. They should be close enough to the same for
+      this use. Used by the serial input routines, the actual counting takes
+      place in ReceiveComPortBlock.
 
-      @return  The ACK read (0 indicates error)
+      @param timeout_milliseconds  The time in milliseconds to use for timeout
     */
-    uInt8 waitForAck(uInt32 wait = 500);
+    void SerialTimeoutSet(uInt32 timeout_milliseconds);
+
+    /**
+      Empty the serial port buffers.  Cleans things to a known state.
+    */
+    void ClearSerialPortBuffers();
 
     /**
       Get all valid serial ports detected on this system.
