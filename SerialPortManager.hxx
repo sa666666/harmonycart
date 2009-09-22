@@ -18,6 +18,7 @@
 #define __SERIALPORTMANAGER_HXX
 
 #include "bspf.hxx"
+#include "Cart.hxx"
 
 #if defined(BSPF_WIN32)
   #include "SerialPortWin32.hxx"
@@ -36,7 +37,7 @@ class SerialPortManager
     ~SerialPortManager();
 
     void setDefaultPort(const string& port);
-    void connectHarmonyCart();
+    void connectHarmonyCart(Cart& cart);
     bool harmonyCartAvailable();
 
     SerialPort& port();
@@ -44,7 +45,7 @@ class SerialPortManager
     const string& versionID();
 
   private:
-    bool connect(const string& device);
+    bool connect(const string& device, Cart& cart);
 
   private:
   #if defined(BSPF_WIN32)

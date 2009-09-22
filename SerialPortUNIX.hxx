@@ -105,6 +105,11 @@ class SerialPortUNIX : public SerialPort
     */
     void ControlModemLines(bool DTR, bool RTS);
 
+    /**
+      Sleep the specified amount of time (in milliseconds).
+    */
+    void Sleep(uInt32 milliseconds);
+
 
 
 

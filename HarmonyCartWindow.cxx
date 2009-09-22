@@ -35,7 +35,6 @@
 #include <sstream>
 using namespace std;
 
-#include "lpc21isp.h"
 #include "HarmonyCartWindow.hxx"
 #include "ui_harmonycartwindow.h"
 
@@ -247,7 +246,7 @@ bool HarmonyCartWindow::eventFilter(QObject* object, QEvent* event)
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void HarmonyCartWindow::slotConnectHarmonyCart()
 {
-  myManager.connectHarmonyCart();
+  myManager.connectHarmonyCart(myCart);
   if(myManager.harmonyCartAvailable())
   {
     myHarmonyCartMessage = "Harmony \'";
@@ -285,7 +284,7 @@ void HarmonyCartWindow::slotUpdateBIOS()
       "Couldn't find eeloader.bin file.\nCheck the \'arm\' folder.");
     return;
   }
-
+#if 0
   STEPS = biosfile.size() / 45;
   PROGRESS = new QProgressDialog("Updating BIOS...", QString(), 0, STEPS, this);
   PROGRESS->setWindowModality(Qt::WindowModal);
@@ -296,6 +295,7 @@ void HarmonyCartWindow::slotUpdateBIOS()
 
   PROGRESS->setValue(STEPS);
   delete PROGRESS;
+#endif
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
