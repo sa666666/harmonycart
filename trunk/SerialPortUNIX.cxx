@@ -35,8 +35,6 @@
 #include <dirent.h>
 #include <cstring>
 
-#include "lpc21isp.h"
-#include "lpcprog.h"
 #include "SerialPortUNIX.hxx"
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -70,18 +68,13 @@ bool SerialPortUNIX::openPort(const string& device)
   myNewtio.c_cflag = CS8 | CLOCAL | CREAD;
 
 #if defined(__FreeBSD__) || defined(__OpenBSD__)
-
-  if(cfsetspeed(&IspEnvironment->newtio,(speed_t) strtol(IspEnvironment->baud_rate,NULL,10)))
+  if(cfsetspeed(&myNewtio, (speed_t)myBaud)
   {
-    DebugPrintf(1, "baudrate %s not supported\n", IspEnvironment->baud_rate);
-    exit(3);
-  };
+    cerr << "ERROR: baudrate " << myBaud << " not supported" << endl;
+    return false;
+  }
 #else
-  #ifdef __APPLE__
-    #define NEWTERMIOS_SETBAUDRATE(bps) IspEnvironment->newtio.c_ispeed = IspEnvironment->newtio.c_ospeed = bps;
-  #else
-    #define NEWTERMIOS_SETBAUDRATE(bps) myNewtio.c_cflag |= bps;
-  #endif
+  #define NEWTERMIOS_SETBAUDRATE(bps) myNewtio.c_cflag |= bps;
 
   switch (myBaud)
   {
@@ -208,6 +201,12 @@ void SerialPortUNIX::ControlModemLines(bool DTR, bool RTS)
     cerr << "ioctl set failed, status = " << status << endl;
   if (ioctl(myHandle, TIOCMGET, &status) != 0)
     cerr << "ioctl get failed, status = " << status << endl;
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+void SerialPortUNIX::Sleep(uInt32 milliseconds)
+{
+  usleep(milliseconds*1000); // convert to microseconds
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

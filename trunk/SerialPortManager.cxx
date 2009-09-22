@@ -16,7 +16,7 @@
 
 #include <cstring>
 
-#include "lpc21isp.h"
+#include "Cart.hxx"
 #include "SerialPortManager.hxx"
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -39,12 +39,12 @@ void SerialPortManager::setDefaultPort(const string& port)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void SerialPortManager::connectHarmonyCart()
+void SerialPortManager::connectHarmonyCart(Cart& cart)
 {
   myFoundHarmonyCart = false;
 
   // First try the port that was successful the last time
-  if(myPortName != "" && connect(myPortName))
+  if(myPortName != "" && connect(myPortName, cart))
   {
     // myPortName already contains the correct name
   }
@@ -53,7 +53,7 @@ void SerialPortManager::connectHarmonyCart()
     const StringList& ports = myPort.getPortNames();
     for(uInt32 i = 0; i < ports.size(); ++i)
     {
-      if(connect(ports[i]))
+      if(connect(ports[i], cart))
       {
         break;
       }
@@ -62,17 +62,23 @@ void SerialPortManager::connectHarmonyCart()
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool SerialPortManager::connect(const string& device)
+bool SerialPortManager::connect(const string& device, Cart& cart)
 {
-  const char* version = lpc_AutoDetect(device.c_str());
-  if(strncmp(version, "ERROR:", 6) != 0)
+  myPort.closePort();
+  myFoundHarmonyCart = false;
+
+  if(myPort.openPort(device))
   {
-    myFoundHarmonyCart = true;
-    myPortName = device;
-    myVersionID = version;
-    return true;
+    string version = cart.autodetectHarmony(myPort);
+    if(strncmp(version.c_str(), "ERROR:", 6) != 0)
+    {
+      myFoundHarmonyCart = true;
+      myPortName = device;
+      myVersionID = version;
+    }
   }
-  return false;
+  myPort.closePort();
+  return myFoundHarmonyCart;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

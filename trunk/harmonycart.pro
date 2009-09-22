@@ -10,9 +10,7 @@ SOURCES += main.cxx \
     SerialPortManager.cxx \
     SerialPortUNIX.cxx \
     SerialPortWin32.cxx \
-    SerialPortMACOSX.cxx \
-    lpcprog.c \
-    lpc21isp.c
+    SerialPortMACOSX.cxx
 HEADERS += HarmonyCartWindow.hxx \
     bspf.hxx \
     BSType.hxx \
@@ -22,9 +20,7 @@ HEADERS += HarmonyCartWindow.hxx \
     SerialPort.hxx \
     SerialPortUNIX.hxx \
     SerialPortWin32.hxx \
-    SerialPortMACOSX.hxx \
-    lpcprog.h \
-    lpc21isp.h
+    SerialPortMACOSX.hxx
 FORMS += harmonycartwindow.ui
 RESOURCES += resources.qrc
 macx:LIBS += -framework \

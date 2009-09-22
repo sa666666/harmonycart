@@ -100,6 +100,10 @@ class SerialPort
     */
     virtual void ClearSerialPortBuffers() = 0;
 
+    /**
+      Sleep the specified amount of time (in milliseconds).
+    */
+    virtual void Sleep(uInt32 milliseconds) = 0;
 
 
 
