@@ -54,7 +54,6 @@ SerialPortUNIX::~SerialPortUNIX()
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 bool SerialPortUNIX::openPort(const string& device)
-//static int OpenSerialPort(ISP_ENVIRONMENT *IspEnvironment)
 {
   myHandle = open(device.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);
   if(myHandle < 0)
