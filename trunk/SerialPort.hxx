@@ -68,20 +68,18 @@ class SerialPort
 
       @param answer    Buffer to hold the bytes read from the serial port
       @param max_size  The size of buffer pointed to by answer
-      @param real_size Pointer to a long that returns the amount of the
-                       buffer that is actually used
-      @return  The number of bytes read (-1 indicates error)
+      @return  The number of bytes read
     */
-    virtual int ReceiveComPortBlock(void* answer, uInt32 max_size, uInt32* real_size) = 0;
+    virtual uInt32 receiveBlock(void* answer, uInt32 max_size) = 0;
 
     /**
       Write block of bytes to the serial port.
 
       @param data  The byte(s) to write to the port
       @param size  The size of the block
-      @return  The number of bytes written (-1 indicates error)
+      @return  The number of bytes written
     */
-    virtual int SendComPortBlock(const void* data, uInt32 size) = 0;
+    virtual uInt32 sendBlock(const void* data, uInt32 size) = 0;
 
     /**
       Sets (or resets) the timeout to the timout period requested.  Starts
@@ -89,16 +87,16 @@ class SerialPort
       the timeout specifies the accumulated deadtime waiting to read not the
       total time waiting to read. They should be close enough to the same for
       this use. Used by the serial input routines, the actual counting takes
-      place in ReceiveComPortBlock.
+      place in receiveBlock.
 
       @param timeout_milliseconds  The time in milliseconds to use for timeout
     */
-    virtual void SerialTimeoutSet(uInt32 timeout_milliseconds) = 0;
+    virtual void setTimeout(uInt32 timeout_milliseconds) = 0;
 
     /**
       Empty the serial port buffers.  Cleans things to a known state.
     */
-    virtual void ClearSerialPortBuffers() = 0;
+    virtual void clearBuffers() = 0;
 
     /**
       Sleep the specified amount of time (in milliseconds).
@@ -120,16 +118,14 @@ class SerialPort
 
       @param Answer   Buffer to hold the bytes read from the serial port
       @param MaxSize  The size of buffer pointed to by Answer
-      @param RealSize Pointer to a long that returns the amout of the
-                      buffer that is actually used
       @param Wanted   The maximum number of linefeeds to accept before
                       returning
       @param timeout  The maximum amount of time to wait before
                       reading with an incomplete buffer (in milliseconds)
       @return  The number of bytes read (-1 indicates error)
     */
-    int ReceiveComPort(const char* Ans, uInt32 MaxSize, uInt32* RealSize,
-                       uInt32 Wanted, uInt32 timeout)
+    uInt32 receive(const char* Ans, uInt32 MaxSize,
+                   uInt32 Wanted, uInt32 timeout)
     {
       uInt32 tmp_realsize;
       uInt32 nr_of_0x0A = 0;
@@ -137,25 +133,25 @@ class SerialPort
       int eof = 0;
       uInt32 p;
       uInt8* Answer = (uInt8*) Ans;
-      SerialTimeoutSet(timeout);
-      (*RealSize) = 0;
+      setTimeout(timeout);
+      uInt32 RealSize = 0;
 
       do {
-        ReceiveComPortBlock(Answer + (*RealSize), MaxSize - 1 - (*RealSize), &tmp_realsize);
+        tmp_realsize = receiveBlock(Answer + RealSize, MaxSize - 1 - RealSize);
         if(tmp_realsize != 0)
         {
-          for(p = (*RealSize); p < (*RealSize) + tmp_realsize; p++)
+          for(p = RealSize; p < RealSize + tmp_realsize; p++)
           {
             if(Answer[p] == 0x0a)        nr_of_0x0A++;
             else if (Answer[p] == 0x0d)  nr_of_0x0D++;
             else if (((signed char) Answer[p]) < 0)  eof = 1;
           }
         }
-        (*RealSize) += tmp_realsize;
-      } while (((*RealSize) < MaxSize) && (SerialTimeoutCheck() == 0) && (nr_of_0x0A < Wanted) && (nr_of_0x0D < Wanted) && !eof);
+        RealSize += tmp_realsize;
+      } while ((RealSize < MaxSize) && !timeoutCheck() && (nr_of_0x0A < Wanted) && (nr_of_0x0D < Wanted) && !eof);
 
-      Answer[(*RealSize)] = 0;
-      return (*RealSize);
+      Answer[RealSize] = 0;
+      return RealSize;
     }
 
     /**
@@ -165,9 +161,9 @@ class SerialPort
       @param data  The string to write to the port
       @return  The number of bytes written (-1 indicates error)
     */
-    int SendComPort(const char* data)
+    uInt32 send(const char* data)
     {
-      return SendComPortBlock(data, strlen(data));
+      return sendBlock(data, strlen(data));
     }
 
     /**
@@ -180,16 +176,16 @@ class SerialPort
                      completing the read
       @return 0 if successful, non-zero otherwise.
     */
-    int ReceiveComPortBlockComplete(void* block, uInt32 size, uInt32 timeout)
+    uInt32 receiveBlockComplete(void* block, uInt32 size, uInt32 timeout)
     {
       uInt32 realsize = 0, read;
       char *result = (char*)block;
 
-      SerialTimeoutSet(timeout);
+      setTimeout(timeout);
       do {
-        ReceiveComPortBlock(result + realsize, size - realsize, &read);
+        read = receiveBlock(result + realsize, size - realsize);
         realsize += read;
-      } while ((realsize < size) && (SerialTimeoutCheck() == 0));
+      } while ((realsize < size) && !timeoutCheck());
 
       return realsize != size ? 1 : 0;
     }
@@ -197,18 +193,18 @@ class SerialPort
     /**
       Check to see if the serial timeout timer has run down.
 
-      @return  1 if timer has run out, 0 if timer still has time left
+      @return  True if timer has run out, false if timer still has time left
     */
-    int SerialTimeoutCheck()
+    bool timeoutCheck()
     {
-      return mySerialTimeoutCount == 0 ? 1 : 0;
+      return mySerialTimeoutCount == 0;
     }
 
     /**
       Performs a timer tick.  In this simple case all we do is count down
       with protection against underflow and wrapping at the low end.
     */
-    void SerialTimeoutTick()
+    void timeoutTick()
     {
       if(mySerialTimeoutCount <= 1)
         mySerialTimeoutCount = 0;
@@ -223,7 +219,7 @@ class SerialPort
       @param DTR  The state to set the DTR line to
       @param RTS  The state to set the RTS line to
     */
-    virtual void ControlModemLines(bool DTR, bool RTS) = 0;
+    virtual void controlModemLines(bool DTR, bool RTS) = 0;
 
 
     /**

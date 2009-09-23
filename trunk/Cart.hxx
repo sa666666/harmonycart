@@ -267,10 +267,29 @@ class Cart
     static uInt32 SectorTable_RAM[1];
     static LPC_DEVICE_TYPE LPCtypes[52];
 
-    const char* lpc_PhilipsChipVersion(SerialPort& port);
-//    int PhilipsDownload(ISP_ENVIRONMENT *IspEnvironment, void(*func)());
+    const char* lpc_PhilipsChipVersion(SerialPort& port, const string& oscillator);
+    int lpc_PhilipsDownload(SerialPort& port);
     unsigned long ReturnValueLpcRamStart(ISP_ENVIRONMENT *IspEnvironment);
     unsigned long ReturnValueLpcRamBase(ISP_ENVIRONMENT *IspEnvironment);
+
+    /**
+      Download the file from the internal memory image to the philips
+      microcontroller.
+    */
+    int lpc_SendAndVerify(SerialPort& port, const char* Command,
+                          char* AnswerBuffer, int AnswerLength);
+
+    /**
+      Find error number in string.  This will normally be the string
+      returned from the microcontroller.
+
+      @param Answer  The buffer to search for the error number
+      @return   The error number found, if no linefeed found before the end
+                of the string an error value of 255 is returned.  If a
+                non-numeric value is found then it is printed to stdout and
+                an error value of 255 is returned.
+    */
+    unsigned char lpc_GetAndReportErrorNumber(const char* Answer);
 
 
   private:

@@ -55,12 +55,15 @@ string Cart::autodetectHarmony(SerialPort& port)
 //  strcpy(IspEnvironment.StringOscillator, "10000");    // HC oscillator is always 10000
 
   resetTarget(port, PROGRAM_MODE);
-  port.ClearSerialPortBuffers();
+  port.clearBuffers();
 
   // Get the version #, if any
-  result = lpc_PhilipsChipVersion(port);
+  result = lpc_PhilipsChipVersion(port, "10000");
   if (strncmp(result, "ERROR:", 6) == 0)
+  {
+    cerr << result << endl;
     return result;
+  }
   else if (IspEnvironment.StartAddress == 0)
   {
     /* Only reset target if startaddress = 0
@@ -79,25 +82,25 @@ void Cart::resetTarget(SerialPort& port, TARGET_MODE mode)
   {
     // Reset and jump to boot loader
     case PROGRAM_MODE:
-      port.ControlModemLines(1, 1);
+      port.controlModemLines(1, 1);
       port.Sleep(100);
-      port.ClearSerialPortBuffers();
+      port.clearBuffers();
       port.Sleep(100);
-      port.ControlModemLines(0, 1);
+      port.controlModemLines(0, 1);
       // Longer delay is the Reset signal is conected to an external rest controller
       port.Sleep(500);
       // Clear the RTS line after having reset the micro
       // Needed for the "GO <Address> <Mode>" ISP command to work
-      port.ControlModemLines(0, 0);
+      port.controlModemLines(0, 0);
       break;
 
     // Reset and start uploaded program
     case RUN_MODE:
-      port.ControlModemLines(1, 0);
+      port.controlModemLines(1, 0);
       port.Sleep(100);
-      port.ClearSerialPortBuffers();
+      port.clearBuffers();
       port.Sleep(100);
-      port.ControlModemLines(0, 0);
+      port.controlModemLines(0, 0);
       port.Sleep(100);
       break;
   }
@@ -113,6 +116,7 @@ cerr << "update BIOS from " << filename << endl;
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 bool Cart::create(const string& filename, const string& type)
 {
+cerr << filename << type;
 #if 0
   memset(myCart, 0, MAXCARTSIZE);
   myCartSize = readFile(filename, myCart, MAXCARTSIZE, type);
@@ -145,6 +149,7 @@ return 0;
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 uInt16 Cart::writeNextSector(SerialPort& port)
 {
+port.isOpen();
 #if 0
   if(!myIsValid)
     throw "write: Invalid cart";
@@ -175,6 +180,7 @@ return 0;
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 uInt16 Cart::verifyNextSector(SerialPort& port)
 {
+port.isOpen();
 #if 0
   if(!myIsValid)
     throw "verify: Invalid cart";
@@ -212,6 +218,7 @@ BSType Cart::autodetectType(uInt8* data, uInt32 size)
 int Cart::readFile(const string& filename, uInt8* cartridge, uInt32 maxSize,
                    const string& type)
 {
+cerr << filename << cartridge << maxSize << type;
 #if 0
   cout << "Reading from file: \'" << filename << "\'" << endl;
 
@@ -292,6 +299,7 @@ return 0;
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 bool Cart::downloadSector(uInt32 sector, SerialPort& port)
 {
+cerr << sector << port.isOpen();
 #if 0
   uInt8 buffer[262];
 
@@ -340,6 +348,7 @@ return false;
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 bool Cart::verifySector(uInt32 sector, SerialPort& port)
 {
+cerr << sector << port.isOpen();
 #if 0
   uInt8 buffer[257];
 
@@ -400,64 +409,67 @@ return false;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const char* Cart::lpc_PhilipsChipVersion(SerialPort& port)
+const char* Cart::lpc_PhilipsChipVersion(SerialPort& port, const string& oscillator)
 {
-  unsigned int realsize;
   int nQuestionMarks;
   int found, i;
   int  strippedsize;
   char Answer[128];
-  char tmp_string[64];
+//  char tmp_string[64];
   char temp[128];
-  char *strippedAnswer, *endPtr, *cmdstr;
+  char *strippedAnswer, *endPtr;
+  const char* cmdstr;
+  time_t tStartUpload = 0;//, tDoneUpload = 0;
 
   static char version[1024] = { 0 };
 
   /* SA_CHANGED: '100' to '3' to shorten autodetection */
   for (nQuestionMarks = found = 0; !found && nQuestionMarks < 3; nQuestionMarks++)
   {
-    port.SendComPort("?");
+    port.send("?");
 
     memset(Answer, 0, sizeof(Answer));
-    port.ReceiveComPort(Answer, sizeof(Answer)-1, &realsize, 1, 100);
+    strippedsize = port.receive(Answer, sizeof(Answer)-1, 1, 100);
 
     strippedAnswer = Answer;
-    strippedsize = realsize;
+//    strippedsize = realsize;
     while ((strippedsize > 0) && ((*strippedAnswer == '?') || (*strippedAnswer == 0)))
     {
       strippedAnswer++;
       strippedsize--;
     }
 
+#if 0
     if (strcmp(strippedAnswer, "Bootloader\r\n") == 0)
     {
       long chars, xtal;
       unsigned long ticks;
-      chars = (17 * IspEnvironment->BinaryLength + 1) / 10;
-      WatchDogSeconds = (10 * chars + 5) / atol(IspEnvironment->baud_rate) + 10;
-      xtal = atol(IspEnvironment->StringOscillator) * 1000;
+      chars = (17 * 0/*IspEnvironment->BinaryLength*/ + 1) / 10;
+      int WatchDogSeconds = (10 * chars + 5) / port.getBaud() + 10;
+      xtal = atol(oscillator.c_str()) * 1000;
       ticks = (unsigned long)WatchDogSeconds * ((xtal + 15) / 16);
-      DebugPrintf(2, "Entering ISP; re-synchronizing (watchdog = %ld seconds)\n", WatchDogSeconds);
+//      DebugPrintf(2, "Entering ISP; re-synchronizing (watchdog = %ld seconds)\n", WatchDogSeconds);
       sprintf(temp, "T %lu\r\n", ticks);
-      port.SendComPort(IspEnvironment, temp);
-      port.ReceiveComPort(IspEnvironment, Answer, sizeof(Answer)-1, &realsize, 1,100);
+      port.send(temp);
+      port.receive(Answer, sizeof(Answer)-1, &realsize, 1,100);
       if (strcmp(Answer, "OK\r\n") != 0)
       {
         strcpy(version, "ERROR: No answer on \'watchdog timer set\'");
         return version;
       }
-      port.SendComPort(IspEnvironment, "G 10356\r\n");
+      port.send("G 10356\r\n");
       port.Sleep(200);
       nQuestionMarks = 0;
-      WaitForWatchDog = 1;
+//      WaitForWatchDog = 1;
       continue;
     }
+#endif
 
     tStartUpload = time(NULL);
     if (strcmp(strippedAnswer, "Synchronized\r\n") == 0)
       found = 1;
     else
-      ResetTarget(IspEnvironment, PROGRAM_MODE);
+      resetTarget(port, PROGRAM_MODE);
   } // end for
 
   if (!found)
@@ -466,8 +478,8 @@ const char* Cart::lpc_PhilipsChipVersion(SerialPort& port)
     return version;
   }
 
-  port.SendComPort(IspEnvironment, "Synchronized\n");
-  port.ReceiveComPort(IspEnvironment, Answer, sizeof(Answer) - 1, &realsize, 2, 1000);
+  port.send("Synchronized\n");
+  port.receive(Answer, sizeof(Answer) - 1, 2, 1000);
 
   if ((strcmp(Answer, "Synchronized\r\nOK\r\n") != 0) && (strcmp(Answer, "Synchronized\rOK\r\n") != 0) &&
       (strcmp(Answer, "Synchronized\nOK\r\n") != 0))
@@ -476,11 +488,11 @@ const char* Cart::lpc_PhilipsChipVersion(SerialPort& port)
     return version;
   }
 
-  sprintf(temp, "%s\n", IspEnvironment->StringOscillator);
-  port.SendComPort(IspEnvironment, temp);
-  port.ReceiveComPort(IspEnvironment, Answer, sizeof(Answer)-1, &realsize, 2, 1000);
+  sprintf(temp, "%s\n", oscillator.c_str());
+  port.send(temp);
+  port.receive(Answer, sizeof(Answer)-1, 2, 1000);
 
-  sprintf(temp, "%s\nOK\r\n", IspEnvironment->StringOscillator);
+  sprintf(temp, "%s\nOK\r\n", oscillator.c_str());
   if (strcmp(Answer, temp) != 0)
   {
     strcpy(version, "ERROR: No answer on Oscillator-Command");
@@ -488,15 +500,15 @@ const char* Cart::lpc_PhilipsChipVersion(SerialPort& port)
   }
 
   cmdstr = "U 23130\n";
-  if (!SendAndVerify(IspEnvironment, cmdstr, Answer, sizeof Answer))
+  if (!lpc_SendAndVerify(port, cmdstr, Answer, sizeof Answer))
   {
-    sprintf(version, "ERROR: Unlock-Command: %d", (UNLOCK_ERROR + GetAndReportErrorNumber(Answer)));
+    sprintf(version, "ERROR: Unlock-Command: %d", (UNLOCK_ERROR + lpc_GetAndReportErrorNumber(Answer)));
     return version;
   }
 
   cmdstr = "K\n";
-  port.SendComPort(IspEnvironment, cmdstr);
-  port.ReceiveComPort(IspEnvironment, Answer, sizeof(Answer)-1, &realsize, 4,5000);
+  port.send(cmdstr);
+  port.receive(Answer, sizeof(Answer)-1, 4, 5000);
   if (strncmp(Answer, cmdstr, strlen(cmdstr)) != 0)
   {
     strcpy(version, "ERROR: no answer on Read Boot Code Version");
@@ -507,8 +519,8 @@ const char* Cart::lpc_PhilipsChipVersion(SerialPort& port)
     strippedAnswer = Answer + strlen(cmdstr) + 3;
 
   cmdstr = "J\n";
-  port.SendComPort(IspEnvironment, cmdstr);
-  port.ReceiveComPort(IspEnvironment, Answer, sizeof(Answer)-1, &realsize, 3,5000);
+  port.send(cmdstr);
+  port.receive(Answer, sizeof(Answer)-1, 3, 5000);
   if (strncmp(Answer, cmdstr, strlen(cmdstr)) != 0)
   {
     strcpy(version, "ERROR: no answer on Read Part Id");
@@ -516,23 +528,65 @@ const char* Cart::lpc_PhilipsChipVersion(SerialPort& port)
   }
 
   strippedAnswer = (strncmp(Answer, "J\n0\r\n", 5) == 0) ? Answer + 5 : Answer;
-  Pos = strtoul(strippedAnswer, &endPtr, 10);
+  uInt32 Pos = strtoul(strippedAnswer, &endPtr, 10);
   *endPtr = '\0'; /* delete \r\n */
   for (i = sizeof LPCtypes / sizeof LPCtypes[0] - 1; i > 0 && LPCtypes[i].id != Pos; i--)
     /* nothing */;
 
-  IspEnvironment->DetectedDevice = i;
-  if (IspEnvironment->DetectedDevice != 0)
+  int DetectedDevice = i;
+  if (DetectedDevice != 0)
   {
     sprintf(version, "LPC%d, %d kiB ROM / %d kiB SRAM",
-            LPCtypes[IspEnvironment->DetectedDevice].Product,
-            LPCtypes[IspEnvironment->DetectedDevice].FlashSize,
-            LPCtypes[IspEnvironment->DetectedDevice].RAMSize);
+            LPCtypes[DetectedDevice].Product,
+            LPCtypes[DetectedDevice].FlashSize,
+            LPCtypes[DetectedDevice].RAMSize);
   }
 
   return version;
 }
 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+int Cart::lpc_SendAndVerify(SerialPort& port, const char* Command,
+                            char* AnswerBuffer, int AnswerLength)
+{
+  int cmdlen;
+
+  port.send(Command);
+  port.receive(AnswerBuffer, AnswerLength - 1, 2, 5000);
+  cmdlen = strlen(Command);
+
+  return (strncmp(AnswerBuffer, Command, cmdlen) == 0 &&
+          strcmp(AnswerBuffer + cmdlen, "0\r\n") == 0);
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+unsigned char Cart::lpc_GetAndReportErrorNumber(const char* Answer)
+{
+  unsigned char Result = 0xFF;    // Error !!!
+  unsigned int i = 0;
+
+  while (1)
+  {
+    if (Answer[i] == 0x00)
+      break;
+
+    if (Answer[i] == 0x0a)
+    {
+      i++;
+
+      if (Answer[i] < '0' || Answer[i] > '9')
+        break;
+
+      Result = (unsigned char) (atoi(&Answer[i]));
+      break;
+    }
+    i++;
+  }
+
+//  PhilipsOutputErrorMessage(Result);
+
+  return Result;
+}
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const uInt32 Cart::SectorTable_210x[] = {
