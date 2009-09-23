@@ -64,20 +64,18 @@ class SerialPortUNIX : public SerialPort
 
       @param answer    Buffer to hold the bytes read from the serial port
       @param max_size  The size of buffer pointed to by answer
-      @param real_size Pointer to a long that returns the amount of the
-                       buffer that is actually used
-      @return  The number of bytes read (-1 indicates error)
+      @return  The number of bytes read
     */
-    int ReceiveComPortBlock(void* answer, uInt32 max_size, uInt32* real_size);
+    uInt32 receiveBlock(void* answer, uInt32 max_size);
 
     /**
       Write block of bytes to the serial port.
 
       @param data  The byte(s) to write to the port
       @param size  The size of the block
-      @return  The number of bytes written (-1 indicates error)
+      @return  The number of bytes written
     */
-    int SendComPortBlock(const void* data, uInt32 size);
+    uInt32 sendBlock(const void* data, uInt32 size);
 
     /**
       Sets (or resets) the timeout to the timout period requested.  Starts
@@ -85,16 +83,16 @@ class SerialPortUNIX : public SerialPort
       the timeout specifies the accumulated deadtime waiting to read not the
       total time waiting to read. They should be close enough to the same for
       this use. Used by the serial input routines, the actual counting takes
-      place in ReceiveComPortBlock.
+      place in receiveBlock.
 
       @param timeout_milliseconds  The time in milliseconds to use for timeout
     */
-    void SerialTimeoutSet(uInt32 timeout_milliseconds);
+    void setTimeout(uInt32 timeout_milliseconds);
 
     /**
       Empty the serial port buffers.  Cleans things to a known state.
     */
-    void ClearSerialPortBuffers();
+    void clearBuffers();
 
     /**
       Controls the modem lines to place the microcontroller into various
@@ -103,7 +101,7 @@ class SerialPortUNIX : public SerialPort
       @param DTR  The state to set the DTR line to
       @param RTS  The state to set the RTS line to
     */
-    void ControlModemLines(bool DTR, bool RTS);
+    void controlModemLines(bool DTR, bool RTS);
 
     /**
       Sleep the specified amount of time (in milliseconds).

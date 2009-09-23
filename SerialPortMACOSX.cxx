@@ -119,32 +119,32 @@ bool SerialPortMACOSX::isOpen()
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-int SerialPortMACOSX::ReceiveComPortBlock(void* answer, uInt32 max_size, uInt32* real_size)
+int SerialPortMACOSX::receiveBlock(void* answer, uInt32 max_size, uInt32* real_size)
 {
   int result = -1;
   if(myHandle)
   {
     result = read(myHandle, answer, max_size);
     if(result == 0)
-      SerialTimeoutTick();
+      timeoutTick();
   }
   return result;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-int SerialPortMACOSX::SendComPortBlock(const void* data, uInt32 size)
+int SerialPortMACOSX::sendBlock(const void* data, uInt32 size)
 {
   return myHandle ? write(myHandle, data, size) : -1;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void SerialPortMACOSX::SerialTimeoutSet(uInt32 timeout_milliseconds)
+void SerialPortMACOSX::setTimeout(uInt32 timeout_milliseconds)
 {
   mySerialTimeoutCount = timeout_milliseconds / 100;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void SerialPortMACOSX::ClearSerialPortBuffers()
+void SerialPortMACOSX::clearBuffers()
 {
   // Variables to store the current tty state, create a new one
   struct termios origtty, tty;
@@ -161,7 +161,7 @@ void SerialPortMACOSX::ClearSerialPortBuffers()
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void SerialPortMACOSX::ControlModemLines(bool DTR, bool RTS)
+void SerialPortMACOSX::controlModemLines(bool DTR, bool RTS)
 {
   // Handle whether to swap the control lines
   if(myControlLinesSwapped)

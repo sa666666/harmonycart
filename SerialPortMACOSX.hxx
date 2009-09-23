@@ -75,7 +75,7 @@ class SerialPortMACOSX : public SerialPort
                        buffer that is actually used
       @return  The number of bytes read (-1 indicates error)
     */
-    int ReceiveComPortBlock(void* answer, uInt32 max_size, uInt32* real_size);
+    int receiveBlock(void* answer, uInt32 max_size, uInt32* real_size);
 
     /**
       Write block of bytes to the serial port.
@@ -84,7 +84,7 @@ class SerialPortMACOSX : public SerialPort
       @param size  The size of the block
       @return  The number of bytes written (-1 indicates error)
     */
-    int SendComPortBlock(const void* data, uInt32 size);
+    int sendBlock(const void* data, uInt32 size);
 
     /**
       Sets (or resets) the timeout to the timout period requested.  Starts
@@ -92,16 +92,16 @@ class SerialPortMACOSX : public SerialPort
       the timeout specifies the accumulated deadtime waiting to read not the
       total time waiting to read. They should be close enough to the same for
       this use. Used by the serial input routines, the actual counting takes
-      place in ReceiveComPortBlock.
+      place in receiveBlock.
 
       @param timeout_milliseconds  The time in milliseconds to use for timeout
     */
-    void SerialTimeoutSet(uInt32 timeout_milliseconds);
+    void setTimeout(uInt32 timeout_milliseconds);
 
     /**
       Empty the serial port buffers.  Cleans things to a known state.
     */
-    void ClearSerialPortBuffers();
+    void clearBuffers();
 
     /**
       Controls the modem lines to place the microcontroller into various
@@ -110,7 +110,7 @@ class SerialPortMACOSX : public SerialPort
       @param DTR  The state to set the DTR line to
       @param RTS  The state to set the RTS line to
     */
-    void ControlModemLines(bool DTR, bool RTS);
+    void controlModemLines(bool DTR, bool RTS);
 
     /**
       Get all valid serial ports detected on this system.

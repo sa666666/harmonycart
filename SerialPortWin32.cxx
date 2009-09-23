@@ -123,20 +123,20 @@ bool SerialPortWin32::isOpen()
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-int SerialPortWin32::ReceiveComPortBlock(void* answer, uInt32 max_size, uInt32* real_size)
+int SerialPortWin32::receiveBlock(void* answer, uInt32 max_size, uInt32* real_size)
 {
   int result = -1;
   if(myHandle)
   {
     ReadFile(myHandle, answer, max_size, &result, NULL);
     if(result == 0)
-      SerialTimeoutTick(IspEnvironment);
+      timeoutTick(IspEnvironment);
   }
   return result;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-int SerialPortWin32::SendComPortBlock(const void* data, uInt32 size)
+int SerialPortWin32::sendBlock(const void* data, uInt32 size)
 {
   unsigned long realsize;
   size_t m;
@@ -154,19 +154,19 @@ int SerialPortWin32::SendComPortBlock(const void* data, uInt32 size)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void SerialPortWin32::SerialTimeoutSet(uInt32 timeout_milliseconds)
+void SerialPortWin32::setTimeout(uInt32 timeout_milliseconds)
 {
   mySerialTimeoutCount = timeout_milliseconds;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void SerialPortWin32::ClearSerialPortBuffers()
+void SerialPortWin32::clearBuffers()
 {
   PurgeComm(myHandle, PURGE_TXABORT | PURGE_RXABORT | PURGE_TXCLEAR | PURGE_RXCLEAR);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void SerialPortWin32::ControlModemLines(bool DTR, bool RTS)
+void SerialPortWin32::controlModemLines(bool DTR, bool RTS)
 {
   // Handle whether to swap the control lines
   if(myControlLinesSwapped)

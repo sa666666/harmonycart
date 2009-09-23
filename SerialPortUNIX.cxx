@@ -135,32 +135,32 @@ bool SerialPortUNIX::isOpen()
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-int SerialPortUNIX::ReceiveComPortBlock(void* answer, uInt32 max_size, uInt32* real_size)
+uInt32 SerialPortUNIX::receiveBlock(void* answer, uInt32 max_size)
 {
-  int result = -1;
+  uInt32 result = 0;
   if(myHandle)
   {
     result = read(myHandle, answer, max_size);
     if(result == 0)
-      SerialTimeoutTick();
+      timeoutTick();
   }
   return result;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-int SerialPortUNIX::SendComPortBlock(const void* data, uInt32 size)
+uInt32 SerialPortUNIX::sendBlock(const void* data, uInt32 size)
 {
-  return myHandle ? write(myHandle, data, size) : -1;
+  return myHandle ? write(myHandle, data, size) : 0;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void SerialPortUNIX::SerialTimeoutSet(uInt32 timeout_milliseconds)
+void SerialPortUNIX::setTimeout(uInt32 timeout_milliseconds)
 {
   mySerialTimeoutCount = timeout_milliseconds / 100;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void SerialPortUNIX::ClearSerialPortBuffers()
+void SerialPortUNIX::clearBuffers()
 {
   // Variables to store the current tty state, create a new one
   struct termios origtty, tty;
@@ -177,7 +177,7 @@ void SerialPortUNIX::ClearSerialPortBuffers()
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void SerialPortUNIX::ControlModemLines(bool DTR, bool RTS)
+void SerialPortUNIX::controlModemLines(bool DTR, bool RTS)
 {
   // Handle whether to swap the control lines
   if(myControlLinesSwapped)
@@ -233,7 +233,7 @@ const StringList& SerialPortUNIX::getPortNames()
         if(openPort(device))
         {
           uInt8 c;
-          int n = ReceiveComPortBlock(&c, 1, 0);
+          int n = receiveBlock(&c, 1);
           if(n >= 0)
             myPortNames.push_back(device);
         }
