@@ -90,9 +90,6 @@ software will allow you to do this from the UI.</string>
        </widget>
       </widget>
       <widget class="QWidget" name="devTab">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
        <attribute name="title">
         <string>Development</string>
        </attribute>
@@ -117,7 +114,7 @@ software will allow you to do this from the UI.</string>
              <string/>
             </property>
             <property name="pixmap">
-             <pixmap resource="resources.qrc">:/icons/pics/romchip.png</pixmap>
+             <pixmap>:/icons/pics/romchip.png</pixmap>
             </property>
            </widget>
           </item>
@@ -836,8 +833,6 @@ Left-click to use the chosen ROM.</string>
    </property>
   </action>
  </widget>
- <resources>
-  <include location="resources.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

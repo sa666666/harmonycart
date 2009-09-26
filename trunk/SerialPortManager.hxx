@@ -44,8 +44,11 @@ class SerialPortManager
     const string& portName();
     const string& versionID();
 
+    bool openCartPort();
+    void closeCartPort();
+
   private:
-    bool connect(const string& device, Cart& cart);
+    bool detect(const string& device, Cart& cart);
 
   private:
   #if defined(BSPF_WIN32)

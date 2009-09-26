@@ -52,18 +52,15 @@ Q_OBJECT
     void assignToQPButton(QPushButton* button, int id);
     void assignToQPButton(QPushButton* button, int id, const QString& file, bool save);
 
-    static void downloadInterrupt();
-
   private slots:
     void slotConnectHarmonyCart();
 
-    void slotUpdateBIOS();
+    void slotDownloadBIOS();
+    void slotDownloadROM();
 
     void slotOpenROM();
-    void slotDownloadROM();
     void slotVerifyROM();
     void slotRetry(QAction* action);
-    void slotSetBSType(const QString& text);
     void slotAbout();
     void slotQPButtonClicked(int id);
     void slotShowDefaultMsg();
@@ -73,11 +70,9 @@ Q_OBJECT
 
     Cart myCart;
     SerialPortManager myManager;
-    BSType myDetectedBSType;
 
     QLabel* myStatus;
     QLabel* myLED;
-    QProgressBar* myProgress;
 
     QString myHarmonyCartMessage;
 };

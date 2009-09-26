@@ -18,6 +18,7 @@
 #include <cstring>
 
 #include "bspf.hxx"
+#include "BSType.hxx"
 #include "Cart.hxx"
 #include "SerialPort.hxx"
 #include "SerialPortManager.hxx"
@@ -47,12 +48,12 @@ void runCommandlineApp(HarmonyCartWindow& win, int ac, char* av[])
     cout << "HarmonyCart not detected" << endl;
     return;
   }
-
+#if 0
   // Create a new cart for writing
   Cart cart;
 
   // Create a new single-load cart
-  cart.create(romfile, bstype);
+  cart.downloadROM(manager.port(), romfile, Bankswitch::nameToType(bstype));
 
   // Write to serial port
   if(cart.isValid())
@@ -73,6 +74,7 @@ void runCommandlineApp(HarmonyCartWindow& win, int ac, char* av[])
   }
   else
     cout << "ERROR: Invalid cartridge, not written" << endl;
+#endif
 }
 
 

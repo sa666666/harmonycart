@@ -22,9 +22,39 @@
 */
 
 #include <cstring>
+#include <fstream>
 
 #include "bspf.hxx"
 #include "CartDetector.hxx"
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+BSType CartDetector::autodetectType(const string& rom)
+{
+  BSType type = BS_NONE;
+
+  uInt8 buffer[512*1024];
+  uInt32 size;
+
+
+  // Read file into buffer
+  ifstream in(rom.c_str(), ios::binary);
+  if(in)
+  {
+    // Figure out how much data we should read
+    in.seekg(0, ios::end);
+    streampos length = in.tellg();
+    in.seekg(0, ios::beg);
+    if(length > 0)
+    {
+      uInt8* buffer = new uInt8[length];
+      in.read((char*)buffer, length);
+      in.close();
+      type = autodetectType(buffer, length);
+      delete[] buffer;
+    }
+  }
+  return type;
+}
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 BSType CartDetector::autodetectType(const uInt8* image, uInt32 size)

@@ -39,12 +39,30 @@ void SerialPortManager::setDefaultPort(const string& port)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+bool SerialPortManager::openCartPort()
+{
+  if(harmonyCartAvailable())
+  {
+    myPort.closePort();
+    myPort.openPort(myPortName);
+    return true;
+  }
+  return false;
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+void SerialPortManager::closeCartPort()
+{
+  myPort.closePort();
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void SerialPortManager::connectHarmonyCart(Cart& cart)
 {
   myFoundHarmonyCart = false;
 
   // First try the port that was successful the last time
-  if(myPortName != "" && connect(myPortName, cart))
+  if(myPortName != "" && detect(myPortName, cart))
   {
     // myPortName already contains the correct name
   }
@@ -53,7 +71,7 @@ void SerialPortManager::connectHarmonyCart(Cart& cart)
     const StringList& ports = myPort.getPortNames();
     for(uInt32 i = 0; i < ports.size(); ++i)
     {
-      if(connect(ports[i], cart))
+      if(detect(ports[i], cart))
       {
         break;
       }
@@ -62,7 +80,7 @@ void SerialPortManager::connectHarmonyCart(Cart& cart)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool SerialPortManager::connect(const string& device, Cart& cart)
+bool SerialPortManager::detect(const string& device, Cart& cart)
 {
   myPort.closePort();
   myFoundHarmonyCart = false;
