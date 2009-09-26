@@ -26,50 +26,6 @@
 #include "BSType.hxx"
 #include "SerialPort.hxx"
 
-enum TARGET           { PHILIPS_ARM, ANALOG_DEVICES_ARM };
-enum TARGET_MODE      { PROGRAM_MODE, RUN_MODE          };
-enum FILE_FORMAT_TYPE { FORMAT_BINARY, FORMAT_HEX       };
-
-    typedef struct {
-      TARGET micro;                                // The type of micro that will be programmed.
-      FILE_FORMAT_TYPE FileFormat;
-      unsigned char ProgramChip;                // Normally set
-
-      int debug_level;
-      unsigned char ControlLines;
-      unsigned char ControlLinesSwapped;
-      unsigned char ControlLinesInverted;
-      unsigned char LogFile;
-      char *input_file;                   // The name of the file to get input from.
-      char *serial_port;                  // Name of the serial port to use to
-                                          // communicate with the microcontroller.
-                                          // Read from the command line.
-
-      unsigned char TerminalOnly;         // Declared here for lazyness saves ifdef's
-
-      unsigned char HalfDuplex;           // Only used for LPC Programming
-      unsigned char DetectOnly;
-      unsigned char WipeDevice;
-      unsigned char Verify;
-      int           DetectedDevice;       /* index in LPCtypes[] array */
-      char *baud_rate;                    /**< Baud rate to use on the serial
-                                             * port communicating with the
-                                             * microcontroller. Read from the
-                                             * command line.                        */
-
-      char StringOscillator[6];           /**< Holds representation of oscillator
-                                             * speed from the command line.         */
-
-      uInt8* FileContent;
-      uInt8* BinaryContent;              /**< Binary image of the                  */
-                                          /* microcontroller's memory.            */
-      unsigned long BinaryLength;
-      unsigned long BinaryOffset;
-      unsigned long StartAddress;
-      unsigned long BinaryMemSize;
-    } ISP_ENVIRONMENT;
-
-
 /**
  *
  * @author stephena
@@ -82,6 +38,7 @@ class Cart
       cartridges to upload BIOS files.
     */
     Cart();
+    ~Cart();
 
   public:
     /**
@@ -91,26 +48,18 @@ class Cart
     string autodetectHarmony(SerialPort& port);
 
     /**
-      Resets the target leaving it in either download (program) mode or
-      run mode.
-
-      @param mode  The mode to leave the target in
-    */
-    void resetTarget(SerialPort& port, TARGET_MODE mode);
-
-    /**
       Loads EEPROM loader BIOS data from the given filename.
       The filename should exist and be readable.
     */
-    bool updateBIOS(const string& filename);
+    string downloadBIOS(SerialPort& port, const string& filename);
 
 
     /**
-      Loads cartridge data from the given filename, creating a cart.
+      Loads ROM cartridge data from the given filename, creating a cart.
       The bankswitch type is autodetected if type is "".
       The filename should exist and be readable.
     */
-    bool create(const string& filename, const string& type = "");
+    string downloadROM(SerialPort& port, const string& filename, BSType type);
 
     //////////////////////////////////////////////////////////////////
     //  The following two methods act as an iterator through all the
@@ -151,29 +100,27 @@ class Cart
     */
     uInt16 verifyNextSector(SerialPort& port);
 
-    /** Accessor and mutator for bankswitch type. */
-    BSType getBSType()            { return myType; }
-    void   setBSType(BSType type) { myType = type; }
-
     /** Set number of write retries before bailing out. */
     void setRetry(int retry) { myRetry = retry; }
 
-    /** Get the current cart size. */
-    uInt32 getSize() { return myCartSize; }
-
-    /** Was the ROM loaded correctly? */
-    bool isValid() { return myIsValid; }
-
-    /** Auxiliary method to autodetect the bankswitch type. */
-    static BSType autodetectType(uInt8* data, uInt32 size);
-
   private:
+    enum TARGET           { PHILIPS_ARM, ANALOG_DEVICES_ARM };
+    enum TARGET_MODE      { PROGRAM_MODE, RUN_MODE          };
+    enum FILE_FORMAT_TYPE { FORMAT_BINARY, FORMAT_HEX       };
+
     /**
-      Read data from given file and place it in the given buffer.
-      The bankswitch type is also autodetected here.
+      Read data from given file and return it in a buffer, along
+      with the allocated size.
     */
-    int readFile(const string& filename, uInt8* cartridge, uInt32 maxSize,
-                 const string& type);
+    uInt8* readFile(const string& filename, uInt32& size);
+
+    /**
+      Resets the target leaving it in either download (program) mode or
+      run mode.
+
+      @param mode  The mode to leave the target in
+    */
+    void resetTarget(SerialPort& port, TARGET_MODE mode);
 
     /**
       Write the given sector to the serial port.
@@ -184,6 +131,30 @@ class Cart
       Read and verify the given sector from the serial port.
     */
     bool verifySector(uInt32 sector, SerialPort& port);
+
+    const char* lpc_PhilipsChipVersion(SerialPort& port);
+    int lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size, bool showdialog);
+    uInt32 lpc_ReturnValueLpcRamStart();
+    uInt32 lpc_ReturnValueLpcRamBase();
+
+    /**
+      Download the file from the internal memory image to the philips
+      microcontroller.
+    */
+    int lpc_SendAndVerify(SerialPort& port, const char* Command,
+                          char* AnswerBuffer, int AnswerLength);
+
+    /**
+      Find error number in string.  This will normally be the string
+      returned from the microcontroller.
+
+      @param Answer  The buffer to search for the error number
+      @return   The error number found, if no linefeed found before the end
+                of the string an error value of 255 is returned.  If a
+                non-numeric value is found then it is printed to stdout and
+                an error value of 255 is returned.
+    */
+    unsigned char lpc_GetAndReportErrorNumber(const char* Answer);
 
   private:
     /* LPC_RAMSTART, LPC_RAMBASE
@@ -267,42 +238,15 @@ class Cart
     static uInt32 SectorTable_RAM[1];
     static LPC_DEVICE_TYPE LPCtypes[52];
 
-    const char* lpc_PhilipsChipVersion(SerialPort& port, const string& oscillator);
-    int lpc_PhilipsDownload(SerialPort& port);
-    unsigned long ReturnValueLpcRamStart(ISP_ENVIRONMENT *IspEnvironment);
-    unsigned long ReturnValueLpcRamBase(ISP_ENVIRONMENT *IspEnvironment);
-
-    /**
-      Download the file from the internal memory image to the philips
-      microcontroller.
-    */
-    int lpc_SendAndVerify(SerialPort& port, const char* Command,
-                          char* AnswerBuffer, int AnswerLength);
-
-    /**
-      Find error number in string.  This will normally be the string
-      returned from the microcontroller.
-
-      @param Answer  The buffer to search for the error number
-      @return   The error number found, if no linefeed found before the end
-                of the string an error value of 255 is returned.  If a
-                non-numeric value is found then it is printed to stdout and
-                an error value of 255 is returned.
-    */
-    unsigned char lpc_GetAndReportErrorNumber(const char* Answer);
-
-
-  private:
-    uInt8  myCart[MAXCARTSIZE];
-    uInt32 myCartSize;
+    uInt32 myDetectedDevice;
     uInt32 myRetry;
-    BSType myType;
+    string myOscillator;
+    uInt8* myBinaryContent;
+    uInt32 myBinaryLength;
 
     // The following keep track of progress of sector writes
     uInt16 myCurrentSector;
     uInt16 myNumSectors;
-
-    bool myIsValid;
 };
 
 #endif

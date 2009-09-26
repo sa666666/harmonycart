@@ -765,7 +765,6 @@ int LoadFile(ISP_ENVIRONMENT *IspEnvironment)
     lseek(fd, 0L, 0);
 
     FileContent = (BINARY*) malloc(FileLength);
-
     BinaryMemSize = FileLength * 2;
 
     IspEnvironment->BinaryLength = 0;   /* Increase length as needed.       */
@@ -795,7 +794,6 @@ int LoadFile(ISP_ENVIRONMENT *IspEnvironment)
 
         IspEnvironment->BinaryLength = NewBinaryLength;
     }
-
     return TRUE;
 }
 

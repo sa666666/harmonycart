@@ -20,7 +20,6 @@
 #include <QString>
 #include <QStatusBar>
 #include <QTextEdit>
-#include <QProgressDialog>
 #include <QAction>
 #include <QActionGroup>
 #include <QButtonGroup>
@@ -35,17 +34,14 @@
 #include <sstream>
 using namespace std;
 
+#include "CartDetector.hxx"
 #include "HarmonyCartWindow.hxx"
 #include "ui_harmonycartwindow.h"
-
-static uInt32 STEPS = 0;
-static QProgressDialog* PROGRESS;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 HarmonyCartWindow::HarmonyCartWindow(QWidget* parent)
   : QMainWindow(parent),
-    ui(new Ui::HarmonyCartWindow),
-    myDetectedBSType(BS_NONE)
+    ui(new Ui::HarmonyCartWindow)
 {
   // Create GUI
   ui->setupUi(this);
@@ -74,9 +70,6 @@ HarmonyCartWindow::HarmonyCartWindow(QWidget* parent)
 
   // Find and connect to HarmonyCart (make sure ::readSettings() is called first)
   slotConnectHarmonyCart();
-
-// disable this until we get the second tab activated
-ui->actSelectROM->setDisabled(true);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -114,7 +107,7 @@ void HarmonyCartWindow::setupConnections()
   // 'BIOS Update' tab
   ///////////////////////////////////////////////////////////
   // Buttons
-  connect(ui->updateBIOSButton, SIGNAL(clicked()), this, SLOT(slotUpdateBIOS()));
+  connect(ui->updateBIOSButton, SIGNAL(clicked()), this, SLOT(slotDownloadBIOS()));
 
   ///////////////////////////////////////////////////////////
   // 'Development' tab
@@ -123,7 +116,6 @@ void HarmonyCartWindow::setupConnections()
   connect(ui->openRomButton, SIGNAL(clicked()), this, SLOT(slotOpenROM()));
   connect(ui->downloadButton, SIGNAL(clicked()), this, SLOT(slotDownloadROM()));
   connect(ui->verifyButton, SIGNAL(clicked()), this, SLOT(slotVerifyROM()));
-  connect(ui->romBSType, SIGNAL(activated(const QString&)), this, SLOT(slotSetBSType(const QString&)));
 
   // Quick-select buttons
   QButtonGroup* qpGroup = new QButtonGroup(this);
@@ -265,7 +257,7 @@ void HarmonyCartWindow::slotConnectHarmonyCart()
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void HarmonyCartWindow::slotUpdateBIOS()
+void HarmonyCartWindow::slotDownloadBIOS()
 {
   if(!myManager.harmonyCartAvailable())
   {
@@ -273,10 +265,6 @@ void HarmonyCartWindow::slotUpdateBIOS()
     return;
   }
 
-  // Eventually, we'll be delegating this to the Cart class, which will
-  // properly divide each piece of the file into managable 'chunks' that
-  // can be written separately, and continuous progress shown
-  // For now, we just deal with it all here
   QString biosfile = "arm/eeloader.bin";
   if(!QFile::exists(biosfile))
   {
@@ -284,6 +272,19 @@ void HarmonyCartWindow::slotUpdateBIOS()
       "Couldn't find eeloader.bin file.\nCheck the \'arm\' folder.");
     return;
   }
+
+  if(myManager.openCartPort())
+  {
+    string result = myCart.downloadBIOS(myManager.port(), biosfile.toStdString());
+    myStatus->setText(result.c_str());
+
+    myManager.closeCartPort();
+  }
+  else
+    myStatus->setText("Couldn't open serial port.");
+
+  QTimer::singleShot(2000, this, SLOT(slotShowDefaultMsg()));
+
 #if 0
   STEPS = biosfile.size() / 45;
   PROGRESS = new QProgressDialog("Updating BIOS...", QString(), 0, STEPS, this);
@@ -318,44 +319,22 @@ void HarmonyCartWindow::slotDownloadROM()
     myStatus->setText("Harmony Cart not found.");
     return;
   }
-  else if(!myCart.isValid())
-  {
-    myStatus->setText("Invalid cartridge.");
-    QTimer::singleShot(2000, this, SLOT(slotShowDefaultMsg()));
-    return;
-  }
 
-  // Write to serial port
-  uInt16 sector = 0, numSectors = myCart.initSectors();
-  QProgressDialog progress("Downloading ROM...", QString(), 0, numSectors, this);
-  progress.setWindowModality(Qt::WindowModal);
-  progress.setMinimumDuration(0);
-  try
+  if(myManager.openCartPort())
   {
-    for(sector = 0; sector < numSectors; ++sector)
-    {
-      myCart.writeNextSector(myManager.port());
-      progress.setValue(sector);
-    }
-  }
-  catch(const char* msg)
-  {
-    cout << msg << endl;
-  }
+    const string& romfile = ui->romFileEdit->text().toStdString();
+    QRegExp regex("([a-zA-Z0-9]*)");
+    regex.indexIn(ui->romBSType->currentText());
+    QString t = regex.cap();
+    BSType type = Bankswitch::nameToType(regex.cap().toStdString());
 
-  if(sector == numSectors)
-  {
-    progress.setValue(numSectors);
-    myStatus->setText("Cartridge downloaded.");
+    string result = myCart.downloadROM(myManager.port(), romfile, type);
+    myStatus->setText(result.c_str());
 
-    ui->verifyButton->setDisabled(false);  ui->actVerifyROM->setDisabled(false);
-
-    // See if we should automatically verify the download
-    if(ui->actAutoVerifyDownload->isChecked())
-      slotVerifyROM();
+    myManager.closeCartPort();
   }
   else
-    myStatus->setText("Download failure on sector " + QString::number(sector) + ".");
+    myStatus->setText("Couldn't open serial port.");
 
   QTimer::singleShot(2000, this, SLOT(slotShowDefaultMsg()));
 }
@@ -363,6 +342,7 @@ void HarmonyCartWindow::slotDownloadROM()
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void HarmonyCartWindow::slotVerifyROM()
 {
+#if 0
   if(!myManager.harmonyCartAvailable())
   {
     myStatus->setText("Harmony Cart not found.");
@@ -402,6 +382,7 @@ void HarmonyCartWindow::slotVerifyROM()
     myStatus->setText("Verify failure on sector " + QString::number(sector) + ".");
 
   QTimer::singleShot(2000, this, SLOT(slotShowDefaultMsg()));
+#endif
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -411,25 +392,6 @@ void HarmonyCartWindow::slotRetry(QAction* action)
   else if(action == ui->actRetry1)  myCart.setRetry(1);
   else if(action == ui->actRetry2)  myCart.setRetry(2);
   else if(action == ui->actRetry3)  myCart.setRetry(3);
-}
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void HarmonyCartWindow::slotSetBSType(const QString& text)
-{
-  QRegExp regex("([a-zA-Z0-9]*)");
-  regex.indexIn(text);
-  QString t = regex.cap();
-  BSType selectedType = Bankswitch::nameToType(regex.cap().toStdString());
-
-  if(myCart.isValid())
-  {
-    if(myDetectedBSType != selectedType)
-    {
-cerr << "Sure you want to override type (yes/no/always)?\n";
-    }
-    else
-      myCart.setBSType(myDetectedBSType);
-  }
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -468,38 +430,31 @@ void HarmonyCartWindow::slotQPButtonClicked(int id)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void HarmonyCartWindow::loadROM(const QString& file)
+void HarmonyCartWindow::loadROM(const QString& filename)
 {
-  if(file == "")
+  if(filename == "")
     return;
 
   ui->romBSType->setDisabled(true);
   ui->downloadButton->setDisabled(true);  ui->actDownloadROM->setDisabled(true);
   ui->verifyButton->setDisabled(true);  ui->actVerifyROM->setDisabled(true);
 
-  // Create a cart from the given filename
-  myCart.create(file.toStdString());
+  // Set name and file size
+  QFile file(filename);
+  ui->romFileEdit->setText(filename);
+  ui->romSizeLabel->setText(QString::number(file.size()) + " bytes");
 
-  if(myCart.isValid())
-  {
-    ui->romFileEdit->setText(file);
-    ui->romSizeLabel->setText(QString::number(myCart.getSize()) + " bytes.");
-    myDetectedBSType = myCart.getBSType();
-    QString bstype = Bankswitch::typeToName(myDetectedBSType).c_str();
-    int match = ui->romBSType->findText(bstype, Qt::MatchStartsWith);
-    ui->romBSType->setCurrentIndex(match < ui->romBSType->count() ? match : 0);
-    ui->romBSType->setDisabled(false);
-    ui->downloadButton->setDisabled(false);  ui->actDownloadROM->setDisabled(false);
+  // Set autodetected bankswitch type
+  BSType type = CartDetector::autodetectType(filename.toStdString());
+  QString bstype = Bankswitch::typeToName(type).c_str();
+  int match = ui->romBSType->findText(bstype, Qt::MatchStartsWith);
+  ui->romBSType->setCurrentIndex(match < ui->romBSType->count() ? match : 0);
+  ui->romBSType->setDisabled(false);
+  ui->downloadButton->setDisabled(false);  ui->actDownloadROM->setDisabled(false);
 
-    // See if we should automatically download
-    if(ui->actAutoDownFileSelect->isChecked())
-      slotDownloadROM();
-  }
-  else
-  {
-    myStatus->setText("Invalid cartridge.");
-    QTimer::singleShot(2000, this, SLOT(slotShowDefaultMsg()));
-  }
+  // See if we should automatically download
+  if(ui->actAutoDownFileSelect->isChecked())
+    slotDownloadROM();
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -541,11 +496,4 @@ void HarmonyCartWindow::slotShowDefaultMsg()
 {
   // TODO - check which tab is activated and customize message
   myStatus->setText(myHarmonyCartMessage);
-}
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void HarmonyCartWindow::downloadInterrupt()
-{
-//cerr << "interrupt received\n";
-  PROGRESS->setValue(++STEPS);
 }
