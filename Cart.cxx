@@ -95,8 +95,9 @@ string Cart::downloadROM(SerialPort& port, const string& filename, BSType type)
 {
   string result = "Cartridge ROM downloaded.";
 
-  uInt32 romsize = 0, armsize = 0;
-  uInt8 *rombuf, *armbuf;
+  uInt32 romsize = 0, armsize = 0, size = 0;
+  uInt8 *rombuf = NULL, *armbuf = NULL;
+  uInt8 binary[64*1024], *binary_ptr = binary;
   string armfile = "";
 
   // Read the ROM file into a buffer
@@ -196,94 +197,96 @@ string Cart::downloadROM(SerialPort& port, const string& filename, BSType type)
 
   // Now we have to combine the rom and ARM code
 
+  if(type == BS_F4SC)  // F4+SC
+  {
+    // Copy ROM data
+    memcpy(binary_ptr, rombuf, romsize);
 
+    // ARM code in first "RAM" area
+    memcpy(binary_ptr, armbuf, 256);
+
+    // ARM code in second "RAM" area
+    if(armsize > 4096)
+      memcpy(binary_ptr+4096, armbuf+4096, armsize-4096);
+
+    size = romsize;
+  }
+  else
+  {
+    if(type == BS_F4)  // F4
+    {
+      // Compress last bank
+      romsize = 28672 + compressLastBank(rombuf);
+    }
+    else if(type == BS_4K && romsize < 4096)  // 2K & 'Sub2K'
+    {
+      // All ROMs 2K or less should be mirrored into the 4K address space
+      uInt32 power2 = 1;
+      while(power2 < romsize)
+        power2 <<= 1;
+
+      // Create a 4K buffer and reassign to rombuf
+      uInt8* tmp = new uInt8[4096];
+      uInt8* tmp_ptr = tmp;
+      for(uInt32 i = 0; i < 4096/power2; ++i, tmp_ptr += power2)
+        memcpy(tmp_ptr, rombuf, romsize);
+
+      delete[] rombuf;
+      rombuf = tmp;
+      romsize = 4096;
+    }
+    else if(type == BS_AR)  // Supercharger
+    {
+      // Take care of special AR ROM which are only 6K
+      if(romsize == 6144)
+      {
+        // Minimum buffer size is 6K + 256 bytes
+        uInt8* tmp = new uInt8[6144+256];
+        memcpy(tmp, rombuf, 6144);  // copy ROM
+        //FIXMEmemcpy(tmp+6144, ourARHeader, 256);
+
+        delete[] rombuf;
+        rombuf = tmp;
+        romsize = 6144 + 256;
+      }
+      else  // size is multiple of 8448
+      {
+        // To save space, we skip 2K in each Supercharger load
+        uInt32 numLoads = romsize/8448;
+        uInt8* tmp = new uInt8[numLoads*(6144+256)];
+        uInt8 *tmp_ptr = tmp, *rom_ptr = rombuf;
+        for(uInt32 i = 0; i < numLoads; ++i, tmp_ptr += 6144+256, rom_ptr += 8448)
+        {
+          memcpy(tmp_ptr, rom_ptr, 6144);                // 6K ROM @ pos 0K
+          memcpy(tmp_ptr+6144, rom_ptr+6144+2048, 256);  // 256b @ pos 8K
+        }
+
+        delete[] rombuf;
+        rombuf = tmp;
+        romsize = numLoads * (6144+256);
+      }
+    }
+
+    if ((type != BS_4K) || (romsize == 4096)) // this will fail if we upload a BIOS file
+    {
+      // Copy ARM data
+      memcpy(binary_ptr, armbuf, armsize);
+      binary_ptr += armsize;
+    }
+    // Copy ROM data
+    memcpy(binary_ptr, rombuf, romsize);
+
+    size = romsize + armsize;
+  }
+
+  // Actually write the data to the cart/serial port, and
+  // use a progressbar to show progress
+  lpc_PhilipsDownload(port, binary, size, true);
 
 cleanup:
   delete[] rombuf;
   delete[] armbuf;
   return result;
-}
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-uInt16 Cart::initSectors()
-{
-#if 0
-  myCurrentSector = 0;
-
-  if(myIsValid)
-  {
-    myNumSectors = myCartSize / 256;        // the number of 256 byte sectors
-    if(myType == BS_3F || myType == BS_3E)  // 3F and 3E add 8 more (2040 - 2047)
-      myNumSectors += 8;
-  }
-  else
-    myNumSectors = 0;
-
-  return myNumSectors;
-#endif
-return 0;
-}
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-uInt16 Cart::writeNextSector(SerialPort& port)
-{
-port.isOpen();
-#if 0
-  if(!myIsValid)
-    throw "write: Invalid cart";
-  else if(myCurrentSector == myNumSectors)
-    throw "write: All sectors already written";
-
-  // Handle 3F and 3E carts, which are a little different from the rest
-  // There are two ranges of sectors; the second starts once we past the
-  // cart size
-  if((myType == BS_3F || myType == BS_3E) &&
-      myCurrentSector == myCartSize / 256)
-    myCurrentSector = 2040;
-
-  uInt16 sector = myCurrentSector;
-  uInt32 retry = 0;
-  bool status;
-  while(!(status = downloadSector(sector, port)) && retry++ < myRetry)
-    cout << "Write transmission of sector " <<  sector << " failed, retry " << retry << endl;
-  if(!status)
-    throw "write: failed max retries";
-
-  myCurrentSector++;
-  return sector;
-#endif
-return 0;
-}
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-uInt16 Cart::verifyNextSector(SerialPort& port)
-{
-port.isOpen();
-#if 0
-  if(!myIsValid)
-    throw "verify: Invalid cart";
-  else if(myCurrentSector == myNumSectors)
-    throw "verify: All sectors already verified";
-
-  // Handle 3F and 3E carts, which are a little different from the rest
-  // There are two ranges of sectors; the second starts once we past the
-  // cart size
-  if((myType == BS_3F || myType == BS_3E) &&
-      myCurrentSector == myCartSize / 256)
-    myCurrentSector = 2040;
-
-  uInt16 sector = myCurrentSector;
-  uInt32 retry = 0;
-  bool status;
-  while(!(status = verifySector(sector, port)) && retry++ < myRetry)
-    cout << "Read transmission of sector " <<  sector << " failed, retry " << retry << endl;
-  if(!status)
-    throw "verify: failed max retries";
-
-  myCurrentSector++;
-  return sector;
-#endif
-return 0;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -318,118 +321,6 @@ uInt8* Cart::readFile(const string& filename, uInt32& size)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool Cart::downloadSector(uInt32 sector, SerialPort& port)
-{
-cerr << sector << port.isOpen();
-#if 0
-  uInt8 buffer[262];
-
-  buffer[0] = 1;                             // Mark start of command
-  buffer[1] = 0;                             // Command # for 'Download Sector'
-  buffer[2] = (uInt8)((sector >> 8) & 0xff); // Sector # Hi-Byte
-  buffer[3] = (uInt8)sector;                 // Sector # Lo-Byte
-  buffer[4] = (uInt8)myType;                 // Bankswitching mode
-
-  uInt8 chksum = 0;
-  for(int i = 0; i < 256; i++)
-    buffer[5+i] = myCart[(sector*256) + i];
-  for(int i = 2; i < 261; i++)
-    chksum ^= buffer[i];
-  buffer[261] = chksum;
-
-  // Write sector to serial port
-  if(port.writeBytes(buffer, 262) != 262)
-  {
-    cout << "Transmission error in downloadSector" << endl;
-    return false;
-  }
-
-  // Check return code of sector write
-  uInt8 result = port.waitForAck();
-
-  // Check return code
-  if(result == 0x7c)
-  {
-    cout << "Checksum Error for sector " << sector << endl;
-    return false;
-  }
-  else if(result == 0xff)
-  {
-    return true;
-  }
-  else
-  {
-    cout << "Undefined response " << (int)result << " for sector " << sector << endl;
-    return false;
-  }
-#endif
-return false;
-}
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool Cart::verifySector(uInt32 sector, SerialPort& port)
-{
-cerr << sector << port.isOpen();
-#if 0
-  uInt8 buffer[257];
-
-  uInt8 chksum = 0;
-  buffer[0] = 1;                             // Mark start of command
-  buffer[1] = 1;                             // Command # for 'Read Sector'
-  buffer[2] = (uInt8)((sector >> 8) & 0xff); // Sector # Hi-Byte
-  buffer[3] = (uInt8)sector;                 // Sector # Lo-Byte
-  chksum ^= buffer[2];
-  chksum ^= buffer[3];
-  buffer[4] = chksum;                        // Chksum
-
-  // Write command to serial port
-  if(port.writeBytes(buffer, 5) != 5)
-  {
-    cout << "Write transmission error of command in verifySector" << endl;
-    return false;
-  }
-
-  // Check return code of command write
-  uInt8 result = port.waitForAck();
-
-  // Check return code
-  if(result == 0x00)
-  {
-    cout << "Checksum Error for verify sector " << sector << endl;
-    return false;
-  }
-  else if(result != 0xfe)
-  {
-    cout << "Undefined response " << (int)result << " for sector " << sector << endl;
-    return false;
-  }
-
-  // Now it's safe to read the sector (256 data bytes + 1 chksum)
-  int BytesRead = 0;
-  do
-  {
-    uInt8 data = 0;
-    if(port.readBytes(&data, 1) == 1)
-      buffer[BytesRead++] = data;
-  }
-  while(BytesRead < 257);
-  port.writeBytes(buffer, 1);  // Send an Ack
-
-  // Make sure the data chksum matches
-  chksum = 0;
-  for(int i = 0; i < 256; ++i)
-    chksum ^= buffer[i];
-  if(chksum != buffer[256])
-    return false;
-
-  // Now that we have a valid sector read back from the device,
-  // compare to the actual data to make sure they match
-  return memcmp(myCart + sector*256, &buffer, 256) == 0;
-#endif
-return false;
-}
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void Cart::resetTarget(SerialPort& port, TARGET_MODE mode)
 {
   switch (mode)
@@ -461,13 +352,118 @@ void Cart::resetTarget(SerialPort& port, TARGET_MODE mode)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+uInt32 Cart::compressLastBank(uInt8* binary)
+{
+  uInt32 a, b, cb, j, k, r, x, y, len, mode_count;
+  uInt8 buflast[4096], buf[40000], bc[10000], dec[10000], bufliteral[200];
+
+  a = b = cb = j = k = r = x = len = mode_count = 0;
+  y = 32768-4096;
+
+  memcpy(buf, binary, 32768);
+
+  while (y < 32768)
+  {
+    x = k = 0;
+    while (x < 32768-4096)
+    {
+      while (buf[y] != buf[x])
+        x++;
+      if (x == 32768-4096)
+        break;
+
+      // match
+      len=0;
+      while ((buf[y+len]==buf[x+len]) && (len<131) && (x+len<32768-4096))
+        len++;
+
+      if (k<len)
+      {
+        k=len;
+        j=x;
+      }
+      x++;
+    }
+
+    // changed from k>4
+    if (k >= 4)
+    {
+      if (b)
+        {bc[cb++]=b;for(a=0;a<b;++a) bc[cb++]=bufliteral[a];b=0;}
+
+      bc[cb++]=k-4+128;
+      bc[cb++]=j/256;
+      bc[cb++]=j%256;
+      mode_count++;
+    }
+    else
+    {
+      mode_count++;
+      if (!k)
+      {
+        k = 1;
+        printf("y %X x %X\n",y,x);
+      } // byte not found in entire binary ???
+
+      for (a = 0; a < k; ++a)
+        bufliteral[a+b]=buf[y+a];
+
+      b += k;
+      if (b>127)
+        {bc[cb++]=127;for(a=0;a<127;++a) bc[cb++]=bufliteral[a];b=b-127;if (b) for (a=0;a<b;++a) bufliteral[a]=bufliteral[a+127];}
+    }
+    y += k;
+  }
+
+  if (b)
+    {bc[cb++]=b;for(a=0;a<b;++a) bc[cb++]=bufliteral[a];b=0;}
+
+  if (cb>3424) // subject to change...
+    {fprintf(stderr,"Unable to compress: file is %d bytes\n",cb+28672);exit(2);}
+
+  // decompression test
+  for (a=0;a<4096;++a)
+    { buflast[a] = buf[32768-4096 + a];  buf[32768-4096 + a] = 0; }
+
+  x = y = 0;
+  while (x < cb)
+  {
+    if (bc[x] > 127) // retrieve from memory
+    {
+      r = bc[x] - 124; // number
+      b = bc[x+1]*256 + bc[x+2]; // address
+      for (a = b; a < b + r; ++a)
+        dec[y++] = buf[a];
+      x += 3;
+    }
+    else // string of literals
+    {
+      r = bc[x]; // number
+      for (a = x + 1; a < x + r + 1; ++a)
+        dec[y++] = bc[a];
+      x += r + 1;
+    }
+  }
+  for (a = 0; a < 4096; ++a)
+    if(dec[a] != buflast[a])
+      break;
+
+  if (a < 4096)
+    {fprintf(stderr,"Unknown compression error\n");exit(3);}
+  else
+    for (a = 0; a < cb; ++a)
+      binary[28672+a] = bc[a];
+
+  return cb;
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const char* Cart::lpc_PhilipsChipVersion(SerialPort& port)
 {
   int nQuestionMarks;
   int found, i;
   int  strippedsize;
   char Answer[128];
-//  char tmp_string[64];
   char temp[128];
   char *strippedAnswer, *endPtr;
   const char* cmdstr;
@@ -656,7 +652,7 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
   myBinaryContent = new uInt8[myBinaryLength];
   memcpy(myBinaryContent, data, size);
 
-  QProgressDialog* progress;
+  QProgressDialog* progress = (QProgressDialog*)NULL;
   uInt32 progressStep = 0, progressSize = myBinaryLength/45 + 20;
 
   if(LPCtypes[myDetectedDevice].ChipVariant == CHIP_VARIANT_LPC2XXX)
@@ -872,20 +868,6 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
     SectorStart = LPCtypes[myDetectedDevice].SectorTable[0];
     Sector = 1;
   }
-
-
-char BUF[200];
-sprintf(BUF, " ==> offset = %d, start addr = %d, length = %d\n", myBinaryOffset, myStartAddress, myBinaryLength);
-cerr <<  BUF << endl;
-sprintf(BUF, " ==> Start @ sector = %d\n", Sector);
-cerr <<  BUF << endl;
-
-
-
-
-
-
-
 
   // Erasing sector 0 first
   cout << "Erasing sector 0 first, to invalidate checksum. ";

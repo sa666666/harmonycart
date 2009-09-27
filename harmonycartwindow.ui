@@ -114,7 +114,7 @@ software will allow you to do this from the UI.</string>
              <string/>
             </property>
             <property name="pixmap">
-             <pixmap>:/icons/pics/romchip.png</pixmap>
+             <pixmap resource="resources.qrc">:/icons/pics/romchip.png</pixmap>
             </property>
            </widget>
           </item>
@@ -289,6 +289,11 @@ software will allow you to do this from the UI.</string>
             </item>
             <item>
              <property name="text">
+              <string>4A50* (64K 4A50 + ram)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
               <string>4K (4K Atari)</string>
              </property>
             </item>
@@ -374,7 +379,22 @@ software will allow you to do this from the UI.</string>
             </item>
             <item>
              <property name="text">
+              <string>MC* (C. Wilkson Megacart)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>SB* (128-256K SUPERbank)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
               <string>UA (8K UA Ltd.)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>X07* (64K AtariAge)</string>
              </property>
             </item>
            </widget>
@@ -833,6 +853,8 @@ Left-click to use the chosen ROM.</string>
    </property>
   </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

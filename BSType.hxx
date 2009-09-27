@@ -48,6 +48,10 @@ enum BSType
   BS_FA,
   BS_FE,
   BS_UA,
+  BS_4A50,
+  BS_X07,
+  BS_SB,
+  BS_MC,
   BS_NONE
 };
 
@@ -79,6 +83,10 @@ class Bankswitch
         case BS_EFSC: return "EFSC";
         case BS_0840: return "0840";
         case BS_DPC:  return "DPC";
+        case BS_4A50: return "4A50";
+        case BS_X07:  return "X07";
+        case BS_SB:   return "SB";
+        case BS_MC:   return "MC";
         case BS_NONE: return "NONE/UNKNOWN";
       }
       return "NONE";
@@ -109,6 +117,10 @@ class Bankswitch
       else if(s == "efsc")  return  BS_EFSC;
       else if(s == "0840")  return  BS_0840;
       else if(s == "dpc")   return  BS_DPC;
+      else if(s == "4a50")  return  BS_4A50;
+      else if(s == "x07")   return  BS_X07;
+      else if(s == "sb")    return  BS_SB;
+      else if(s == "mc")    return  BS_MC;
       else                  return  BS_NONE;
     }
 };

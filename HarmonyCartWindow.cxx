@@ -448,7 +448,7 @@ void HarmonyCartWindow::loadROM(const QString& filename)
   BSType type = CartDetector::autodetectType(filename.toStdString());
   QString bstype = Bankswitch::typeToName(type).c_str();
   int match = ui->romBSType->findText(bstype, Qt::MatchStartsWith);
-  ui->romBSType->setCurrentIndex(match < ui->romBSType->count() ? match : 0);
+  ui->romBSType->setCurrentIndex(match < ui->romBSType->count() && match >= 0 ? match : 0);
   ui->romBSType->setDisabled(false);
   ui->downloadButton->setDisabled(false);  ui->actDownloadROM->setDisabled(false);
 
