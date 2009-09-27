@@ -121,6 +121,11 @@ class CartDetector
       Returns true if the image is probably an FE bankswitching cartridge
     */
     static bool isProbablyFE(const uInt8* image, uInt32 size);
+
+    /**
+      Returns true if the image is probably an X07 bankswitching cartridge
+    */
+    static bool isProbablyX07(const uInt8* image, uInt32 size);
 };
 
 #endif

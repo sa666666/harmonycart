@@ -61,9 +61,13 @@ BSType CartDetector::autodetectType(const uInt8* image, uInt32 size)
 {
   BSType type = BS_NONE;
 
-  if((size % 8448) == 0)
+  if((size % 8448) == 0 || size == 6144)
   {
     type = BS_AR;
+  }
+  else if(size < 2048)  // Sub2K images
+  {
+    type = BS_4K;     // 2K is automatically converted to 4K
   }
   else if((size == 2048) ||
           (size == 4096 && memcmp(image, image + 2048, 2048) == 0))
@@ -103,7 +107,7 @@ BSType CartDetector::autodetectType(const uInt8* image, uInt32 size)
   }
   else if((size == 10495) || (size == 10496) || (size == 10240))  // 10K - Pitfall2
   {
-    type = BS_NONE;  // Not supported
+    type = BS_DPC;
   }
   else if(size == 12288)  // 12K
   {
@@ -144,13 +148,15 @@ BSType CartDetector::autodetectType(const uInt8* image, uInt32 size)
     else if(isProbably3F(image, size))
       type = BS_3F;
     else if(isProbably4A50(image, size))
-      type = BS_NONE;  // Not supported
+      type = BS_4A50;
     else if(isProbablyEF(image, size))
     {
       type = BS_EF;
       if(isProbablySC(image, size))
         type = BS_EFSC;
     }
+    else if(isProbablyX07(image, size))
+      type = BS_X07;
     else
       type = BS_F0;
   }
@@ -161,11 +167,11 @@ BSType CartDetector::autodetectType(const uInt8* image, uInt32 size)
     else if(isProbably3F(image, size))
       type = BS_3F;
     else if(isProbably4A50(image, size))
-      type = BS_NONE;  // Not supported
+      type = BS_4A50;
     else if(isProbablySB(image, size))
-      type = BS_NONE;  // Not supported
+      type = BS_SB;
     else
-      type = BS_NONE;  // Not supported
+      type = BS_MC;
   }
   else if(size == 256*1024)  // 256K
   {
@@ -174,7 +180,7 @@ BSType CartDetector::autodetectType(const uInt8* image, uInt32 size)
     else if(isProbably3F(image, size))
       type = BS_3F;
     else /*if(isProbablySB(image, size))*/
-      type = BS_NONE; // Not supported
+      type = BS_SB; // Not supported
   }
   else  // what else can we do?
   {
@@ -277,10 +283,9 @@ bool CartDetector::isProbablyE0(const uInt8* image, uInt32 size)
    { 0xAD, 0xF3, 0xBF }   // LDA $BFF3
   };
   for(uInt32 i = 0; i < 8; ++i)
-  {
     if(searchForBytes(image, size, signature[i], 3, 1))
       return true;
-  }
+
   return false;
 }
 
@@ -301,10 +306,9 @@ bool CartDetector::isProbablyE7(const uInt8* image, uInt32 size)
    { 0x8D, 0xE7, 0x1F }   // STA $1FE7
   };
   for(uInt32 i = 0; i < 5; ++i)
-  {
     if(searchForBytes(image, size, signature[i], 3, 1))
       return true;
-  }
+
   return false;
 }
 
@@ -329,14 +333,16 @@ bool CartDetector::isProbablyUA(const uInt8* image, uInt32 size)
 {
   // UA cart bankswitching switches to bank 1 by accessing address 0x240
   // using 'STA $240' or 'LDA $240'
-  uInt8 signature[2][3] = {
+  uInt8 signature[3][3] = {
     { 0x8D, 0x40, 0x02 },  // STA $240
-    { 0xAD, 0x40, 0x02 }   // LDA $240
+    { 0xAD, 0x40, 0x02 },  // LDA $240
+    { 0xBD, 0x1F, 0x02 }   // LDA $21F,X
   };
-  if(searchForBytes(image, size, signature[0], 3, 1))
-    return true;
-  else
-    return searchForBytes(image, size, signature[1], 3, 1);
+  for(uInt32 i = 0; i < 3; ++i)
+    if(searchForBytes(image, size, signature[i], 3, 1))
+      return true;
+
+  return false;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -368,14 +374,23 @@ bool CartDetector::isProbably0840(const uInt8* image, uInt32 size)
 {
   // 0840 cart bankswitching is triggered by accessing addresses 0x0800
   // or 0x0840
-  uInt8 signature[2][3] = {
+  uInt8 signature1[2][3] = {
     { 0xAD, 0x00, 0x08 },  // LDA $0800
     { 0xAD, 0x40, 0x08 }   // LDA $0840
   };
-  if(searchForBytes(image, size, signature[0], 3, 1))
-    return true;
-  else
-    return searchForBytes(image, size, signature[1], 3, 1);
+  for(uInt32 i = 0; i < 2; ++i)
+    if(searchForBytes(image, size, signature1[i], 3, 1))
+      return true;
+
+  uInt8 signature2[2][4] = {
+    { 0x0C, 0x00, 0x08, 0x4C },  // NOP $0800; JMP ...
+    { 0x0C, 0xFF, 0x0F, 0x4C }   // NOP $0FFF; JMP ...
+  };
+  for(uInt32 i = 0; i < 2; ++i)
+    if(searchForBytes(image, size, signature2[i], 4, 1))
+      return true;
+
+  return false;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -406,9 +421,24 @@ bool CartDetector::isProbablyFE(const uInt8* image, uInt32 size)
     { 0x20, 0x00, 0xF0, 0x84, 0xD6 }   // JSR $F000; STY $D6
   };
   for(uInt32 i = 0; i < 4; ++i)
-  {
     if(searchForBytes(image, size, signature[i], 5, 1))
       return true;
-  }
+
+  return false;
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+bool CartDetector::isProbablyX07(const uInt8* image, uInt32 size)
+{
+  // X07 bankswitching switches to bank 0, 1, 2, etc by accessing address 0x08xd
+  uInt8 signature[3][3] = {
+    { 0xAD, 0x0D, 0x08 },  // LDA $080D
+    { 0xAD, 0x1D, 0x08 },  // LDA $081D
+    { 0xAD, 0x2D, 0x08 }   // LDA $082D
+  };
+  for(uInt32 i = 0; i < 3; ++i)
+    if(searchForBytes(image, size, signature[i], 3, 1))
+      return true;
+
   return false;
 }

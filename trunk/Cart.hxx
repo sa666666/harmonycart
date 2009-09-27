@@ -61,45 +61,6 @@ class Cart
     */
     string downloadROM(SerialPort& port, const string& filename, BSType type);
 
-    //////////////////////////////////////////////////////////////////
-    //  The following two methods act as an iterator through all the
-    //  sectors making up the current Cart.
-    //////////////////////////////////////////////////////////////////
-    /**
-      Initializes the sector iterator to the beginning of the list,
-      in preparation for multiple calls to writeNextSector() or
-      verifyNextSector().
-
-      NOTE: After calling initSectors(), DO NOT mix calls to
-            writeNextSector() and verifyNextSector().
-
-      @return  The number of sectors that need to be accessed
-    */
-    uInt16 initSectors();
-
-    /**
-      Write the next sector in the iterator to the serial port,
-      returning the actual sector number that was written.
-
-      NOTE: After calling initSectors(), DO NOT mix calls to
-            writeNextSector() and verifyNextSector().
-
-      @return  The sector number written; an exception is thrown
-               on any errors    */
-    uInt16 writeNextSector(SerialPort& port);
-
-    /**
-      Read and verify the next sector in the iterator from the serial port,
-      returning the actual sector number that was verified.
-
-      NOTE: After calling initSectors(), DO NOT mix calls to
-            writeNextSector() and verifyNextSector().
-
-      @return  The sector number verified; an exception is thrown
-               on any errors
-    */
-    uInt16 verifyNextSector(SerialPort& port);
-
     /** Set number of write retries before bailing out. */
     void setRetry(int retry) { myRetry = retry; }
 
@@ -123,14 +84,13 @@ class Cart
     void resetTarget(SerialPort& port, TARGET_MODE mode);
 
     /**
-      Write the given sector to the serial port.
-    */
-    bool downloadSector(uInt32 sector, SerialPort& port);
+      Compress the last bank of the given ROM image.  For now, it always
+      assumes a ROM size of 32K.
 
-    /**
-      Read and verify the given sector from the serial port.
+      @param binary  The ROM data (assumed to be 32K)
+      @return  The compressed size of the last bank (originally 4K)
     */
-    bool verifySector(uInt32 sector, SerialPort& port);
+    uInt32 compressLastBank(uInt8* binary);
 
     const char* lpc_PhilipsChipVersion(SerialPort& port);
     int lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size, bool showdialog);
@@ -243,10 +203,6 @@ class Cart
     string myOscillator;
     uInt8* myBinaryContent;
     uInt32 myBinaryLength;
-
-    // The following keep track of progress of sector writes
-    uInt16 myCurrentSector;
-    uInt16 myNumSectors;
 };
 
 #endif
