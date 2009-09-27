@@ -101,15 +101,12 @@ class SerialPort
     /**
       Sleep the specified amount of time (in milliseconds).
     */
-    virtual void Sleep(uInt32 milliseconds) = 0;
-
-
+    virtual void sleepMillis(uInt32 milliseconds) = 0;
 
     /**
       Get all valid serial ports detected on this system.
     */
     virtual const StringList& getPortNames() = 0;
-
 
     /**
       Receives a buffer from the open com port. Returns when the buffer is

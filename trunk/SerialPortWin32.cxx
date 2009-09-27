@@ -123,34 +123,26 @@ bool SerialPortWin32::isOpen()
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-int SerialPortWin32::receiveBlock(void* answer, uInt32 max_size, uInt32* real_size)
+uInt32 SerialPortWin32::receiveBlock(void* answer, uInt32 max_size)
 {
-  int result = -1;
+  DWORD result = 0;
   if(myHandle)
   {
     ReadFile(myHandle, answer, max_size, &result, NULL);
     if(result == 0)
-      timeoutTick(IspEnvironment);
+      timeoutTick();
   }
-  return result;
+  return (uInt32)result;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-int SerialPortWin32::sendBlock(const void* data, uInt32 size)
+uInt32 SerialPortWin32::sendBlock(const void* data, uInt32 size)
 {
-  unsigned long realsize;
-  size_t m;
-  unsigned long rxsize;
-  char* pch;
-  char* rxpch;
-
+  DWORD result = 0;
   if(myHandle)
-  {
-    WriteFile(myHandle, data, size, &realsize, NULL);
-    return realsize;
-  }
-  else
-    return -1;
+    WriteFile(myHandle, data, size, &result, NULL);
+
+  return (uInt32)result;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -183,6 +175,11 @@ void SerialPortWin32::controlModemLines(bool DTR, bool RTS)
   else     EscapeCommFunction(myHandle, CLRRTS);
 }
 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+void SerialPortWin32::sleepMillis(uInt32 milliseconds)
+{
+  Sleep(DWORD(milliseconds));
+}
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const StringList& SerialPortWin32::getPortNames()

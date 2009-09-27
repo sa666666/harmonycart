@@ -328,12 +328,12 @@ void Cart::resetTarget(SerialPort& port, TARGET_MODE mode)
     // Reset and jump to boot loader
     case PROGRAM_MODE:
       port.controlModemLines(1, 1);
-      port.Sleep(100);
+      port.sleepMillis(100);
       port.clearBuffers();
-      port.Sleep(100);
+      port.sleepMillis(100);
       port.controlModemLines(0, 1);
       // Longer delay is the Reset signal is conected to an external rest controller
-      port.Sleep(500);
+      port.sleepMillis(500);
       // Clear the RTS line after having reset the micro
       // Needed for the "GO <Address> <Mode>" ISP command to work
       port.controlModemLines(0, 0);
@@ -342,11 +342,11 @@ void Cart::resetTarget(SerialPort& port, TARGET_MODE mode)
     // Reset and start uploaded program
     case RUN_MODE:
       port.controlModemLines(1, 0);
-      port.Sleep(100);
+      port.sleepMillis(100);
       port.clearBuffers();
-      port.Sleep(100);
+      port.sleepMillis(100);
       port.controlModemLines(0, 0);
-      port.Sleep(100);
+      port.sleepMillis(100);
       break;
   }
 }
@@ -503,7 +503,7 @@ const char* Cart::lpc_PhilipsChipVersion(SerialPort& port)
         return version;
       }
       port.send("G 10356\r\n");
-      port.Sleep(200);
+      port.sleepMillis(200);
       nQuestionMarks = 0;
 //      WaitForWatchDog = 1;
       continue;
@@ -741,7 +741,7 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
         goto cleanup;
       }
       port.send("G 10356\r\n");
-      port.Sleep(200);
+      port.sleepMillis(200);
       nQuestionMarks = 0;
       WaitForWatchDog = 1;
       continue;

@@ -106,10 +106,7 @@ class SerialPortUNIX : public SerialPort
     /**
       Sleep the specified amount of time (in milliseconds).
     */
-    void Sleep(uInt32 milliseconds);
-
-
-
+    void sleepMillis(uInt32 milliseconds);
 
     /**
       Get all valid serial ports detected on this system.

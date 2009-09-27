@@ -204,7 +204,7 @@ void SerialPortUNIX::controlModemLines(bool DTR, bool RTS)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void SerialPortUNIX::Sleep(uInt32 milliseconds)
+void SerialPortUNIX::sleepMillis(uInt32 milliseconds)
 {
   usleep(milliseconds*1000); // convert to microseconds
 }

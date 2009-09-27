@@ -119,9 +119,9 @@ bool SerialPortMACOSX::isOpen()
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-int SerialPortMACOSX::receiveBlock(void* answer, uInt32 max_size, uInt32* real_size)
+uInt32 SerialPortMACOSX::receiveBlock(void* answer, uInt32 max_size, uInt32* real_size)
 {
-  int result = -1;
+  uInt32 result = 0;
   if(myHandle)
   {
     result = read(myHandle, answer, max_size);
@@ -132,9 +132,9 @@ int SerialPortMACOSX::receiveBlock(void* answer, uInt32 max_size, uInt32* real_s
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-int SerialPortMACOSX::sendBlock(const void* data, uInt32 size)
+uInt32 SerialPortMACOSX::sendBlock(const void* data, uInt32 size)
 {
-  return myHandle ? write(myHandle, data, size) : -1;
+  return myHandle ? write(myHandle, data, size) : 0;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -185,6 +185,12 @@ void SerialPortMACOSX::controlModemLines(bool DTR, bool RTS)
     cerr << "ioctl set failed, status = " << status << endl;
   if (ioctl(myHandle, TIOCMGET, &status) != 0)
     cerr << "ioctl get failed, status = " << status << endl;
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+void SerialPortMACOSX::sleepMillis(uInt32 milliseconds)
+{
+  usleep(milliseconds*1000); // convert to microseconds
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
