@@ -32,10 +32,6 @@ BSType CartDetector::autodetectType(const string& rom)
 {
   BSType type = BS_NONE;
 
-  uInt8 buffer[512*1024];
-  uInt32 size;
-
-
   // Read file into buffer
   ifstream in(rom.c_str(), ios::binary);
   if(in)
