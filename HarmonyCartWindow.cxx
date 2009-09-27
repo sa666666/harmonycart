@@ -400,13 +400,16 @@ void HarmonyCartWindow::slotAbout()
   ostringstream about;
   about << "<center>"
         << "<p><b>Harmony Programming Tool v0.1</b></p>"
-        << "<p>Copyright &copy; 2009 Stephen Anthony<br>"
-        << "<a href=\"mailto:stephena@users.sf.net\">stephena@users.sf.net</a></p>"
-//        << "<p><a href=\"http://krokcom.sf.net\">http://krokcom.sf.net</a><p>"
-//        << "<p>Based on the original Windows version<br>"
-//        << "Copyright &copy; 2002-2009 <a href=\"mailto:Armin.Vogl@gmx.net\">Armin Vogl</a>"
-        << "<p>This software is released under the GNU GPLv3</p>"
-        << "</center>";
+        << "<p>Copyright &copy; 2009 <a href=\"mailto:stephena@users.sf.net\">Stephen Anthony</a><br>"
+        << "<a href=\"http://TODO.com\">http://TODO.com</a><p>"
+        << "</center>"
+        << "<p>This software is released under the GNU GPLv3, and includes code from the following projects:</p>"
+        << "<p></p>"
+        << "<p>"
+        << "&nbsp;&nbsp;&nbsp;lpc21isp : Philips LPCxxxx programming code<br>"
+        << "&nbsp;&nbsp;&nbsp;KrokCom : UI code, icons and other images<br>"
+        << "&nbsp;&nbsp;&nbsp;Stella : bankswitch autodetection code<br>"
+        << "</p>";
 
   QMessageBox mb;
   mb.setWindowTitle("Info about Harmony Programming Tool");

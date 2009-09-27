@@ -19,6 +19,8 @@
 
 #define MAXCARTSIZE 32*1024
 
+class QProgressDialog;
+
 #include <vector>
 
 #include "bspf.hxx"
@@ -92,8 +94,15 @@ class Cart
     */
     uInt32 compressLastBank(uInt8* binary);
 
+    /**
+      The following functions originally come from the lpc21isp utilties,
+      specifically lpc21isp.c and lpcprog.c.  See the functions themselves
+      for more detailed commments.  All such functions are named starting
+      with 'lpc_'.
+    */
     const char* lpc_PhilipsChipVersion(SerialPort& port);
-    int lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size, bool showdialog);
+    int lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
+                            QProgressDialog* progress = 0);
     uInt32 lpc_ReturnValueLpcRamStart();
     uInt32 lpc_ReturnValueLpcRamBase();
 
@@ -198,11 +207,11 @@ class Cart
     static uInt32 SectorTable_RAM[1];
     static LPC_DEVICE_TYPE LPCtypes[52];
 
+    static uInt8 ourARHeader[256];
+
     uInt32 myDetectedDevice;
     uInt32 myRetry;
     string myOscillator;
-    uInt8* myBinaryContent;
-    uInt32 myBinaryLength;
 };
 
 #endif

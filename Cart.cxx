@@ -29,19 +29,13 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Cart::Cart()
   : myDetectedDevice(0),
-    myOscillator("10000"),
-    myBinaryContent(NULL),
-    myBinaryLength(0)
-//    myCurrentSector(0),
-//    myNumSectors(0),
+    myOscillator("10000")
 {
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Cart::~Cart()
 {
-  delete[] myBinaryContent;
-  myBinaryContent = NULL;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -58,7 +52,7 @@ string Cart::autodetectHarmony(SerialPort& port)
     return result;
   }
 #if 0
-  else if (1)//myStartAddress == 0)
+  else if (1)//StartAddress == 0)
   {
     /* Only reset target if startaddress = 0
      * Otherwise stay with the running program as started in Download()
@@ -81,7 +75,10 @@ string Cart::downloadBIOS(SerialPort& port, const string& filename)
   {
     // Actually write the data to the cart/serial port, and
     // use a progressbar to show progress
-    lpc_PhilipsDownload(port, bios, size, true);
+    QProgressDialog progress;
+    progress.setWindowTitle("Updating BIOS");
+    progress.setWindowModality(Qt::WindowModal);
+    lpc_PhilipsDownload(port, bios, size, &progress);
   }
   else
     result = "Couldn't open BIOS file.";
@@ -99,6 +96,7 @@ string Cart::downloadROM(SerialPort& port, const string& filename, BSType type)
   uInt8 *rombuf = NULL, *armbuf = NULL;
   uInt8 binary[64*1024], *binary_ptr = binary;
   string armfile = "";
+  QProgressDialog progress;
 
   // Read the ROM file into a buffer
   rombuf = readFile(filename, romsize);
@@ -242,8 +240,8 @@ string Cart::downloadROM(SerialPort& port, const string& filename, BSType type)
       {
         // Minimum buffer size is 6K + 256 bytes
         uInt8* tmp = new uInt8[6144+256];
-        memcpy(tmp, rombuf, 6144);  // copy ROM
-        //FIXMEmemcpy(tmp+6144, ourARHeader, 256);
+        memcpy(tmp, rombuf, 6144);          // copy ROM
+        memcpy(tmp+6144, ourARHeader, 256); // copy missing header
 
         delete[] rombuf;
         rombuf = tmp;
@@ -257,7 +255,7 @@ string Cart::downloadROM(SerialPort& port, const string& filename, BSType type)
         uInt8 *tmp_ptr = tmp, *rom_ptr = rombuf;
         for(uInt32 i = 0; i < numLoads; ++i, tmp_ptr += 6144+256, rom_ptr += 8448)
         {
-          memcpy(tmp_ptr, rom_ptr, 6144);                // 6K ROM @ pos 0K
+          memcpy(tmp_ptr, rom_ptr, 6144);                // 6KB  @ pos 0K
           memcpy(tmp_ptr+6144, rom_ptr+6144+2048, 256);  // 256b @ pos 8K
         }
 
@@ -281,7 +279,9 @@ string Cart::downloadROM(SerialPort& port, const string& filename, BSType type)
 
   // Actually write the data to the cart/serial port, and
   // use a progressbar to show progress
-  lpc_PhilipsDownload(port, binary, size, true);
+  progress.setWindowTitle("Updating ROM");
+  progress.setWindowModality(Qt::WindowModal);
+  lpc_PhilipsDownload(port, binary, size, &progress);
 
 cleanup:
   delete[] rombuf;
@@ -460,19 +460,17 @@ uInt32 Cart::compressLastBank(uInt8* binary)
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const char* Cart::lpc_PhilipsChipVersion(SerialPort& port)
 {
-  int nQuestionMarks;
   int found, i;
   int  strippedsize;
-  char Answer[128];
-  char temp[128];
+  char Answer[128], temp[128];
   char *strippedAnswer, *endPtr;
   const char* cmdstr;
-  time_t tStartUpload = 0;//, tDoneUpload = 0;
+//  time_t tStartUpload = 0, tDoneUpload = 0;
 
   static char version[1024] = { 0 };
 
   /* SA_CHANGED: '100' to '3' to shorten autodetection */
-  for (nQuestionMarks = found = 0; !found && nQuestionMarks < 3; nQuestionMarks++)
+  for (int nQuestionMarks = found = 0; !found && nQuestionMarks < 3; nQuestionMarks++)
   {
     port.send("?");
 
@@ -491,7 +489,7 @@ const char* Cart::lpc_PhilipsChipVersion(SerialPort& port)
     {
       long chars, xtal;
       uInt32 ticks;
-      chars = (17 * 0/*myBinaryLength*/ + 1) / 10;
+      chars = (17 * 0/*BinaryLength*/ + 1) / 10;
       int WatchDogSeconds = (10 * chars + 5) / port.getBaud() + 10;
       xtal = atol(oscillator.c_str()) * 1000;
       ticks = (uInt32)WatchDogSeconds * ((xtal + 15) / 16);
@@ -512,7 +510,7 @@ const char* Cart::lpc_PhilipsChipVersion(SerialPort& port)
     }
 #endif
 
-    tStartUpload = time(NULL);
+//    tStartUpload = time(NULL);
     if (strcmp(strippedAnswer, "Synchronized\r\n") == 0)
       found = 1;
     else
@@ -594,7 +592,7 @@ const char* Cart::lpc_PhilipsChipVersion(SerialPort& port)
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
-                              bool showdialog)
+                              QProgressDialog* progress)
 {
   char Answer[128], ExpectedAnswer[128], temp[128];
   char *strippedAnswer, *endPtr;
@@ -618,7 +616,7 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
   long WatchDogSeconds = 0;
   int WaitForWatchDog = 0;
   const char* cmdstr;
-  int repeat = 0;
+  int repeat = 0, result = 0;
 
   // Puffer for data to resend after "RESEND\r\n" Target responce
   char sendbuf0[128], sendbuf1[128], sendbuf2[128], sendbuf3[128], sendbuf4[128],
@@ -640,20 +638,22 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
     uuencode_table[i] = (char)(0x20 + i);
 
   // Make sure the data is aligned to 32-bits, and copy to internal buffer
-  delete[] myBinaryContent;  myBinaryContent = NULL;
-  uInt32 myBinaryOffset = 0, myStartAddress = 0, myBinaryLength = size;
-  if(myBinaryLength % 4 != 0)
+  uInt32 BinaryOffset = 0, StartAddress = 0, BinaryLength = size;
+  if(BinaryLength % 4 != 0)
   {
-    uInt32 newBinaryLength = ((myBinaryLength + 3)/4) * 4;
+    uInt32 newBinaryLength = ((BinaryLength + 3)/4) * 4;
     cerr << "Warning:  data not aligned to 32 bits, padded (length was "
-         << myBinaryLength << ", now " << newBinaryLength << ")\n";
-    myBinaryLength = newBinaryLength;
+         << BinaryLength << ", now " << newBinaryLength << ")\n";
+    BinaryLength = newBinaryLength;
   }
-  myBinaryContent = new uInt8[myBinaryLength];
-  memcpy(myBinaryContent, data, size);
-
-  QProgressDialog* progress = (QProgressDialog*)NULL;
-  uInt32 progressStep = 0, progressSize = myBinaryLength/45 + 20;
+  uInt8* binaryContent = new uInt8[BinaryLength];
+  memcpy(binaryContent, data, size);
+  uInt32 progressStep = 0, progressSize = BinaryLength/45 + 20;
+  if(progress)
+  {
+    progress->setMinimumDuration(0);
+    progress->setRange(0, progressSize);
+  }
 
   if(LPCtypes[myDetectedDevice].ChipVariant == CHIP_VARIANT_LPC2XXX)
   {
@@ -662,22 +662,22 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
 
     // Clear the vector at 0x14 so it doesn't affect the checksum:
     for(int i = 0; i < 4; i++)
-      myBinaryContent[i + 0x14] = 0;
+      binaryContent[i + 0x14] = 0;
 
     // Calculate a native checksum of the little endian vector table:
     for(int i = 0; i < (4 * 8);)
     {
-      ivt_CRC += myBinaryContent[i++];
-      ivt_CRC += myBinaryContent[i++] << 8;
-      ivt_CRC += myBinaryContent[i++] << 16;
-      ivt_CRC += myBinaryContent[i++] << 24;
+      ivt_CRC += binaryContent[i++];
+      ivt_CRC += binaryContent[i++] << 8;
+      ivt_CRC += binaryContent[i++] << 16;
+      ivt_CRC += binaryContent[i++] << 24;
     }
 
     /* Negate the result and place in the vector at 0x14 as little endian
      * again. The resulting vector table should checksum to 0. */
     ivt_CRC = (uInt32) (0 - ivt_CRC);
     for (int i = 0; i < 4; i++)
-      myBinaryContent[i + 0x14] = (unsigned char)(ivt_CRC >> (8 * i));
+      binaryContent[i + 0x14] = (unsigned char)(ivt_CRC >> (8 * i));
   }
   else if(LPCtypes[myDetectedDevice].ChipVariant == CHIP_VARIANT_LPC17XX)
   {
@@ -686,22 +686,22 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
 
     // Clear the vector at 0x1C so it doesn't affect the checksum:
     for (int i = 0; i < 4; i++)
-      myBinaryContent[i + 0x1C] = 0;
+      binaryContent[i + 0x1C] = 0;
 
     // Calculate a native checksum of the little endian vector table:
     for (int i = 0; i < (4 * 8);)
     {
-      ivt_CRC += myBinaryContent[i++];
-      ivt_CRC += myBinaryContent[i++] << 8;
-      ivt_CRC += myBinaryContent[i++] << 16;
-      ivt_CRC += myBinaryContent[i++] << 24;
+      ivt_CRC += binaryContent[i++];
+      ivt_CRC += binaryContent[i++] << 8;
+      ivt_CRC += binaryContent[i++] << 16;
+      ivt_CRC += binaryContent[i++] << 24;
     }
 
     /* Negate the result and place in the vector at 0x1C as little endian
      * again. The resulting vector table should checksum to 0. */
     ivt_CRC = (uInt32) (0 - ivt_CRC);
     for (int i = 0; i < 4; i++)
-      myBinaryContent[i + 0x1C] = (unsigned char)(ivt_CRC >> (8 * i));
+      binaryContent[i + 0x1C] = (unsigned char)(ivt_CRC >> (8 * i));
   }
 
   cout << "Synchronizing (ESC to abort)";
@@ -726,7 +726,7 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
     {
       int chars, xtal;
       uInt32 ticks;
-      chars = (17 * 0/*myBinaryLength*/ + 1) / 10;
+      chars = (17 * 0/*BinaryLength*/ + 1) / 10;
       int WatchDogSeconds = (10 * chars + 5) / port.getBaud() + 10;
       xtal = atol(myOscillator.c_str()) * 1000;
       ticks = (uInt32)WatchDogSeconds * ((xtal + 15) / 16);
@@ -737,7 +737,8 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
       if (strcmp(Answer, "OK\r\n") != 0)
       {
         cerr << "No answer on 'watchdog timer set'\n";
-        return (NO_ANSWER_WDT);
+        result = (NO_ANSWER_WDT);
+        goto cleanup;
       }
       port.send("G 10356\r\n");
       port.Sleep(200);
@@ -756,7 +757,8 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
   if(!found)
   {
     cerr << "ERROR: no answer on '?'\n";
-    return (NO_ANSWER_QM);
+    result = (NO_ANSWER_QM);
+    goto cleanup;
   }
 
   cout << " OK\n";
@@ -767,7 +769,8 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
       (strcmp(Answer, "Synchronized\nOK\r\n") != 0))
   {
     cerr << "No answer on 'Synchronized'\n";
-    return (NO_ANSWER_SYNC);
+    result = (NO_ANSWER_SYNC);
+    goto cleanup;
   }
 
   sprintf(temp, "%s\n", myOscillator.c_str());
@@ -778,14 +781,16 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
   if (strcmp(Answer, temp) != 0)
   {
     cerr << "No answer on Oscillator-Command\n";
-    return (NO_ANSWER_OSC);
+    result = (NO_ANSWER_OSC);
+    goto cleanup;
   }
 
   cmdstr = "U 23130\n";
   if (!lpc_SendAndVerify(port, cmdstr, Answer, sizeof Answer))
   {
     cerr << "Unlock-Command:\n";
-    return (UNLOCK_ERROR + lpc_GetAndReportErrorNumber(Answer));
+    result = (UNLOCK_ERROR + lpc_GetAndReportErrorNumber(Answer));
+    goto cleanup;
   }
 
   cout << "Read bootcode version: ";
@@ -797,7 +802,8 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
   if (strncmp(Answer, cmdstr, strlen(cmdstr)) != 0)
   {
     cerr << "no answer on Read Boot Code Version\n";
-    return (NO_ANSWER_RBV);
+    result = (NO_ANSWER_RBV);
+    goto cleanup;
   }
 
   if (strncmp(Answer + strlen(cmdstr), "0\r\n", 3) == 0)
@@ -817,7 +823,8 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
   if (strncmp(Answer, cmdstr, strlen(cmdstr)) != 0)
   {
     cerr << "no answer on Read Part Id\n";
-    return (NO_ANSWER_RPID);
+    result = (NO_ANSWER_RPID);
+    goto cleanup;
   }
 
   strippedAnswer = (strncmp(Answer, "J\n0\r\n", 5) == 0) ? Answer + 5 : Answer;
@@ -846,7 +853,7 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
    * set the flash parameters to full RAM also.
    * This makes sure that all code is downloaded as one big sector
    */
-  if (myBinaryOffset >= lpc_ReturnValueLpcRamStart())
+  if (BinaryOffset >= lpc_ReturnValueLpcRamStart())
   {
     LPCtypes[myDetectedDevice].FlashSectors = 1;
     LPCtypes[myDetectedDevice].MaxCopySize  = LPCtypes[myDetectedDevice].RAMSize*1024 - (lpc_ReturnValueLpcRamBase() - lpc_ReturnValueLpcRamStart());
@@ -858,7 +865,7 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
   // will be loaded last, since it contains a checksum and device will re-enter
   // bootloader mode as long as this checksum is invalid.
   cout << "Will start programming at Sector 1 if possible, and conclude with Sector 0 to ensure that checksum is written last.\n";
-  if (LPCtypes[myDetectedDevice].SectorTable[0] >= myBinaryLength)
+  if (LPCtypes[myDetectedDevice].SectorTable[0] >= BinaryLength)
   {
     Sector = 0;
     SectorStart = 0;
@@ -876,24 +883,18 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
   if (!lpc_SendAndVerify(port, tmpString, Answer, sizeof Answer))
   {
     cerr << "Wrong answer on Prepare-Command\n";
-    return (WRONG_ANSWER_PREP + lpc_GetAndReportErrorNumber(Answer));
+    result = (WRONG_ANSWER_PREP + lpc_GetAndReportErrorNumber(Answer));
+    goto cleanup;
   }
 
   sprintf(tmpString, "E %d %d\n", 0, 0);
   if (!lpc_SendAndVerify(port, tmpString, Answer, sizeof Answer))
   {
     cerr << "Wrong answer on Erase-Command\n";
-    return (WRONG_ANSWER_ERAS + lpc_GetAndReportErrorNumber(Answer));
+    result = (WRONG_ANSWER_ERAS + lpc_GetAndReportErrorNumber(Answer));
+    goto cleanup;
   }
   cout << "OK \n";
-
-  if(showdialog)
-  {
-    progress = new QProgressDialog("Downloading data ...", QString(), 0, progressSize);
-    progress->setWindowModality(Qt::WindowModal);
-    progress->setMinimumDuration(0);
-    progressStep = 0;
-  }
 
   // OK, the main loop where we start writing to the cart
   while (1)
@@ -901,18 +902,22 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
     if (Sector >= LPCtypes[myDetectedDevice].FlashSectors)
     {
       cerr << "Program too large; running out of Flash sectors.\n";
-      return (PROGRAM_TOO_LARGE);
+      result = (PROGRAM_TOO_LARGE);
+      goto cleanup;
     }
 
     cout << "Sector " << Sector << flush;
+    if(progress)
+      progress->setLabelText("Downloading sector " + QString::number(Sector) + " ...                  ");
 
-    if (myBinaryOffset < lpc_ReturnValueLpcRamStart()) // Skip Erase when running from RAM
+    if (BinaryOffset < lpc_ReturnValueLpcRamStart()) // Skip Erase when running from RAM
     {
       sprintf(tmpString, "P %d %d\n", Sector, Sector);
       if (!lpc_SendAndVerify(port, tmpString, Answer, sizeof Answer))
       {
         cerr << "Wrong answer on Prepare-Command (1) (Sector " << Sector << ")\n";
-        return (WRONG_ANSWER_PREP + lpc_GetAndReportErrorNumber(Answer));
+        result = (WRONG_ANSWER_PREP + lpc_GetAndReportErrorNumber(Answer));
+        goto cleanup;
       }
 
       cout << "." << flush;
@@ -923,7 +928,8 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
         if (!lpc_SendAndVerify(port, tmpString, Answer, sizeof Answer))
         {
           cerr << "Wrong answer on Erase-Command (Sector " << Sector << ")\n";
-          return (WRONG_ANSWER_ERAS + lpc_GetAndReportErrorNumber(Answer));
+          result = (WRONG_ANSWER_ERAS + lpc_GetAndReportErrorNumber(Answer));
+          goto cleanup;
         }
 
         cout << "." << flush;
@@ -931,8 +937,8 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
     }
 
     SectorLength = LPCtypes[myDetectedDevice].SectorTable[Sector];
-    if (SectorLength > myBinaryLength - SectorStart)
-      SectorLength = myBinaryLength - SectorStart;
+    if (SectorLength > BinaryLength - SectorStart)
+      SectorLength = BinaryLength - SectorStart;
 
     for (SectorOffset = 0; SectorOffset < SectorLength; SectorOffset += SectorChunk)
     {
@@ -959,7 +965,8 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
       if (!lpc_SendAndVerify(port, tmpString, Answer, sizeof Answer))
       {
         cerr << "Wrong answer on Write-Command\n";
-        return (WRONG_ANSWER_WRIT + lpc_GetAndReportErrorNumber(Answer));
+        result = (WRONG_ANSWER_WRIT + lpc_GetAndReportErrorNumber(Answer));
+        goto cleanup;
       }
 
       cout << "." << flush;
@@ -968,15 +975,22 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
       Line = 0;
 
       // Transfer blocks of 45 * 4 bytes to RAM
-      for (Pos = SectorStart + SectorOffset; (Pos < SectorStart + SectorOffset + CopyLength) && (Pos < myBinaryLength); Pos += (45 * 4))
+      for (Pos = SectorStart + SectorOffset; (Pos < SectorStart + SectorOffset + CopyLength) && (Pos < BinaryLength); Pos += (45 * 4))
       {
         for (Block = 0; Block < 4; Block++)  // Each block 45 bytes
         {
           cout << "." << flush;
 
           // Inform the calling application about having written another chuck of data
-          if(showdialog)
+          if(progress)
+          {
             progress->setValue(++progressStep);
+            if(progress->wasCanceled())
+            {
+              result = -1;
+              goto cleanup;
+            }
+          }
 
           // Uuencode one 45 byte block
           tmpStringPos = 0;
@@ -985,13 +999,13 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
 
           for (BlockOffset = 0; BlockOffset < 45; BlockOffset++)
           {
-            if (myBinaryOffset < lpc_ReturnValueLpcRamStart())
+            if (BinaryOffset < lpc_ReturnValueLpcRamStart())
             { // Flash: use full memory
-              c = myBinaryContent[Pos + Block * 45 + BlockOffset];
+              c = binaryContent[Pos + Block * 45 + BlockOffset];
             }
             else
             { // RAM: Skip first 0x200 bytes, these are used by the download program in LPC21xx
-              c = myBinaryContent[Pos + Block * 45 + BlockOffset + 0x200];
+              c = binaryContent[Pos + Block * 45 + BlockOffset + 0x200];
             }
 
             block_CRC += c;
@@ -1038,7 +1052,8 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
             if (repeat >= 3)
             {
               cerr << "Error on writing block_CRC (1)\n";
-              return (ERROR_WRITE_CRC);
+              result = (ERROR_WRITE_CRC);
+              goto cleanup;
             }
             Line = 0;
             block_CRC = 0;
@@ -1070,11 +1085,12 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
         if (repeat >= 3)
         {
           cerr << "Error on writing block_CRC (3)\n";
-          return (ERROR_WRITE_CRC2);
+          result = (ERROR_WRITE_CRC2);
+          goto cleanup;
         }
       }
 
-      if (myBinaryOffset < lpc_ReturnValueLpcRamStart())
+      if (BinaryOffset < lpc_ReturnValueLpcRamStart())
       {
         // Prepare command must be repeated before every write
         sprintf(tmpString, "P %d %d\n", Sector, Sector);
@@ -1082,7 +1098,8 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
         if (!lpc_SendAndVerify(port, tmpString, Answer, sizeof Answer))
         {
           cerr << "Wrong answer on Prepare-Command (2) (Sector " << Sector << ")\n";
-          return (WRONG_ANSWER_PREP2 + lpc_GetAndReportErrorNumber(Answer));
+          result = (WRONG_ANSWER_PREP2 + lpc_GetAndReportErrorNumber(Answer));
+          goto cleanup;
         }
 
         // Round CopyLength up to one of the following values: 512, 1024,
@@ -1104,7 +1121,8 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
         if (!lpc_SendAndVerify(port, tmpString, Answer, sizeof Answer))
         {
           cerr << "Wrong answer on Copy-Command\n";
-          return (WRONG_ANSWER_COPY + lpc_GetAndReportErrorNumber(Answer));
+          result = (WRONG_ANSWER_COPY + lpc_GetAndReportErrorNumber(Answer));
+          goto cleanup;
         }
 
         if (0)// FIXME IspEnvironment->Verify)
@@ -1120,7 +1138,8 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
           if (!lpc_SendAndVerify(port, tmpString, Answer, sizeof Answer))
           {
             cerr << "Wrong answer on Compare-Command\n";
-            return (WRONG_ANSWER_COPY + lpc_GetAndReportErrorNumber(Answer));
+            result = (WRONG_ANSWER_COPY + lpc_GetAndReportErrorNumber(Answer));
+            goto cleanup;
           }
         }
       }
@@ -1128,7 +1147,7 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
 
     cout << "\n" << flush;
 
-    if ((SectorStart + SectorLength) >= myBinaryLength && Sector!=0)
+    if ((SectorStart + SectorLength) >= BinaryLength && Sector!=0)
     {
       Sector = 0;
       SectorStart = 0;
@@ -1159,12 +1178,12 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
     cout << "Now launching the brand new code\n" << flush;
 
     if(LPCtypes[myDetectedDevice].ChipVariant == CHIP_VARIANT_LPC2XXX)
-      sprintf(tmpString, "G %d A\n", myStartAddress);
+      sprintf(tmpString, "G %d A\n", StartAddress);
     else if(LPCtypes[myDetectedDevice].ChipVariant == CHIP_VARIANT_LPC17XX)
-      sprintf(tmpString, "G %d T\n", myStartAddress & ~1);
+      sprintf(tmpString, "G %d T\n", StartAddress & ~1);
 
     port.send(tmpString);  //goto 0 : run this fresh new downloaded code code
-    if (myBinaryOffset < lpc_ReturnValueLpcRamStart())
+    if (BinaryOffset < lpc_ReturnValueLpcRamStart())
     { // Skip response on G command - show response on Terminal instead
       uInt32 realsize = port.receive(Answer, sizeof(Answer)-1, 2, 5000);
       /* the reply string is frequently terminated with a -1 (EOF) because the
@@ -1178,24 +1197,26 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
        * because the answer can contain the output by the started programm
        */
       if(LPCtypes[myDetectedDevice].ChipVariant == CHIP_VARIANT_LPC2XXX)
-        sprintf(ExpectedAnswer, "G %d A\n0", myStartAddress);
+        sprintf(ExpectedAnswer, "G %d A\n0", StartAddress);
       else if(LPCtypes[myDetectedDevice].ChipVariant == CHIP_VARIANT_LPC17XX)
-        sprintf(ExpectedAnswer, "G %d T\n0", myStartAddress & ~1);
+        sprintf(ExpectedAnswer, "G %d T\n0", StartAddress & ~1);
 
       if (realsize == 0 || strncmp((const char *)Answer, /*cmdstr*/ExpectedAnswer, strlen(/*cmdstr*/ExpectedAnswer)) != 0)
       {
         cerr << "Failed to run the new downloaded code: ";
-        return (FAILED_RUN + lpc_GetAndReportErrorNumber(Answer));
+        result = (FAILED_RUN + lpc_GetAndReportErrorNumber(Answer));
+        goto cleanup;
       }
     }
 
     cout << flush;
   }
 cleanup:
-  if(showdialog)
+  delete[] binaryContent;  binaryContent = NULL;
+  if(progress)
     progress->setValue(progressSize);
 
-  return (0);
+  return result;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1369,4 +1390,40 @@ Cart::LPC_DEVICE_TYPE Cart::LPCtypes[] = {
   { 0x1600FF35, 2468, 512, 98, 28, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
   { 0x1701FF30, 2470,   0, 98,  0, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
   { 0x1701FF35, 2478, 512, 98, 28, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX }
+};
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+uInt8 Cart::ourARHeader[256] = {
+  0xac, 0xfa, 0x0f, 0x18, 0x62, 0x00, 0x24, 0x02,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0x00, 0x04, 0x08, 0x0c, 0x10, 0x14, 0x18, 0x1c,
+  0x01, 0x05, 0x09, 0x0d, 0x11, 0x15, 0x19, 0x1d,
+  0x02, 0x06, 0x0a, 0x0e, 0x12, 0x16, 0x1a, 0x1e,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00
 };
