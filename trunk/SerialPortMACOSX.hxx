@@ -73,7 +73,7 @@ class SerialPortMACOSX : public SerialPort
       @param max_size  The size of buffer pointed to by answer
       @return  The number of bytes read
     */
-    int receiveBlock(void* answer, uInt32 max_size);
+    uInt32 receiveBlock(void* answer, uInt32 max_size);
 
     /**
       Write block of bytes to the serial port.
@@ -82,7 +82,7 @@ class SerialPortMACOSX : public SerialPort
       @param size  The size of the block
       @return  The number of bytes written
     */
-    int sendBlock(const void* data, uInt32 size);
+    uInt32 sendBlock(const void* data, uInt32 size);
 
     /**
       Sets (or resets) the timeout to the timout period requested.  Starts

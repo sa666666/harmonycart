@@ -119,7 +119,7 @@ bool SerialPortMACOSX::isOpen()
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-uInt32 SerialPortMACOSX::receiveBlock(void* answer, uInt32 max_size, uInt32* real_size)
+uInt32 SerialPortMACOSX::receiveBlock(void* answer, uInt32 max_size)
 {
   uInt32 result = 0;
   if(myHandle)
@@ -203,7 +203,7 @@ const StringList& SerialPortMACOSX::getPortNames()
   char dialInDevice[1024];
   if(createSerialIterator(&theSerialIterator) == KERN_SUCCESS)
   {
-    while(theObject = IOIteratorNext(theSerialIterator))
+    while((theObject = IOIteratorNext(theSerialIterator)) != 0)
     {
       strcpy(dialInDevice, getRegistryString(theObject, kIODialinDeviceKey));
       myPortNames.push_back(dialInDevice);
