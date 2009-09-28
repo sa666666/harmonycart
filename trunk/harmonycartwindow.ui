@@ -435,7 +435,7 @@ software will allow you to do this from the UI.</string>
              </size>
             </property>
             <property name="text">
-             <string>Verify</string>
+             <string>Download &amp;&amp; Verify</string>
             </property>
            </widget>
           </item>
@@ -462,6 +462,21 @@ software will allow you to do this from the UI.</string>
           <layout class="QGridLayout" name="gridLayout_2">
            <item row="0" column="0">
             <widget class="QPushButton" name="qp1Button">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>157</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="contextMenuPolicy">
               <enum>Qt::DefaultContextMenu</enum>
              </property>
@@ -476,6 +491,18 @@ Left-click to use the chosen ROM.</string>
            </item>
            <item row="0" column="3">
             <widget class="QPushButton" name="qp4Button">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>157</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="toolTip">
               <string>Right-click to select ROM Image.
 Left-click to use the chosen ROM.</string>
@@ -619,6 +646,18 @@ Left-click to use the chosen ROM.</string>
            </item>
            <item row="0" column="2">
             <widget class="QPushButton" name="qp3Button">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>157</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="toolTip">
               <string>Right-click to select ROM Image.
 Left-click to use the chosen ROM.</string>
@@ -630,6 +669,18 @@ Left-click to use the chosen ROM.</string>
            </item>
            <item row="0" column="1">
             <widget class="QPushButton" name="qp2Button">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>157</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="toolTip">
               <string>Right-click to select ROM Image.
 Left-click to use the chosen ROM.</string>
