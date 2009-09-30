@@ -59,7 +59,6 @@ Q_OBJECT
     void slotDownloadROM();
 
     void slotOpenROM();
-    void slotVerifyROM();
     void slotRetry(QAction* action);
     void slotAbout();
     void slotQPButtonClicked(int id);
