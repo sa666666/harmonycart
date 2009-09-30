@@ -200,8 +200,7 @@ const StringList& SerialPortWin32::getPortNames()
     delete [] config;
 
     if(ret)
-{cerr << strPort << endl;
-      myPortNames.push_back(strPort); }
+      myPortNames.push_back(strPort);
   }
   delete[] lpCC;
 

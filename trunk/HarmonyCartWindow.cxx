@@ -173,8 +173,6 @@ void HarmonyCartWindow::readSettings()
     assignToQPButton(ui->qp15Button, 15, s.value("button15", "").toString(), false);
     assignToQPButton(ui->qp16Button, 16, s.value("button16", "").toString(), false);
   s.endGroup();
-
-
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -257,6 +255,9 @@ void HarmonyCartWindow::slotConnectHarmonyCart()
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void HarmonyCartWindow::slotDownloadBIOS()
 {
+  // Switch to BIOS tab
+  ui->tabWidget->setCurrentIndex(0);
+
   if(!myManager.harmonyCartAvailable())
   {
     myStatus->setText("Harmony Cart not found.");
@@ -288,6 +289,9 @@ void HarmonyCartWindow::slotDownloadBIOS()
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void HarmonyCartWindow::slotOpenROM()
 {
+  // Switch to Development tab
+  ui->tabWidget->setCurrentIndex(1);
+
   QString file = QFileDialog::getOpenFileName(this,
     tr("Select ROM Image"), "", tr("Atari 2600 ROM Image (*.bin *.a26)"));
 
@@ -303,6 +307,9 @@ void HarmonyCartWindow::slotDownloadROM()
     myStatus->setText("Harmony Cart not found.");
     return;
   }
+
+  // Switch to Development tab
+  ui->tabWidget->setCurrentIndex(1);
 
   if(myManager.openCartPort())
   {
@@ -342,7 +349,7 @@ void HarmonyCartWindow::slotAbout()
         << "<p>Copyright &copy; 2009 <a href=\"mailto:stephena@users.sf.net\">Stephen Anthony</a><br>"
         << "<a href=\"http://TODO.com\">http://TODO.com</a><p>"
         << "</center>"
-        << "<p>This software is released under the GNU GPLv3, and includes code from the following projects:</p>"
+        << "<p>This&nbsp;software&nbsp;is&nbsp;released&nbsp;under&nbsp;the&nbsp;GNU&nbsp;GPLv3, and includes code from the following projects:</p>"
         << "<p></p>"
         << "<p>"
         << "&nbsp;&nbsp;&nbsp;lpc21isp&nbsp;:&nbsp;Philips&nbsp;LPCxxxx&nbsp;programming&nbsp;code<br>"
@@ -435,6 +442,5 @@ void HarmonyCartWindow::assignToQPButton(QPushButton* button, int id,
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void HarmonyCartWindow::slotShowDefaultMsg()
 {
-  // TODO - check which tab is activated and customize message
   myStatus->setText(myHarmonyCartMessage);
 }

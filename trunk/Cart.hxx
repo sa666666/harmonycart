@@ -100,9 +100,9 @@ class Cart
       for more detailed commments.  All such functions are named starting
       with 'lpc_'.
     */
-    const char* lpc_PhilipsChipVersion(SerialPort& port);
-    int lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
-                            bool verify = false, QProgressDialog* progress = 0);
+    string lpc_PhilipsChipVersion(SerialPort& port);
+    string lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
+                               bool verify = false, QProgressDialog* progress = 0);
     uInt32 lpc_ReturnValueLpcRamStart();
     uInt32 lpc_ReturnValueLpcRamBase();
 
