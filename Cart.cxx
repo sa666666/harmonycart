@@ -18,6 +18,7 @@
 #include <QProgressDialog>
 #include <cstring>
 #include <fstream>
+#include <sstream>
 
 #include "bspf.hxx"
 
@@ -45,28 +46,20 @@ string Cart::autodetectHarmony(SerialPort& port)
   port.clearBuffers();
 
   // Get the version #, if any
-  const char* result = lpc_PhilipsChipVersion(port);
-  if (strncmp(result, "ERROR:", 6) == 0)
+  string result = lpc_PhilipsChipVersion(port);
+  if (strncmp(result.c_str(), "ERROR:", 6) == 0)
   {
     cerr << result << endl;
     return result;
   }
-#if 0
-  else if (1)//StartAddress == 0)
-  {
-    /* Only reset target if startaddress = 0
-     * Otherwise stay with the running program as started in Download()
-     */
-    resetTarget(port, RUN_MODE);
-  }
-#endif
-  return result;
+
+ return result;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 string Cart::downloadBIOS(SerialPort& port, const string& filename, bool verify)
 {
-  string result = "BIOS downloaded.";
+  string result = "";
 
   // Read the file into a buffer
   uInt32 size = 0;
@@ -78,10 +71,10 @@ string Cart::downloadBIOS(SerialPort& port, const string& filename, bool verify)
     QProgressDialog progress;
     progress.setWindowTitle("Updating BIOS");
     progress.setWindowModality(Qt::WindowModal);
-    lpc_PhilipsDownload(port, bios, size, verify, &progress);
+    result = lpc_PhilipsDownload(port, bios, size, verify, &progress);
   }
   else
-    result = "Couldn't open BIOS file.";
+    result = "Couldn't open BIOS file";
 
   delete[] bios;
   return result;
@@ -91,11 +84,11 @@ string Cart::downloadBIOS(SerialPort& port, const string& filename, bool verify)
 string Cart::downloadROM(SerialPort& port, const string& filename, BSType type,
                          bool verify)
 {
-  string result = "Cartridge ROM downloaded.";
+  string result = "";
 
   uInt32 romsize = 0, armsize = 0, size = 0;
   uInt8 *rombuf = NULL, *armbuf = NULL;
-  uInt8 binary[64*1024], *binary_ptr = binary;
+  uInt8 binary[512*1024], *binary_ptr = binary;
   string armfile = "";
   QProgressDialog progress;
 
@@ -179,7 +172,7 @@ string Cart::downloadROM(SerialPort& port, const string& filename, BSType type,
     default:
       cout << "Warning - The Harmony Cartridge does not support \'"
            << Bankswitch::typeToName(type) << "\' bankswitching" << endl;
-      result = "Bankswitch type not supported.";
+      result = "Bankswitch type \'" + Bankswitch::typeToName(type) + "\' not supported.";
       goto cleanup;
       break;
   }
@@ -282,7 +275,7 @@ string Cart::downloadROM(SerialPort& port, const string& filename, BSType type,
   // use a progressbar to show progress
   progress.setWindowTitle("Updating ROM");
   progress.setWindowModality(Qt::WindowModal);
-  lpc_PhilipsDownload(port, binary, size, verify, &progress);
+  result = lpc_PhilipsDownload(port, binary, size, verify, &progress);
 
 cleanup:
   delete[] rombuf;
@@ -459,14 +452,13 @@ uInt32 Cart::compressLastBank(uInt8* binary)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const char* Cart::lpc_PhilipsChipVersion(SerialPort& port)
+string Cart::lpc_PhilipsChipVersion(SerialPort& port)
 {
   int found, i;
   int  strippedsize;
   char Answer[128], temp[128];
   char *strippedAnswer, *endPtr;
   const char* cmdstr;
-//  time_t tStartUpload = 0, tDoneUpload = 0;
 
   static char version[1024] = { 0 };
 
@@ -592,8 +584,8 @@ const char* Cart::lpc_PhilipsChipVersion(SerialPort& port)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
-                              bool verify, QProgressDialog* progress)
+string Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
+                                 bool verify, QProgressDialog* progress)
 {
   char Answer[128], ExpectedAnswer[128], temp[128];
   char *strippedAnswer, *endPtr;
@@ -617,7 +609,8 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
   long WatchDogSeconds = 0;
   int WaitForWatchDog = 0;
   const char* cmdstr;
-  int repeat = 0, result = 0;
+  int repeat = 0;
+  ostringstream result;
 
   // Puffer for data to resend after "RESEND\r\n" Target responce
   char sendbuf0[128], sendbuf1[128], sendbuf2[128], sendbuf3[128], sendbuf4[128],
@@ -737,8 +730,7 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
       port.receive(Answer, sizeof(Answer)-1, 1, 100);
       if (strcmp(Answer, "OK\r\n") != 0)
       {
-        cerr << "No answer on 'watchdog timer set'\n";
-        result = (NO_ANSWER_WDT);
+        result << "ERROR: No answer on 'watchdog timer set'";
         goto cleanup;
       }
       port.send("G 10356\r\n");
@@ -757,8 +749,7 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
 
   if(!found)
   {
-    cerr << "ERROR: no answer on '?'\n";
-    result = (NO_ANSWER_QM);
+    result << "ERROR: no answer on '?'";
     goto cleanup;
   }
 
@@ -769,8 +760,7 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
   if ((strcmp(Answer, "Synchronized\r\nOK\r\n") != 0) && (strcmp(Answer, "Synchronized\rOK\r\n") != 0) &&
       (strcmp(Answer, "Synchronized\nOK\r\n") != 0))
   {
-    cerr << "No answer on 'Synchronized'\n";
-    result = (NO_ANSWER_SYNC);
+    result << "ERROR: No answer on 'Synchronized'";
     goto cleanup;
   }
 
@@ -781,16 +771,14 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
   sprintf(temp, "%s\nOK\r\n", myOscillator.c_str());
   if (strcmp(Answer, temp) != 0)
   {
-    cerr << "No answer on Oscillator-Command\n";
-    result = (NO_ANSWER_OSC);
+    result << "ERROR: No answer on Oscillator-Command";
     goto cleanup;
   }
 
   cmdstr = "U 23130\n";
   if (!lpc_SendAndVerify(port, cmdstr, Answer, sizeof Answer))
   {
-    cerr << "Unlock-Command:\n";
-    result = (UNLOCK_ERROR + lpc_GetAndReportErrorNumber(Answer));
+    result << "ERROR: Unlock-Command: " + lpc_GetAndReportErrorNumber(Answer);
     goto cleanup;
   }
 
@@ -802,8 +790,7 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
 
   if (strncmp(Answer, cmdstr, strlen(cmdstr)) != 0)
   {
-    cerr << "no answer on Read Boot Code Version\n";
-    result = (NO_ANSWER_RBV);
+    result << "ERROR: no answer on Read Boot Code Version";
     goto cleanup;
   }
 
@@ -823,8 +810,7 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
 
   if (strncmp(Answer, cmdstr, strlen(cmdstr)) != 0)
   {
-    cerr << "no answer on Read Part Id\n";
-    result = (NO_ANSWER_RPID);
+    result << "ERROR: no answer on Read Part Id";
     goto cleanup;
   }
 
@@ -849,6 +835,13 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
     cout << version;
   }
   cout << " (" << hex << Pos << dec << ")\n";
+
+  // Make sure the data can fit in the flash we have available
+  if(size > LPCtypes[myDetectedDevice].FlashSize * 1024)
+  {
+    result << "ERROR: Data to large for available flash";
+    goto cleanup;
+  }
 
   /* In case of a download to RAM, use full RAM for downloading
    * set the flash parameters to full RAM also.
@@ -883,16 +876,14 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
   sprintf(tmpString, "P %d %d\n", 0, 0);
   if (!lpc_SendAndVerify(port, tmpString, Answer, sizeof Answer))
   {
-    cerr << "Wrong answer on Prepare-Command\n";
-    result = (WRONG_ANSWER_PREP + lpc_GetAndReportErrorNumber(Answer));
+    result << "ERROR: Wrong answer on Prepare-Command " << lpc_GetAndReportErrorNumber(Answer);
     goto cleanup;
   }
 
   sprintf(tmpString, "E %d %d\n", 0, 0);
   if (!lpc_SendAndVerify(port, tmpString, Answer, sizeof Answer))
   {
-    cerr << "Wrong answer on Erase-Command\n";
-    result = (WRONG_ANSWER_ERAS + lpc_GetAndReportErrorNumber(Answer));
+    result << "ERROR: Wrong answer on Erase-Command " << lpc_GetAndReportErrorNumber(Answer);
     goto cleanup;
   }
   cout << "OK \n";
@@ -902,8 +893,7 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
   {
     if (Sector >= LPCtypes[myDetectedDevice].FlashSectors)
     {
-      cerr << "Program too large; running out of Flash sectors.\n";
-      result = (PROGRAM_TOO_LARGE);
+      result << "ERROR: Program too large; running out of Flash sectors";
       goto cleanup;
     }
 
@@ -916,8 +906,8 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
       sprintf(tmpString, "P %d %d\n", Sector, Sector);
       if (!lpc_SendAndVerify(port, tmpString, Answer, sizeof Answer))
       {
-        cerr << "Wrong answer on Prepare-Command (1) (Sector " << Sector << ")\n";
-        result = (WRONG_ANSWER_PREP + lpc_GetAndReportErrorNumber(Answer));
+        result << "ERROR: Wrong answer on Prepare-Command (1) (Sector " << Sector << ") "
+               << lpc_GetAndReportErrorNumber(Answer);
         goto cleanup;
       }
 
@@ -928,8 +918,8 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
         sprintf(tmpString, "E %d %d\n", Sector, Sector);
         if (!lpc_SendAndVerify(port, tmpString, Answer, sizeof Answer))
         {
-          cerr << "Wrong answer on Erase-Command (Sector " << Sector << ")\n";
-          result = (WRONG_ANSWER_ERAS + lpc_GetAndReportErrorNumber(Answer));
+          result << "ERROR: Wrong answer on Erase-Command (Sector " << Sector << ") "
+                 << lpc_GetAndReportErrorNumber(Answer);
           goto cleanup;
         }
 
@@ -965,8 +955,7 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
       sprintf(tmpString, "W %d %d\n", lpc_ReturnValueLpcRamBase(), CopyLength);
       if (!lpc_SendAndVerify(port, tmpString, Answer, sizeof Answer))
       {
-        cerr << "Wrong answer on Write-Command\n";
-        result = (WRONG_ANSWER_WRIT + lpc_GetAndReportErrorNumber(Answer));
+        cerr << "ERROR: Wrong answer on Write-Command " << lpc_GetAndReportErrorNumber(Answer);
         goto cleanup;
       }
 
@@ -988,7 +977,7 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
             progress->setValue(++progressStep);
             if(progress->wasCanceled())
             {
-              result = -1;
+              result << "Cancelled download";
               goto cleanup;
             }
           }
@@ -1052,8 +1041,7 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
 
             if (repeat >= 3)
             {
-              cerr << "Error on writing block_CRC (1)\n";
-              result = (ERROR_WRITE_CRC);
+              result << "ERROR: writing block_CRC (1)";
               goto cleanup;
             }
             Line = 0;
@@ -1085,8 +1073,7 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
 
         if (repeat >= 3)
         {
-          cerr << "Error on writing block_CRC (3)\n";
-          result = (ERROR_WRITE_CRC2);
+          result << "ERROR: writing block_CRC (3)";
           goto cleanup;
         }
       }
@@ -1098,8 +1085,8 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
 
         if (!lpc_SendAndVerify(port, tmpString, Answer, sizeof Answer))
         {
-          cerr << "Wrong answer on Prepare-Command (2) (Sector " << Sector << ")\n";
-          result = (WRONG_ANSWER_PREP2 + lpc_GetAndReportErrorNumber(Answer));
+          result << "ERROR: Wrong answer on Prepare-Command (2) (Sector " << Sector << ") "
+                 << lpc_GetAndReportErrorNumber(Answer);
           goto cleanup;
         }
 
@@ -1121,8 +1108,7 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
         sprintf(tmpString, "C %d %d %d\n", SectorStart + SectorOffset, lpc_ReturnValueLpcRamBase(), CopyLength);
         if (!lpc_SendAndVerify(port, tmpString, Answer, sizeof Answer))
         {
-          cerr << "Wrong answer on Copy-Command\n";
-          result = (WRONG_ANSWER_COPY + lpc_GetAndReportErrorNumber(Answer));
+          result << "ERROR: Wrong answer on Copy-Command " << lpc_GetAndReportErrorNumber(Answer);
           goto cleanup;
         }
 
@@ -1138,8 +1124,7 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
 
           if (!lpc_SendAndVerify(port, tmpString, Answer, sizeof Answer))
           {
-            cerr << "Wrong answer on Compare-Command\n";
-            result = (WRONG_ANSWER_COPY + lpc_GetAndReportErrorNumber(Answer));
+            result << "ERROR: Wrong answer on Compare-Command " << lpc_GetAndReportErrorNumber(Answer);
             goto cleanup;
           }
         }
@@ -1166,9 +1151,9 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
 
   tDoneUpload = time(NULL);
   if (verify)
-    cout << "Download Finished and Verified correct... taking " << int(tDoneUpload - tStartUpload) << " seconds\n";
+    result << "Download Finished and Verified correct... taking " << int(tDoneUpload - tStartUpload) << " seconds";
   else
-    cout << "Download Finished... taking " << int(tDoneUpload - tStartUpload) << " seconds\n";
+    result << "Download Finished... taking " << int(tDoneUpload - tStartUpload) << " seconds";
 
   if (WaitForWatchDog)
   {
@@ -1204,8 +1189,7 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
 
       if (realsize == 0 || strncmp((const char *)Answer, /*cmdstr*/ExpectedAnswer, strlen(/*cmdstr*/ExpectedAnswer)) != 0)
       {
-        cerr << "Failed to run the new downloaded code: ";
-        result = (FAILED_RUN + lpc_GetAndReportErrorNumber(Answer));
+        result << "Failed to run the new downloaded code: " << lpc_GetAndReportErrorNumber(Answer);
         goto cleanup;
       }
     }
@@ -1217,7 +1201,8 @@ cleanup:
   if(progress)
     progress->setValue(progressSize);
 
-  return result;
+  cerr << result.str() << endl;
+  return result.str();
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1258,8 +1243,6 @@ unsigned char Cart::lpc_GetAndReportErrorNumber(const char* Answer)
     i++;
   }
 
-//  PhilipsOutputErrorMessage(Result);
-
   return Result;
 }
 
@@ -1271,7 +1254,7 @@ uInt32 Cart::lpc_ReturnValueLpcRamStart()
   else if(LPCtypes[myDetectedDevice].ChipVariant == CHIP_VARIANT_LPC17XX)
     return LPC_RAMSTART_LPC17XX;
 
-  return 0; // FIXME
+  return 0;  // TODO - more properly handle this
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1282,7 +1265,7 @@ uInt32 Cart::lpc_ReturnValueLpcRamBase()
   else if(LPCtypes[myDetectedDevice].ChipVariant == CHIP_VARIANT_LPC17XX)
     return LPC_RAMBASE_LPC17XX;
 
-  return 0; // FIXME
+  return 0;  // TODO - more properly handle this
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
