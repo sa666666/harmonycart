@@ -64,7 +64,7 @@ string Cart::autodetectHarmony(SerialPort& port)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-string Cart::downloadBIOS(SerialPort& port, const string& filename)
+string Cart::downloadBIOS(SerialPort& port, const string& filename, bool verify)
 {
   string result = "BIOS downloaded.";
 
@@ -78,7 +78,7 @@ string Cart::downloadBIOS(SerialPort& port, const string& filename)
     QProgressDialog progress;
     progress.setWindowTitle("Updating BIOS");
     progress.setWindowModality(Qt::WindowModal);
-    lpc_PhilipsDownload(port, bios, size, &progress);
+    lpc_PhilipsDownload(port, bios, size, verify, &progress);
   }
   else
     result = "Couldn't open BIOS file.";
@@ -88,7 +88,8 @@ string Cart::downloadBIOS(SerialPort& port, const string& filename)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-string Cart::downloadROM(SerialPort& port, const string& filename, BSType type)
+string Cart::downloadROM(SerialPort& port, const string& filename, BSType type,
+                         bool verify)
 {
   string result = "Cartridge ROM downloaded.";
 
@@ -281,7 +282,7 @@ string Cart::downloadROM(SerialPort& port, const string& filename, BSType type)
   // use a progressbar to show progress
   progress.setWindowTitle("Updating ROM");
   progress.setWindowModality(Qt::WindowModal);
-  lpc_PhilipsDownload(port, binary, size, &progress);
+  lpc_PhilipsDownload(port, binary, size, verify, &progress);
 
 cleanup:
   delete[] rombuf;
@@ -592,7 +593,7 @@ const char* Cart::lpc_PhilipsChipVersion(SerialPort& port)
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
-                              QProgressDialog* progress)
+                              bool verify, QProgressDialog* progress)
 {
   char Answer[128], ExpectedAnswer[128], temp[128];
   char *strippedAnswer, *endPtr;
@@ -1125,7 +1126,7 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
           goto cleanup;
         }
 
-        if (0)// FIXME IspEnvironment->Verify)
+        if (verify)
         {
           //Avoid compare first 64 bytes.
           //Because first 64 bytes are re-mapped to flash boot sector,
@@ -1164,7 +1165,7 @@ int Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
   }
 
   tDoneUpload = time(NULL);
-  if (0)// FIXMEIspEnvironment->Verify)
+  if (verify)
     cout << "Download Finished and Verified correct... taking " << int(tDoneUpload - tStartUpload) << " seconds\n";
   else
     cout << "Download Finished... taking " << int(tDoneUpload - tStartUpload) << " seconds\n";

@@ -58,10 +58,9 @@ HarmonyCartWindow::HarmonyCartWindow(QWidget* parent)
   myLED = new QLabel();
   statusBar()->addPermanentWidget(myLED);
 
-  // Deactivate bankswitch, download and verify until it makes sense to use them
+  // Deactivate bankswitch and download until it makes sense to use them
   ui->romBSType->setDisabled(true);
   ui->downloadButton->setDisabled(true);  ui->actDownloadROM->setDisabled(true);
-  ui->verifyButton->setDisabled(true);  ui->actVerifyROM->setDisabled(true);
 
   // Initialize settings
   QCoreApplication::setOrganizationName("HarmonyCart");
@@ -84,7 +83,7 @@ void HarmonyCartWindow::setupConnections()
   // File menu
   connect(ui->actSelectROM, SIGNAL(triggered()), this, SLOT(slotOpenROM()));
   connect(ui->actDownloadROM, SIGNAL(triggered()), this, SLOT(slotDownloadROM()));
-  connect(ui->actVerifyROM, SIGNAL(triggered()), this, SLOT(slotVerifyROM()));
+  connect(ui->actDownloadBIOS, SIGNAL(triggered()), this, SLOT(slotDownloadBIOS()));
   connect(ui->actQuit, SIGNAL(triggered()), this, SLOT(close()));
 
   // Device menu
@@ -115,7 +114,6 @@ void HarmonyCartWindow::setupConnections()
   // Buttons
   connect(ui->openRomButton, SIGNAL(clicked()), this, SLOT(slotOpenROM()));
   connect(ui->downloadButton, SIGNAL(clicked()), this, SLOT(slotDownloadROM()));
-  connect(ui->verifyButton, SIGNAL(clicked()), this, SLOT(slotVerifyROM()));
 
   // Quick-select buttons
   QButtonGroup* qpGroup = new QButtonGroup(this);
@@ -275,7 +273,8 @@ void HarmonyCartWindow::slotDownloadBIOS()
 
   if(myManager.openCartPort())
   {
-    string result = myCart.downloadBIOS(myManager.port(), biosfile.toStdString());
+    string result = myCart.downloadBIOS(myManager.port(), biosfile.toStdString(),
+                      ui->actAutoVerifyDownload->isChecked());
     myStatus->setText(result.c_str());
 
     myManager.closeCartPort();
@@ -284,19 +283,6 @@ void HarmonyCartWindow::slotDownloadBIOS()
     myStatus->setText("Couldn't open serial port.");
 
   QTimer::singleShot(2000, this, SLOT(slotShowDefaultMsg()));
-
-#if 0
-  STEPS = biosfile.size() / 45;
-  PROGRESS = new QProgressDialog("Updating BIOS...", QString(), 0, STEPS, this);
-  PROGRESS->setWindowModality(Qt::WindowModal);
-  PROGRESS->setMinimumDuration(0);
-
-  // This will periodically trigger an interrupt to update the progress
-  lpc_Download(myManager.portName().c_str(), biosfile.toStdString().c_str(), HarmonyCartWindow::downloadInterrupt);
-
-  PROGRESS->setValue(STEPS);
-  delete PROGRESS;
-#endif
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -312,8 +298,6 @@ void HarmonyCartWindow::slotOpenROM()
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void HarmonyCartWindow::slotDownloadROM()
 {
-  ui->verifyButton->setDisabled(true);  ui->actVerifyROM->setDisabled(true);
-
   if(!myManager.harmonyCartAvailable())
   {
     myStatus->setText("Harmony Cart not found.");
@@ -328,7 +312,8 @@ void HarmonyCartWindow::slotDownloadROM()
     QString t = regex.cap();
     BSType type = Bankswitch::nameToType(regex.cap().toStdString());
 
-    string result = myCart.downloadROM(myManager.port(), romfile, type);
+    string result = myCart.downloadROM(myManager.port(), romfile, type,
+                      ui->actAutoVerifyDownload->isChecked());
     myStatus->setText(result.c_str());
 
     myManager.closeCartPort();
@@ -337,52 +322,6 @@ void HarmonyCartWindow::slotDownloadROM()
     myStatus->setText("Couldn't open serial port.");
 
   QTimer::singleShot(2000, this, SLOT(slotShowDefaultMsg()));
-}
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void HarmonyCartWindow::slotVerifyROM()
-{
-#if 0
-  if(!myManager.harmonyCartAvailable())
-  {
-    myStatus->setText("Harmony Cart not found.");
-    return;
-  }
-  else if(!myCart.isValid())
-  {
-    myStatus->setText("Invalid cartridge.");
-    QTimer::singleShot(2000, this, SLOT(slotShowDefaultMsg()));
-    return;
-  }
-
-  // Verify data previously written to serial port
-  uInt16 sector = 0, numSectors = myCart.initSectors();
-  QProgressDialog progress("Verifying ROM...", QString(), 0, numSectors, this);
-  progress.setWindowModality(Qt::WindowModal);
-  progress.setMinimumDuration(0);
-  try
-  {
-    for(sector = 0; sector < numSectors; ++sector)
-    {
-      myCart.verifyNextSector(myManager.port());
-      progress.setValue(sector);
-    }
-  }
-  catch(const char* msg)
-  {
-    cout << msg << endl;
-  }
-
-  if(sector == numSectors)
-  {
-    progress.setValue(numSectors);
-    myStatus->setText("Verified download of " + QString::number(sector) + " sectors.");
-  }
-  else
-    myStatus->setText("Verify failure on sector " + QString::number(sector) + ".");
-
-  QTimer::singleShot(2000, this, SLOT(slotShowDefaultMsg()));
-#endif
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -406,9 +345,9 @@ void HarmonyCartWindow::slotAbout()
         << "<p>This software is released under the GNU GPLv3, and includes code from the following projects:</p>"
         << "<p></p>"
         << "<p>"
-        << "&nbsp;&nbsp;&nbsp;lpc21isp : Philips LPCxxxx programming code<br>"
-        << "&nbsp;&nbsp;&nbsp;KrokCom : UI code, icons and other images<br>"
-        << "&nbsp;&nbsp;&nbsp;Stella : bankswitch autodetection code<br>"
+        << "&nbsp;&nbsp;&nbsp;lpc21isp&nbsp;:&nbsp;Philips&nbsp;LPCxxxx&nbsp;programming&nbsp;code<br>"
+        << "&nbsp;&nbsp;&nbsp;KrokCom&nbsp;:&nbsp;UI&nbsp;code,&nbsp;icons&nbsp;and&nbsp;other&nbsp;images<br>"
+        << "&nbsp;&nbsp;&nbsp;Stella&nbsp;:&nbsp;bankswitch&nbsp;autodetection&nbsp;code<br>"
         << "</p>";
 
   QMessageBox mb;
@@ -440,7 +379,6 @@ void HarmonyCartWindow::loadROM(const QString& filename)
 
   ui->romBSType->setDisabled(true);
   ui->downloadButton->setDisabled(true);  ui->actDownloadROM->setDisabled(true);
-  ui->verifyButton->setDisabled(true);  ui->actVerifyROM->setDisabled(true);
 
   // Set name and file size
   QFile file(filename);

@@ -53,7 +53,7 @@ class Cart
       Loads EEPROM loader BIOS data from the given filename.
       The filename should exist and be readable.
     */
-    string downloadBIOS(SerialPort& port, const string& filename);
+    string downloadBIOS(SerialPort& port, const string& filename, bool verify);
 
 
     /**
@@ -61,7 +61,7 @@ class Cart
       The bankswitch type is autodetected if type is "".
       The filename should exist and be readable.
     */
-    string downloadROM(SerialPort& port, const string& filename, BSType type);
+    string downloadROM(SerialPort& port, const string& filename, BSType type, bool verify);
 
     /** Set number of write retries before bailing out. */
     void setRetry(int retry) { myRetry = retry; }
@@ -102,7 +102,7 @@ class Cart
     */
     const char* lpc_PhilipsChipVersion(SerialPort& port);
     int lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
-                            QProgressDialog* progress = 0);
+                            bool verify = false, QProgressDialog* progress = 0);
     uInt32 lpc_ReturnValueLpcRamStart();
     uInt32 lpc_ReturnValueLpcRamBase();
 

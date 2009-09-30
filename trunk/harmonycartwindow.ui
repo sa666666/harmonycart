@@ -427,19 +427,6 @@ software will allow you to do this from the UI.</string>
            </spacer>
           </item>
           <item>
-           <widget class="QPushButton" name="verifyButton">
-            <property name="minimumSize">
-             <size>
-              <width>150</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Download &amp;&amp; Verify</string>
-            </property>
-           </widget>
-          </item>
-          <item>
            <widget class="QPushButton" name="downloadButton">
             <property name="minimumSize">
              <size>
@@ -714,7 +701,7 @@ Left-click to use the chosen ROM.</string>
     </property>
     <addaction name="actSelectROM"/>
     <addaction name="actDownloadROM"/>
-    <addaction name="actVerifyROM"/>
+    <addaction name="actDownloadBIOS"/>
     <addaction name="separator"/>
     <addaction name="actQuit"/>
    </widget>
@@ -726,12 +713,15 @@ Left-click to use the chosen ROM.</string>
    </widget>
    <widget class="QMenu" name="menuOptions">
     <property name="enabled">
-     <bool>false</bool>
+     <bool>true</bool>
     </property>
     <property name="title">
      <string>Options</string>
     </property>
     <widget class="QMenu" name="menuRetryCount">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="contextMenuPolicy">
       <enum>Qt::ActionsContextMenu</enum>
      </property>
@@ -784,9 +774,9 @@ Left-click to use the chosen ROM.</string>
     <string>Download ROM</string>
    </property>
   </action>
-  <action name="actVerifyROM">
+  <action name="actDownloadBIOS">
    <property name="text">
-    <string>Verify ROM</string>
+    <string>Download BIOS</string>
    </property>
   </action>
   <action name="actQuit">
@@ -818,7 +808,7 @@ Left-click to use the chosen ROM.</string>
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Auto verify after download</string>
+    <string>Auto verify during download</string>
    </property>
   </action>
   <action name="actIncDownload">
