@@ -186,16 +186,25 @@ const StringList& SerialPortWin32::getPortNames()
 {
   myPortNames.clear();
 
-  // For now, we just append all 256 possible COM ports
-  // In the future, we should only include the ones that actually exist
-  // TODO - figure out how to determine if a port exists
-
+  LPCOMMCONFIG lpCC = (LPCOMMCONFIG) new BYTE[1];
   for(int i = 1; i <= 256; ++i)
   {
-    ostringstream port;
-    port << "COM" << i;
-    myPortNames.push_back(port.str());
+    TCHAR strPort[32] = {0};
+    sprintf(strPort, "COM%d", i);
+
+    DWORD dwSize = 0;
+    BOOL ret = GetDefaultCommConfig(strPort, lpCC, &dwSize);
+
+    LPCOMMCONFIG config = (LPCOMMCONFIG) new BYTE[dwSize];
+    ret = GetDefaultCommConfig(strPort, lpCC, &dwSize);
+    delete [] config;
+
+    if(ret)
+{cerr << strPort << endl;
+      myPortNames.push_back(strPort); }
   }
+  delete[] lpCC;
+
   return myPortNames;
 }
 
