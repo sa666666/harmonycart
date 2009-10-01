@@ -4,5 +4,7 @@
         <file>pics/ledoff.png</file>
         <file>pics/cart.png</file>
         <file>pics/ledon.png</file>
+        <file>pics/cart_tiny.png</file>
+        <file>pics/sdcard.png</file>
     </qresource>
 </RCC>
