@@ -64,6 +64,9 @@ Q_OBJECT
     void slotQPButtonClicked(int id);
     void slotShowDefaultMsg();
 
+    void slotEEPROMBox(int index);
+    void slotHBIOSBox(int index);
+
   private:
     Ui::HarmonyCartWindow* ui;
 
@@ -74,6 +77,7 @@ Q_OBJECT
     QLabel* myLED;
 
     QString myHarmonyCartMessage;
+    bool myDownloadInProgress;
 };
 
 #endif
