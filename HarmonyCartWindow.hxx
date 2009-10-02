@@ -64,8 +64,10 @@ Q_OBJECT
     void slotQPButtonClicked(int id);
     void slotShowDefaultMsg();
 
-    void slotEEPROMBox(int index);
-    void slotHBIOSBox(int index);
+    void slotSelectEEPROM();
+    void slotSelectHBIOS();
+    void slotSelectSDMount();
+    void slotSelectARMPath();
 
   private:
     Ui::HarmonyCartWindow* ui;

@@ -81,8 +81,8 @@ string Cart::downloadBIOS(SerialPort& port, const string& filename, bool verify)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-string Cart::downloadROM(SerialPort& port, const string& filename, BSType type,
-                         bool verify)
+string Cart::downloadROM(SerialPort& port, const string& armpath,
+                         const string& filename, BSType type, bool verify)
 {
   string result = "";
 
@@ -119,7 +119,7 @@ string Cart::downloadROM(SerialPort& port, const string& filename, BSType type,
       armfile = "0840.arm";
       break;
     case BS_4K:
-      armfile = "2k4k.arm";
+      armfile = "2K4K.arm";
       break;
     case BS_3E:
       armfile = "3E.arm";
@@ -178,8 +178,7 @@ string Cart::downloadROM(SerialPort& port, const string& filename, BSType type,
   }
 
   // Now load the proper bankswitch file
-  // FIXME - abstract for different OS filesystems
-  armfile = "arm/" + armfile;
+  armfile = armpath + BSPF_PATH_SEPARATOR + armfile;
   armbuf = readFile(armfile, armsize);
   if(armsize == 0)
   {

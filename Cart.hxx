@@ -61,7 +61,8 @@ class Cart
       The bankswitch type is autodetected if type is "".
       The filename should exist and be readable.
     */
-    string downloadROM(SerialPort& port, const string& filename, BSType type, bool verify);
+    string downloadROM(SerialPort& port, const string& armpath,
+                       const string& filename, BSType type, bool verify);
 
     /** Set number of write retries before bailing out. */
     void setRetry(int retry) { myRetry = retry; }
