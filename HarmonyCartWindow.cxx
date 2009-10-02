@@ -41,7 +41,8 @@ using namespace std;
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 HarmonyCartWindow::HarmonyCartWindow(QWidget* parent)
   : QMainWindow(parent),
-    ui(new Ui::HarmonyCartWindow)
+    ui(new Ui::HarmonyCartWindow),
+    myDownloadInProgress(false)
 {
   // Create GUI
   ui->setupUi(this);
@@ -107,6 +108,8 @@ void HarmonyCartWindow::setupConnections()
   ///////////////////////////////////////////////////////////
   // Buttons
   connect(ui->updateBIOSButton, SIGNAL(clicked()), this, SLOT(slotDownloadBIOS()));
+  connect(ui->eepromComboBox, SIGNAL(activated(int)), this, SLOT(slotEEPROMBox(int)));
+  connect(ui->hbiosComboBox, SIGNAL(activated(int)), this, SLOT(slotHBIOSBox(int)));
 
   ///////////////////////////////////////////////////////////
   // 'Development' tab
@@ -173,6 +176,15 @@ void HarmonyCartWindow::readSettings()
     assignToQPButton(ui->qp15Button, 15, s.value("button15", "").toString(), false);
     assignToQPButton(ui->qp16Button, 16, s.value("button16", "").toString(), false);
   s.endGroup();
+
+  s.beginGroup("BIOSTab");
+    int choice = s.value("eepromchoice", 0).toInt();
+    ui->eepromComboBox->setCurrentIndex(choice);
+    slotEEPROMBox(choice);
+    choice = s.value("hbioschoice", 0).toInt();
+    ui->hbiosComboBox->setCurrentIndex(choice);
+    slotHBIOSBox(choice);
+  s.endGroup();
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -191,6 +203,11 @@ void HarmonyCartWindow::closeEvent(QCloseEvent* event)
     s.setValue("retrycount", retrycount);
     s.setValue("autodownload", ui->actAutoDownFileSelect->isChecked());
     s.setValue("autoverify", ui->actAutoVerifyDownload->isChecked());
+  s.endGroup();
+
+  s.beginGroup("BIOSTab");
+    s.setValue("eepromchoice", ui->eepromComboBox->currentIndex());
+    s.setValue("hbioschoice", ui->hbiosComboBox->currentIndex());
   s.endGroup();
 
   event->accept();
@@ -255,14 +272,18 @@ void HarmonyCartWindow::slotConnectHarmonyCart()
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void HarmonyCartWindow::slotDownloadBIOS()
 {
-  // Switch to BIOS tab
-  ui->tabWidget->setCurrentIndex(0);
+  if(myDownloadInProgress)
+    return;
 
   if(!myManager.harmonyCartAvailable())
   {
     myStatus->setText("Harmony Cart not found.");
     return;
   }
+
+  // Switch to BIOS tab
+  ui->tabWidget->setCurrentIndex(0);
+  myDownloadInProgress = true;
 
   QString biosfile = "arm/eeloader.bin";
   if(!QFile::exists(biosfile))
@@ -284,6 +305,7 @@ void HarmonyCartWindow::slotDownloadBIOS()
     myStatus->setText("Couldn't open serial port.");
 
   QTimer::singleShot(2000, this, SLOT(slotShowDefaultMsg()));
+  myDownloadInProgress = false;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -302,6 +324,9 @@ void HarmonyCartWindow::slotOpenROM()
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void HarmonyCartWindow::slotDownloadROM()
 {
+  if(myDownloadInProgress)
+    return;
+
   if(!myManager.harmonyCartAvailable())
   {
     myStatus->setText("Harmony Cart not found.");
@@ -310,6 +335,7 @@ void HarmonyCartWindow::slotDownloadROM()
 
   // Switch to Development tab
   ui->tabWidget->setCurrentIndex(1);
+  myDownloadInProgress = true;
 
   if(myManager.openCartPort())
   {
@@ -329,6 +355,7 @@ void HarmonyCartWindow::slotDownloadROM()
     myStatus->setText("Couldn't open serial port.");
 
   QTimer::singleShot(2000, this, SLOT(slotShowDefaultMsg()));
+  myDownloadInProgress = false;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -376,6 +403,24 @@ void HarmonyCartWindow::slotQPButtonClicked(int id)
   s.endGroup();
 
   loadROM(file);
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+void HarmonyCartWindow::slotEEPROMBox(int index)
+{
+  bool disable = index == 0;
+  ui->eepromFileEdit->setDisabled(disable);
+  ui->openEEPROMButton->setDisabled(disable);
+  ui->eepromFileEdit->setText(disable ? "Using built-in EELOADER.bin" : "");
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+void HarmonyCartWindow::slotHBIOSBox(int index)
+{
+  bool disable = index == 0;
+  ui->hbiosFileEdit->setDisabled(disable);
+  ui->openHBIOSButton->setDisabled(disable);
+  ui->hbiosFileEdit->setText(disable ? "Using built-in HBIOS.bin" : "");
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
