@@ -342,7 +342,7 @@ HBIOS</string>
            <widget class="QLabel" name="label_14">
             <property name="minimumSize">
              <size>
-              <width>65</width>
+              <width>64</width>
               <height>70</height>
              </size>
             </property>
@@ -450,7 +450,7 @@ HBIOS</string>
              </size>
             </property>
             <property name="text">
-             <string>ROM File </string>
+             <string>ROM File:</string>
             </property>
            </widget>
           </item>
@@ -502,7 +502,7 @@ HBIOS</string>
              </size>
             </property>
             <property name="text">
-             <string>ROM Size</string>
+             <string>ROM Size:</string>
             </property>
            </widget>
           </item>
@@ -722,7 +722,7 @@ HBIOS</string>
              </size>
             </property>
             <property name="text">
-             <string>ARM Dir</string>
+             <string>ARM Dir:</string>
             </property>
            </widget>
           </item>
