@@ -277,6 +277,7 @@ void HarmonyCartWindow::slotDownloadBIOS()
 
   if(!myManager.harmonyCartAvailable())
   {
+    myDownloadInProgress = false;
     myStatus->setText("Harmony Cart not found.");
     return;
   }
@@ -288,6 +289,7 @@ void HarmonyCartWindow::slotDownloadBIOS()
   QString biosfile = "arm/eeloader.bin";
   if(!QFile::exists(biosfile))
   {
+    myDownloadInProgress = false;
     QMessageBox::critical(this, "Missing file",
       "Couldn't find eeloader.bin file.\nCheck the \'arm\' folder.");
     return;
@@ -329,6 +331,7 @@ void HarmonyCartWindow::slotDownloadROM()
 
   if(!myManager.harmonyCartAvailable())
   {
+    myDownloadInProgress = false;
     myStatus->setText("Harmony Cart not found.");
     return;
   }
