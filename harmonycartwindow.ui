@@ -121,7 +121,7 @@
             </property>
             <property name="minimumSize">
              <size>
-              <width>75</width>
+              <width>90</width>
               <height>95</height>
              </size>
             </property>
@@ -241,7 +241,7 @@ EEPROM</string>
             </property>
             <property name="minimumSize">
              <size>
-              <width>75</width>
+              <width>90</width>
               <height>95</height>
              </size>
             </property>
