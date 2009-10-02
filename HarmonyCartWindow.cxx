@@ -406,7 +406,7 @@ void HarmonyCartWindow::slotCopyHBIOS()
   QFileInfo source(hbiosfile);
   QFileInfo dest(QDir(sdmountdir), source.fileName());
 
-  if(QFile::exists(dest.absoluteFilePath()))
+  if(QFile::exists(dest.absoluteFilePath()) && dest.isFile())
     QFile::remove(dest.absoluteFilePath());
 
   if(QFile::copy(hbiosfile, dest.absoluteFilePath()))
