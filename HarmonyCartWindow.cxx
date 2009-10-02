@@ -431,7 +431,7 @@ void HarmonyCartWindow::slotAbout()
 {
   ostringstream about;
   about << "<center>"
-        << "<p><b>Harmony Programming Tool v0.1</b></p>"
+        << "<p><b>Harmony Programming Tool v0.9</b></p>"
         << "<p>Copyright &copy; 2009 <a href=\"mailto:stephena@users.sf.net\">Stephen Anthony</a><br>"
         << "<a href=\"http://TODO.com\">http://TODO.com</a><p>"
         << "</center>"

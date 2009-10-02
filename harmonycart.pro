@@ -27,4 +27,4 @@ macx:LIBS += -framework \
     CoreFoundation \
     -framework \
     IOKit
-windows:CONFIG += console
+#windows:CONFIG += console
