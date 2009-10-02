@@ -28,6 +28,7 @@
 #include <QCloseEvent>
 #include <QMessageBox>
 #include <QTimer>
+#include <QFile>
 
 #include <iostream>
 #include <sstream>
@@ -108,6 +109,7 @@ void HarmonyCartWindow::setupConnections()
   ///////////////////////////////////////////////////////////
   // Buttons
   connect(ui->updateBIOSButton, SIGNAL(clicked()), this, SLOT(slotDownloadBIOS()));
+  connect(ui->copyHBIOSButton, SIGNAL(clicked()), this, SLOT(slotCopyHBIOS()));
   connect(ui->openEEPROMButton, SIGNAL(clicked()), this, SLOT(slotSelectEEPROM()));
   connect(ui->openHBIOSButton, SIGNAL(clicked()), this, SLOT(slotSelectHBIOS()));
   connect(ui->openSDMountButton, SIGNAL(clicked()), this, SLOT(slotSelectSDMount()));
@@ -377,6 +379,42 @@ void HarmonyCartWindow::slotDownloadROM()
 
   QTimer::singleShot(2000, this, SLOT(slotShowDefaultMsg()));
   myDownloadInProgress = false;
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+void HarmonyCartWindow::slotCopyHBIOS()
+{
+  // Switch to BIOS tab
+  ui->tabWidget->setCurrentIndex(0);
+
+  QString hbiosfile = ui->hbiosFileEdit->text();
+  QString sdmountdir = ui->sdcardFileEdit->text();
+  if(hbiosfile == "" || !QFile::exists(hbiosfile))
+  {
+    QMessageBox::critical(this, "Missing file",
+      "Couldn't find hbios.bin file.\nMake sure you've selected it.");
+    return;
+  }
+  else if(sdmountdir == "" || !QFile::exists(sdmountdir))
+  {
+    QMessageBox::critical(this, "Missing directory",
+      "Couldn't find the SD mount directory.\nMake sure you've selected it.");
+    return;
+  }
+
+  // Since Qt won't copy over a file that already exists, we have to delete first
+  QFileInfo source(hbiosfile);
+  QFileInfo dest(QDir(sdmountdir), source.fileName());
+
+  if(QFile::exists(dest.absoluteFilePath()))
+    QFile::remove(dest.absoluteFilePath());
+
+  if(QFile::copy(hbiosfile, dest.absoluteFilePath()))
+    myStatus->setText("HBIOS file copied.");
+  else
+    myStatus->setText("HBIOS file NOT copied; check file permissions.");
+
+  QTimer::singleShot(2000, this, SLOT(slotShowDefaultMsg()));
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

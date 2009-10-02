@@ -57,6 +57,7 @@ Q_OBJECT
 
     void slotDownloadBIOS();
     void slotDownloadROM();
+    void slotCopyHBIOS();
 
     void slotOpenROM();
     void slotRetry(QAction* action);
