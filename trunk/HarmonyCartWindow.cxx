@@ -449,7 +449,11 @@ void HarmonyCartWindow::slotSelectHBIOS()
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void HarmonyCartWindow::slotSelectSDMount()
 {
-cerr << "TODO: slotSelectSDMount()\n";
+  QString dir = QFileDialog::getExistingDirectory(this,
+    tr("Select SD Card Location"), "", QFileDialog::ShowDirsOnly);
+
+  if(!dir.isNull())
+    ui->sdcardFileEdit->setText(dir);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
