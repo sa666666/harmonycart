@@ -108,8 +108,9 @@ void HarmonyCartWindow::setupConnections()
   ///////////////////////////////////////////////////////////
   // Buttons
   connect(ui->updateBIOSButton, SIGNAL(clicked()), this, SLOT(slotDownloadBIOS()));
-  connect(ui->eepromComboBox, SIGNAL(activated(int)), this, SLOT(slotEEPROMBox(int)));
-  connect(ui->hbiosComboBox, SIGNAL(activated(int)), this, SLOT(slotHBIOSBox(int)));
+  connect(ui->openEEPROMButton, SIGNAL(clicked()), this, SLOT(slotSelectEEPROM()));
+  connect(ui->openHBIOSButton, SIGNAL(clicked()), this, SLOT(slotSelectHBIOS()));
+  connect(ui->openSDMountButton, SIGNAL(clicked()), this, SLOT(slotSelectSDMount()));
 
   ///////////////////////////////////////////////////////////
   // 'Development' tab
@@ -117,6 +118,7 @@ void HarmonyCartWindow::setupConnections()
   // Buttons
   connect(ui->openRomButton, SIGNAL(clicked()), this, SLOT(slotOpenROM()));
   connect(ui->downloadButton, SIGNAL(clicked()), this, SLOT(slotDownloadROM()));
+  connect(ui->openARMPathButton, SIGNAL(clicked()), this, SLOT(slotSelectARMPath()));
 
   // Quick-select buttons
   QButtonGroup* qpGroup = new QButtonGroup(this);
@@ -177,13 +179,11 @@ void HarmonyCartWindow::readSettings()
     assignToQPButton(ui->qp16Button, 16, s.value("button16", "").toString(), false);
   s.endGroup();
 
-  s.beginGroup("BIOSTab");
-    int choice = s.value("eepromchoice", 0).toInt();
-    ui->eepromComboBox->setCurrentIndex(choice);
-    slotEEPROMBox(choice);
-    choice = s.value("hbioschoice", 0).toInt();
-    ui->hbiosComboBox->setCurrentIndex(choice);
-    slotHBIOSBox(choice);
+  s.beginGroup("Paths");
+    ui->eepromFileEdit->setText(s.value("eepromfile", "").toString());
+    ui->hbiosFileEdit->setText(s.value("hbiosfile", "").toString());
+    ui->sdcardFileEdit->setText(s.value("sdmountdir", "").toString());
+    ui->armpathFileEdit->setText(s.value("armdir", "").toString());
   s.endGroup();
 }
 
@@ -205,9 +205,11 @@ void HarmonyCartWindow::closeEvent(QCloseEvent* event)
     s.setValue("autoverify", ui->actAutoVerifyDownload->isChecked());
   s.endGroup();
 
-  s.beginGroup("BIOSTab");
-    s.setValue("eepromchoice", ui->eepromComboBox->currentIndex());
-    s.setValue("hbioschoice", ui->hbiosComboBox->currentIndex());
+  s.beginGroup("Paths");
+    s.setValue("eepromfile", ui->eepromFileEdit->text());
+    s.setValue("hbiosfile", ui->hbiosFileEdit->text());
+    s.setValue("sdmountdir", ui->sdcardFileEdit->text());
+    s.setValue("armdir", ui->armpathFileEdit->text());
   s.endGroup();
 
   event->accept();
@@ -286,12 +288,12 @@ void HarmonyCartWindow::slotDownloadBIOS()
   ui->tabWidget->setCurrentIndex(0);
   myDownloadInProgress = true;
 
-  QString biosfile = "arm/eeloader.bin";
-  if(!QFile::exists(biosfile))
+  QString biosfile = ui->eepromFileEdit->text();
+  if(biosfile == "" || !QFile::exists(biosfile))
   {
     myDownloadInProgress = false;
     QMessageBox::critical(this, "Missing file",
-      "Couldn't find eeloader.bin file.\nCheck the \'arm\' folder.");
+      "Couldn't find eeloader.bin file.\nMake sure you've selected it.");
     return;
   }
 
@@ -340,16 +342,32 @@ void HarmonyCartWindow::slotDownloadROM()
   ui->tabWidget->setCurrentIndex(1);
   myDownloadInProgress = true;
 
+  QString armpath = ui->armpathFileEdit->text();
+  QString romfile = ui->romFileEdit->text();
+  if(armpath == "" || !QFile::exists(armpath))
+  {
+    myDownloadInProgress = false;
+    QMessageBox::critical(this, "Missing folder",
+      "Couldn't find the 'arm' folder.\nMake sure you've selected it.");
+    return;
+  }
+  if(romfile == "" || !QFile::exists(romfile))
+  {
+    myDownloadInProgress = false;
+    QMessageBox::critical(this, "Missing file",
+      "Couldn't find selected ROM image.");
+    return;
+  }
+
   if(myManager.openCartPort())
   {
-    const string& romfile = ui->romFileEdit->text().toStdString();
     QRegExp regex("([a-zA-Z0-9]*)");
     regex.indexIn(ui->romBSType->currentText());
     QString t = regex.cap();
     BSType type = Bankswitch::nameToType(regex.cap().toStdString());
 
-    string result = myCart.downloadROM(myManager.port(), romfile, type,
-                      ui->actAutoVerifyDownload->isChecked());
+    string result = myCart.downloadROM(myManager.port(), armpath.toStdString(),
+      romfile.toStdString(), type, ui->actAutoVerifyDownload->isChecked());
     myStatus->setText(result.c_str());
 
     myManager.closeCartPort();
@@ -409,21 +427,39 @@ void HarmonyCartWindow::slotQPButtonClicked(int id)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void HarmonyCartWindow::slotEEPROMBox(int index)
+void HarmonyCartWindow::slotSelectEEPROM()
 {
-  bool disable = index == 0;
-  ui->eepromFileEdit->setDisabled(disable);
-  ui->openEEPROMButton->setDisabled(disable);
-  ui->eepromFileEdit->setText(disable ? "Using built-in EELOADER.bin" : "");
+  QString file = QFileDialog::getOpenFileName(this,
+    tr("Select EEPROM Loader Image"), "", tr("BIOS Image (*.bin)"));
+
+  if(!file.isNull())
+    ui->eepromFileEdit->setText(file);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void HarmonyCartWindow::slotHBIOSBox(int index)
+void HarmonyCartWindow::slotSelectHBIOS()
 {
-  bool disable = index == 0;
-  ui->hbiosFileEdit->setDisabled(disable);
-  ui->openHBIOSButton->setDisabled(disable);
-  ui->hbiosFileEdit->setText(disable ? "Using built-in HBIOS.bin" : "");
+  QString file = QFileDialog::getOpenFileName(this,
+    tr("Select HBIOS Image"), "", tr("BIOS Image (*.bin)"));
+
+  if(!file.isNull())
+    ui->hbiosFileEdit->setText(file);
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+void HarmonyCartWindow::slotSelectSDMount()
+{
+cerr << "TODO: slotSelectSDMount()\n";
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+void HarmonyCartWindow::slotSelectARMPath()
+{
+  QString dir = QFileDialog::getExistingDirectory(this,
+    tr("Select 'ARM' Directory"), "", QFileDialog::ShowDirsOnly);
+
+  if(!dir.isNull())
+    ui->armpathFileEdit->setText(dir);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -92,7 +92,7 @@ int main(int ac, char* av[])
   QApplication app(ac, av);
   HarmonyCartWindow win;
 
-  if(ac == 1)  // Launch GUI
+  if(1)//ac == 1)  // Launch GUI
   {
     win.show();
     return app.exec();
