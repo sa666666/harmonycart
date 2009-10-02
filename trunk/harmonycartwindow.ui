@@ -142,6 +142,9 @@
               </item>
               <item>
                <widget class="QPushButton" name="openEEPROMButton">
+                <property name="toolTip">
+                 <string>Select an EEPROM loader image.</string>
+                </property>
                 <property name="text">
                  <string>...</string>
                 </property>
@@ -164,6 +167,10 @@
               <width>90</width>
               <height>95</height>
              </size>
+            </property>
+            <property name="toolTip">
+             <string>Download the currently selected EEPROM
+loader image to the Harmony Cart.</string>
             </property>
             <property name="text">
              <string>Download
@@ -258,6 +265,9 @@ EEPROM</string>
               </item>
               <item>
                <widget class="QPushButton" name="openHBIOSButton">
+                <property name="toolTip">
+                 <string>Select an HBIOS image.</string>
+                </property>
                 <property name="text">
                  <string>...</string>
                 </property>
@@ -298,6 +308,9 @@ EEPROM</string>
               </item>
               <item>
                <widget class="QPushButton" name="openSDMountButton">
+                <property name="toolTip">
+                 <string>Select your SD card directory.</string>
+                </property>
                 <property name="text">
                  <string>...</string>
                 </property>
@@ -320,6 +333,10 @@ EEPROM</string>
               <width>90</width>
               <height>95</height>
              </size>
+            </property>
+            <property name="toolTip">
+             <string>Copy the currently selected HBIOS
+image to your SD card.</string>
             </property>
             <property name="text">
              <string>Copy
@@ -478,6 +495,9 @@ HBIOS</string>
           </item>
           <item>
            <widget class="QPushButton" name="openRomButton">
+            <property name="toolTip">
+             <string>Select a single-load ROM image.</string>
+            </property>
             <property name="text">
              <string>...</string>
             </property>
@@ -560,6 +580,12 @@ HBIOS</string>
               <width>200</width>
               <height>0</height>
              </size>
+            </property>
+            <property name="toolTip">
+             <string>Override the bankswitching scheme
+for the currently selected ROM image.
+Schemes marked with (*) are not currently
+supported by the Harmony Cart.</string>
             </property>
             <item>
              <property name="text">
@@ -750,6 +776,10 @@ HBIOS</string>
           </item>
           <item>
            <widget class="QPushButton" name="openARMPathButton">
+            <property name="toolTip">
+             <string>Select location of the 'ARM' files
+for single-load ROM images.</string>
+            </property>
             <property name="text">
              <string>...</string>
             </property>
@@ -777,6 +807,10 @@ HBIOS</string>
                 <width>150</width>
                 <height>0</height>
                </size>
+              </property>
+              <property name="toolTip">
+               <string>Download the currently selected ROM
+image to the Harmony Cart.</string>
               </property>
               <property name="text">
                <string>Download</string>
