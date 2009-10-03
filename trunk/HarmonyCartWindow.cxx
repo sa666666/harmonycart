@@ -70,7 +70,10 @@ HarmonyCartWindow::HarmonyCartWindow(QWidget* parent)
   readSettings();
 
   // Find and connect to HarmonyCart (make sure ::readSettings() is called first)
-  slotConnectHarmonyCart();
+  // Delay calling this so the app can start up
+  myStatus->setText("Searching for Harmony Cart.");
+  myLED->setPixmap(QPixmap(":icons/pics/ledoff.png"));
+  QTimer::singleShot(200, this, SLOT(slotConnectHarmonyCart()));
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
