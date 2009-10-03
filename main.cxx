@@ -15,7 +15,9 @@
 //=========================================================================
 
 #include <QApplication>
+#include <QFile>
 #include <cstring>
+#include "ui_harmonycartwindow.h"
 
 #include "bspf.hxx"
 #include "BSType.hxx"
@@ -23,58 +25,78 @@
 #include "SerialPort.hxx"
 #include "SerialPortManager.hxx"
 #include "HarmonyCartWindow.hxx"
+#include "Version.hxx"
 
 void runCommandlineApp(HarmonyCartWindow& win, int ac, char* av[])
 {
-  string bstype = "", tvformat = "", romfile = "";
+  string datafile = "";
+  BSType bstype = BS_AUTO;
+  bool biosupdate = false;
 
   // Parse commandline args
   for(int i = 1; i < ac; ++i)
   {
     if(strstr(av[i], "-bs=") == av[i])
-      bstype = av[i]+4;
+      bstype = Bankswitch::nameToType(av[i]+4);
+    else if(strcmp(av[i], "-bios") == 0)
+      biosupdate = true;
 //    else if(...)         // add more options here
     else
-      romfile = av[i];
+      datafile = av[i];
   }
 
+  Cart cart;
   SerialPortManager& manager = win.portManager();
+
+  manager.connectHarmonyCart(cart);
   if(manager.harmonyCartAvailable())
   {
     cout << "Harmony \'" << manager.versionID() << "\' @ \'" << manager.portName() << "\'" << endl;
   }
   else
   {
-    cout << "HarmonyCart not detected" << endl;
+    cout << "Harmony Cart not detected" << endl;
     return;
   }
-#if 0
-  // Create a new cart for writing
-  Cart cart;
 
-  // Create a new single-load cart
-  cart.downloadROM(manager.port(), romfile, Bankswitch::nameToType(bstype));
-
-  // Write to serial port
-  if(cart.isValid())
+  // Are we updating the BIOS or a single-load ROM?
+  if(biosupdate)
   {
-    try
+    cout << "Downloading BIOS file..." << endl;
+    if(datafile == "" || !QFile::exists(QString(datafile.c_str())))
     {
-      uInt16 numSectors = cart.initSectors();
-      for(uInt16 sector = 0; sector < numSectors; ++sector)
-      {
-        uInt16 s = cart.writeNextSector(manager.port());
-        cout << "Sector " << setw(4) << s << " successfully sent : "
-             << setw(3) << (100*(sector+1)/numSectors) << "% complete" << endl;
-      }
+      cout << "Couldn't find BIOS file \'" << datafile << "\'" << endl;
+      return;
     }
-    catch(const char* msg)
+
+    if(manager.openCartPort())
     {
+      // Download the BIOS, but don't show a graphical progress indicator
+      cart.downloadBIOS(manager.port(), datafile, win.verifyDownload(), false);
+      manager.closeCartPort();
     }
+    else
+      cout << "Couldn't open Harmony Cart" << endl;
   }
-  else
-    cout << "ERROR: Invalid cartridge, not written" << endl;
-#endif
+  else  // Single-load ROM image
+  {
+    cout << "Downloading single-load ROM file..." << endl;
+    if(datafile == "" || !QFile::exists(QString(datafile.c_str())))
+    {
+      cout << "Couldn't find ROM file \'" << datafile << "\'" << endl;
+      return;
+    }
+
+    if(manager.openCartPort())
+    {
+      // Download the ROM, but don't show a graphical progress indicator
+      cart.downloadROM(manager.port(), win.armPath(), datafile,
+                       bstype, win.verifyDownload(), false);
+      manager.closeCartPort();
+    }
+    else
+      cout << "Couldn't open Harmony Cart" << endl;
+  }
 }
 
 
@@ -82,7 +104,21 @@ int main(int ac, char* av[])
 {
   if(ac == 2 && !strcmp(av[1], "-help"))
   {
-    cerr << "TODO: help" << endl;
+    cout << "Harmony Programming Tool version " << HARMONY_VERSION << endl
+         << endl
+         << "Usage: harmonycart [options ...] datafile" << endl
+         << "       Run without any options or datafile to use the graphical frontend" << endl
+         << "       Consult the manual for more in-depth information" << endl
+         << endl
+         << "Valid options are:" << endl
+         << endl
+         << "  -bios       Treat the specified datafile as an EEPROM loader BIOS image" << endl
+         << "              Otherwise, the datafile is treated as a ROM image instead" << endl
+         << "  -bs=[type]  Specify the bankswitching scheme for a ROM image (default is 'auto')" << endl
+         << endl
+         << "This software is Copyright (c) 2009 Stephen Anthony, and is released" << endl
+         << "under the GNU GPL version 3." << endl
+         << endl;
     return 0;
   }
 
@@ -92,7 +128,7 @@ int main(int ac, char* av[])
   QApplication app(ac, av);
   HarmonyCartWindow win;
 
-  if(1)//ac == 1)  // Launch GUI
+  if(ac == 1)  // Launch GUI
   {
     win.show();
     return app.exec();

@@ -20,11 +20,11 @@ HEADERS += HarmonyCartWindow.hxx \
     SerialPort.hxx \
     SerialPortUNIX.hxx \
     SerialPortWin32.hxx \
-    SerialPortMACOSX.hxx
+    SerialPortMACOSX.hxx \
+    Version.hxx
 FORMS += harmonycartwindow.ui
 RESOURCES += resources.qrc
 macx:LIBS += -framework \
     CoreFoundation \
     -framework \
     IOKit
-#windows:CONFIG += console

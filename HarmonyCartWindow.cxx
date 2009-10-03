@@ -38,6 +38,7 @@ using namespace std;
 #include "CartDetector.hxx"
 #include "HarmonyCartWindow.hxx"
 #include "ui_harmonycartwindow.h"
+#include "Version.hxx"
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 HarmonyCartWindow::HarmonyCartWindow(QWidget* parent)
@@ -434,7 +435,7 @@ void HarmonyCartWindow::slotAbout()
 {
   ostringstream about;
   about << "<center>"
-        << "<p><b>Harmony Programming Tool v0.9</b></p>"
+        << "<p><b>Harmony Programming Tool v" << HARMONY_VERSION << "</b></p>"
         << "<p>Copyright &copy; 2009 <a href=\"mailto:stephena@users.sf.net\">Stephen Anthony</a><br>"
         << "<a href=\"http://TODO.com\">http://TODO.com</a><p>"
         << "</center>"
