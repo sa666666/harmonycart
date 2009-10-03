@@ -53,8 +53,8 @@ class Cart
       Loads EEPROM loader BIOS data from the given filename.
       The filename should exist and be readable.
     */
-    string downloadBIOS(SerialPort& port, const string& filename, bool verify);
-
+    string downloadBIOS(SerialPort& port, const string& filename,
+                        bool verify, bool showprogress = true);
 
     /**
       Loads ROM cartridge data from the given filename, creating a cart.
@@ -62,7 +62,8 @@ class Cart
       The filename should exist and be readable.
     */
     string downloadROM(SerialPort& port, const string& armpath,
-                       const string& filename, BSType type, bool verify);
+                       const string& filename, BSType type,
+                       bool verify, bool showprogress = true);
 
     /** Set number of write retries before bailing out. */
     void setRetry(int retry) { myRetry = retry; }

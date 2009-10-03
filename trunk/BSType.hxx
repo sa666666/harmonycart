@@ -52,7 +52,8 @@ enum BSType
   BS_X07,
   BS_SB,
   BS_MC,
-  BS_NONE
+  BS_NONE,
+  BS_AUTO
 };
 
 class Bankswitch
@@ -88,6 +89,7 @@ class Bankswitch
         case BS_SB:   return "SB";
         case BS_MC:   return "MC";
         case BS_NONE: return "NONE/UNKNOWN";
+        case BS_AUTO: return "AUTO";
       }
       return "NONE";
     }
@@ -121,6 +123,7 @@ class Bankswitch
       else if(s == "x07")   return  BS_X07;
       else if(s == "sb")    return  BS_SB;
       else if(s == "mc")    return  BS_MC;
+      else if(s == "auto")  return  BS_AUTO;
       else                  return  BS_NONE;
     }
 };

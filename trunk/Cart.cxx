@@ -57,7 +57,8 @@ string Cart::autodetectHarmony(SerialPort& port)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-string Cart::downloadBIOS(SerialPort& port, const string& filename, bool verify)
+string Cart::downloadBIOS(SerialPort& port, const string& filename,
+                          bool verify, bool showprogress)
 {
   string result = "";
 
@@ -66,12 +67,17 @@ string Cart::downloadBIOS(SerialPort& port, const string& filename, bool verify)
   uInt8* bios = readFile(filename, size);
   if(size > 0)
   {
-    // Actually write the data to the cart/serial port, and
-    // use a progressbar to show progress
-    QProgressDialog progress;
-    progress.setWindowTitle("Updating BIOS");
-    progress.setWindowModality(Qt::WindowModal);
-    result = lpc_PhilipsDownload(port, bios, size, verify, &progress);
+    if(showprogress)
+    {
+      // Actually write the data to the cart/serial port, and
+      // use a progressbar to show progress
+      QProgressDialog progress;
+      progress.setWindowTitle("Updating BIOS");
+      progress.setWindowModality(Qt::WindowModal);
+      result = lpc_PhilipsDownload(port, bios, size, verify, &progress);
+    }
+    else
+      result = lpc_PhilipsDownload(port, bios, size, verify);
   }
   else
     result = "Couldn't open BIOS file";
@@ -82,9 +88,11 @@ string Cart::downloadBIOS(SerialPort& port, const string& filename, bool verify)
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 string Cart::downloadROM(SerialPort& port, const string& armpath,
-                         const string& filename, BSType type, bool verify)
+                         const string& filename, BSType type,
+                         bool verify, bool showprogress)
 {
   string result = "";
+  bool autodetect = type == BS_AUTO;
 
   uInt32 romsize = 0, armsize = 0, size = 0;
   uInt8 *rombuf = NULL, *armbuf = NULL;
@@ -101,7 +109,9 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
   }
 
   // Determine the bankswitch type
-  if(type == CartDetector::autodetectType(rombuf, romsize))
+  if(autodetect)
+    type = CartDetector::autodetectType(rombuf, romsize);
+  if(autodetect || type == CartDetector::autodetectType(rombuf, romsize))
   {
     cout << "Bankswitch type: " << Bankswitch::typeToName(type)
          << " (auto-detected)" << endl;
@@ -170,9 +180,8 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
       armfile = "UA.arm";
       break;
     default:
-      cout << "Warning - The Harmony Cartridge does not support \'"
-           << Bankswitch::typeToName(type) << "\' bankswitching" << endl;
       result = "Bankswitch type \'" + Bankswitch::typeToName(type) + "\' not supported.";
+      cout << "ERROR: " << result << endl;
       goto cleanup;
       break;
   }
@@ -270,11 +279,16 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
     size = romsize + armsize;
   }
 
-  // Actually write the data to the cart/serial port, and
-  // use a progressbar to show progress
-  progress.setWindowTitle("Updating ROM");
-  progress.setWindowModality(Qt::WindowModal);
-  result = lpc_PhilipsDownload(port, binary, size, verify, &progress);
+  if(showprogress)
+  {
+    // Actually write the data to the cart/serial port, and
+    // use a progressbar to show progress
+    progress.setWindowTitle("Updating ROM");
+    progress.setWindowModality(Qt::WindowModal);
+    result = lpc_PhilipsDownload(port, binary, size, verify, &progress);
+  }
+  else
+    result = lpc_PhilipsDownload(port, binary, size, verify);
 
 cleanup:
   delete[] rombuf;
@@ -697,7 +711,7 @@ string Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
       binaryContent[i + 0x1C] = (unsigned char)(ivt_CRC >> (8 * i));
   }
 
-  cout << "Synchronizing (ESC to abort)";
+  cout << "Synchronizing";
 
   /* SA_CHANGED: '100' to '3' to shorten autodetection */
   for (nQuestionMarks = found = 0; !found && nQuestionMarks < 3; nQuestionMarks++)

@@ -40,6 +40,8 @@ Q_OBJECT
 
   public:
     SerialPortManager& portManager() { return myManager; }
+    string armPath() { return ui->armpathFileEdit->text().toStdString(); }
+    bool verifyDownload() { return ui->actAutoVerifyDownload->isChecked(); }
 
   protected:
     void closeEvent(QCloseEvent* event);
