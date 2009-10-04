@@ -16,8 +16,6 @@
 
 #include "bspf.hxx"
 
-#if defined(BSPF_WIN32)
-
 #ifndef __SERIALPORT_WIN32_HXX
 #define __SERIALPORT_WIN32_HXX
 
@@ -119,5 +117,3 @@ class SerialPortWin32 : public SerialPort
 };
 
 #endif
-
-#endif // BSPF_WIN32

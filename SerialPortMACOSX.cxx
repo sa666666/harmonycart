@@ -16,8 +16,6 @@
 
 #include "bspf.hxx"
 
-#if defined(BSPF_MAC_OSX)
-
 #include <cstdio>
 #include <fcntl.h>
 #include <sys/errno.h>
@@ -254,5 +252,3 @@ char* SerialPortMACOSX::getRegistryString(io_object_t sObj, char* propName)
   }
   return resultStr;
 }
-
-#endif // BSPF_MAC_OSX

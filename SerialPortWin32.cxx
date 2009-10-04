@@ -16,11 +16,6 @@
 
 #include "bspf.hxx"
 
-//#define BSPF_WIN32
-//#define COMPILE_FOR_WINDOWS
-
-#if defined(BSPF_WIN32)
-
 #undef UNICODE
 #include <windows.h>
 
@@ -206,5 +201,3 @@ const StringList& SerialPortWin32::getPortNames()
 
   return myPortNames;
 }
-
-#endif // BSPF_WIN32

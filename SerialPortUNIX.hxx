@@ -16,8 +16,6 @@
 
 #include "bspf.hxx"
 
-#if defined(BSPF_UNIX)
-
 #ifndef __SERIALPORT_UNIX_HXX
 #define __SERIALPORT_UNIX_HXX
 
@@ -121,5 +119,3 @@ class SerialPortUNIX : public SerialPort
 };
 
 #endif
-
-#endif // BSPF_UNIX
