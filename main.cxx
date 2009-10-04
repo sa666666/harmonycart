@@ -115,6 +115,7 @@ int main(int ac, char* av[])
          << "  -bios       Treat the specified datafile as an EEPROM loader BIOS image" << endl
          << "              Otherwise, the datafile is treated as a ROM image instead" << endl
          << "  -bs=[type]  Specify the bankswitching scheme for a ROM image (default is 'auto')" << endl
+         << "  -help       Displays the message you're now reading" << endl
          << endl
          << "This software is Copyright (c) 2009 Stephen Anthony, and is released" << endl
          << "under the GNU GPL version 3." << endl
