@@ -37,6 +37,10 @@
   <property name="windowTitle">
    <string>Harmony Programming Tool</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="resources.qrc">
+    <normaloff>:/icons/pics/appicon.png</normaloff>:/icons/pics/appicon.png</iconset>
+  </property>
   <property name="unifiedTitleAndToolBarOnMac">
    <bool>false</bool>
   </property>
