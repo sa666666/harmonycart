@@ -28,3 +28,4 @@ macx:LIBS += -framework \
     CoreFoundation \
     -framework \
     IOKit
+windows:RC_FILE = HarmonyCartWin32.rc
