@@ -402,7 +402,7 @@ void HarmonyCartWindow::slotCopyHBIOS()
   else if(sdmountdir == "" || !QFile::exists(sdmountdir))
   {
     QMessageBox::critical(this, "Missing directory",
-      "Couldn't find the SD mount directory.\nMake sure you've selected it.");
+      "Couldn't find the SD mount directory.\nMake sure your SD card is properly mounted.");
     return;
   }
 
