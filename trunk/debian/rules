@@ -20,7 +20,7 @@ endif
 
 config.status: configure
 	dh_testdir
-	qmake-qt4
+	CXXFLAGS="$(CXXFLAGS)" ./configure
 
 build: build-stamp
 
@@ -43,7 +43,7 @@ install: build
 	dh_clean -k 
 	dh_installdirs
 
-	$(MAKE) install DESTDIR=$(CURDIR)/debian/harmonycart
+	$(MAKE) install INSTALL_ROOT=$(CURDIR)/debian/harmonycart
 	
 # Build architecture-independent files here.
 binary-indep: build install
