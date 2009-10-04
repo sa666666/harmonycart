@@ -16,5 +16,6 @@ This program is released under the GNU GPLv3.  See the file 'License.txt'
 for more information.  The program includes portions of the following
 programs:
 
-  Stella   - bankswitch autodetection code
   lpc21isp - programming utilities for the Philips LPC21xxx chips
+  KrokCom  - icons and various other images
+  Stella   - bankswitch autodetection code
