@@ -16,6 +16,8 @@
 
 #include <QApplication>
 #include <QProgressDialog>
+#include <QPixmap>
+#include <QIcon>
 #include <cstring>
 #include <fstream>
 #include <sstream>
@@ -74,6 +76,7 @@ string Cart::downloadBIOS(SerialPort& port, const string& filename,
       QProgressDialog progress;
       progress.setWindowTitle("Updating BIOS");
       progress.setWindowModality(Qt::WindowModal);
+      progress.setWindowIcon(QPixmap(":icons/pics/appicon.png"));
       result = lpc_PhilipsDownload(port, bios, size, verify, &progress);
     }
     else
@@ -285,6 +288,7 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
     // use a progressbar to show progress
     progress.setWindowTitle("Updating ROM");
     progress.setWindowModality(Qt::WindowModal);
+    progress.setWindowIcon(QPixmap(":icons/pics/appicon.png"));
     result = lpc_PhilipsDownload(port, binary, size, verify, &progress);
   }
   else

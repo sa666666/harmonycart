@@ -451,6 +451,7 @@ void HarmonyCartWindow::slotAbout()
   QMessageBox mb;
   mb.setWindowTitle("Info about Harmony Programming Tool");
   mb.setIconPixmap(QPixmap(":icons/pics/cart.png"));
+  mb.setWindowIcon(QPixmap(":icons/pics/appicon.png"));
   mb.setTextFormat(Qt::RichText);
   mb.setText(about.str().c_str());
   mb.exec();
