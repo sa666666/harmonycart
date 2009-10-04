@@ -25,7 +25,7 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 SerialPortWin32::SerialPortWin32()
   : SerialPort(),
-    myHandle(NULL)
+    myHandle(INVALID_HANDLE_VALUE)
 {
 }
 
@@ -44,13 +44,11 @@ bool SerialPortWin32::openPort(const string& device)
   DCB dcb;
   COMMTIMEOUTS commtimeouts;
 
-  myHandle = CreateFileA(device.c_str(), GENERIC_READ|GENERIC_WRITE,
+  const string& portname = string("\\\\.\\") + device;
+  myHandle = CreateFileA(portname.c_str(), GENERIC_READ|GENERIC_WRITE,
                          0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
   if(myHandle == INVALID_HANDLE_VALUE)
-  {
-    myHandle = NULL;
     return false;
-  }
 
   GetCommState(myHandle, &dcb);
   dcb.BaudRate    = myBaud;
@@ -104,24 +102,24 @@ bool SerialPortWin32::openPort(const string& device)
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void SerialPortWin32::closePort()
 {
-  if(myHandle)
+  if(myHandle != INVALID_HANDLE_VALUE)
   {
     CloseHandle(myHandle);
-    myHandle = NULL;
+    myHandle = INVALID_HANDLE_VALUE;
   }
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 bool SerialPortWin32::isOpen()
 {
-  return myHandle != NULL;
+  return myHandle != INVALID_HANDLE_VALUE;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 uInt32 SerialPortWin32::receiveBlock(void* answer, uInt32 max_size)
 {
   DWORD result = 0;
-  if(myHandle)
+  if(myHandle != INVALID_HANDLE_VALUE)
   {
     ReadFile(myHandle, answer, max_size, &result, NULL);
     if(result == 0)
@@ -134,7 +132,7 @@ uInt32 SerialPortWin32::receiveBlock(void* answer, uInt32 max_size)
 uInt32 SerialPortWin32::sendBlock(const void* data, uInt32 size)
 {
   DWORD result = 0;
-  if(myHandle)
+  if(myHandle != INVALID_HANDLE_VALUE)
     WriteFile(myHandle, data, size, &result, NULL);
 
   return (uInt32)result;
@@ -181,23 +179,20 @@ const StringList& SerialPortWin32::getPortNames()
 {
   myPortNames.clear();
 
-  LPCOMMCONFIG lpCC = (LPCOMMCONFIG) new BYTE[1];
   for(int i = 1; i <= 256; ++i)
   {
     TCHAR strPort[32] = {0};
     sprintf(strPort, "COM%d", i);
 
-    DWORD dwSize = 0;
-    BOOL ret = GetDefaultCommConfig(strPort, lpCC, &dwSize);
-
-    LPCOMMCONFIG config = (LPCOMMCONFIG) new BYTE[dwSize];
-    ret = GetDefaultCommConfig(strPort, lpCC, &dwSize);
-    delete [] config;
-
-    if(ret)
-      myPortNames.push_back(strPort);
+    if(openPort(strPort))
+    {
+      uInt8 c;
+      int n = receiveBlock(&c, 1);
+      if(n >= 0)
+        myPortNames.push_back(strPort);
+    }
+    closePort();
   }
-  delete[] lpCC;
 
   return myPortNames;
 }
