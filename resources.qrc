@@ -6,5 +6,6 @@
         <file>pics/ledon.png</file>
         <file>pics/cart_tiny.png</file>
         <file>pics/sdcard.png</file>
+        <file>pics/appicon.png</file>
     </qresource>
 </RCC>
