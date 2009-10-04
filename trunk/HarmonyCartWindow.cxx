@@ -437,7 +437,7 @@ void HarmonyCartWindow::slotAbout()
   about << "<center>"
         << "<p><b>Harmony Programming Tool v" << HARMONY_VERSION << "</b></p>"
         << "<p>Copyright &copy; 2009 <a href=\"mailto:stephena@users.sf.net\">Stephen Anthony</a><br>"
-        << "<a href=\"http://TODO.com\">http://TODO.com</a><p>"
+        << "Check for updates at <a href=\"http://atariage.com\">http://atariage.com</a><p>"
         << "</center>"
         << "<p>This&nbsp;software&nbsp;is&nbsp;released&nbsp;under&nbsp;the&nbsp;GNU&nbsp;GPLv3,<br>"
         << "and&nbsp;includes&nbsp;code&nbsp;from&nbsp;the&nbsp;following&nbsp;projects:</p>"
