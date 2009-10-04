@@ -30,6 +30,16 @@ unix {
   SOURCES += SerialPortUNIX.cxx
   HEADERS += SerialPortUNIX.hxx
   TARGET = harmonycart
+
+  target.path = /usr/bin
+  docs.path  = /usr/share/doc/harmonycart
+  docs.files = docs/* Announce.txt  Changes.txt  Copyright.txt  License.txt  Readme.txt
+  desktop.path  = /usr/share/applications
+  desktop.files = unix/harmonycart.desktop
+  icon.path  = /usr/share/icons
+  icon.files = unix/harmonycart.png
+
+  INSTALLS += target icon docs desktop
 }
 macx {
   SOURCES += SerialPortMACOSX.cxx
