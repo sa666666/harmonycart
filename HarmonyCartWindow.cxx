@@ -408,12 +408,12 @@ void HarmonyCartWindow::slotCopyHBIOS()
 
   // Since Qt won't copy over a file that already exists, we have to delete first
   QFileInfo source(hbiosfile);
-  QFileInfo dest(QDir(sdmountdir), source.fileName());
+  QFileInfo dest(QDir(sdmountdir), "hbios.bin");
 
   if(QFile::exists(dest.absoluteFilePath()) && dest.isFile())
     QFile::remove(dest.absoluteFilePath());
 
-  if(QFile::copy(hbiosfile, dest.absoluteFilePath()))
+  if(QFile::copy(source.absoluteFilePath(), dest.absoluteFilePath()))
     myStatus->setText("HBIOS file copied.");
   else
     myStatus->setText("HBIOS file NOT copied; check file permissions.");
