@@ -1,16 +1,14 @@
 # -------------------------------------------------
 # Project created by QtCreator 2009-05-21T12:40:28
 # -------------------------------------------------
-TARGET = harmonycart
+TARGET = HarmonyCart
 TEMPLATE = app
 SOURCES += main.cxx \
     HarmonyCartWindow.cxx \
     Cart.cxx \
     CartDetector.cxx \
-    SerialPortManager.cxx \
-    SerialPortUNIX.cxx \
-    SerialPortWin32.cxx \
-    SerialPortMACOSX.cxx
+    SerialPortManager.cxx
+
 HEADERS += HarmonyCartWindow.hxx \
     bspf.hxx \
     BSType.hxx \
@@ -18,14 +16,23 @@ HEADERS += HarmonyCartWindow.hxx \
     CartDetector.hxx \
     SerialPortManager.hxx \
     SerialPort.hxx \
-    SerialPortUNIX.hxx \
-    SerialPortWin32.hxx \
-    SerialPortMACOSX.hxx \
     Version.hxx
+
 FORMS += harmonycartwindow.ui
 RESOURCES += resources.qrc
-macx:LIBS += -framework \
-    CoreFoundation \
-    -framework \
-    IOKit
-windows:RC_FILE = HarmonyCartWin32.rc
+
+windows {
+  SOURCES += SerialPortWin32.cxx
+  HEADERS += SerialPortWin32.hxx
+  RC_FILE = HarmonyCartWin32.rc
+}
+unix {
+  SOURCES += SerialPortUNIX.cxx
+  HEADERS += SerialPortUNIX.hxx
+  TARGET = harmonycart
+}
+macx {
+  SOURCES += SerialPortMACOSX.cxx
+  HEADERS += SerialPortMACOSX.hxx
+  LIBS += -framework CoreFoundation -framework IOKit
+}

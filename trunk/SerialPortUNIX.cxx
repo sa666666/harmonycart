@@ -16,8 +16,6 @@
 
 #include "bspf.hxx"
 
-#if defined(BSPF_UNIX)
-
 #if defined(__OpenBSD__)
   #include <errno.h>
 #else
@@ -245,5 +243,3 @@ const StringList& SerialPortUNIX::getPortNames()
 
   return myPortNames;
 }
-
-#endif // BSPF_UNIX
