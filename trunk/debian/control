@@ -1,0 +1,14 @@
+Source: harmonycart
+Section: games
+Priority: optional
+Maintainer: Stephen Anthony <stephena@users.sourceforge.net>
+Standards-Version: 3.7.2
+Build-Depends: debhelper (>= 5.0.0), libqt4-dev
+
+Package: harmonycart
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: Harmony Cartridge programming tool for Linux/OSX/Windows.
+ TODO - add description.
+ .
+  Homepage: http://TODO.com
