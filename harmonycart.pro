@@ -26,7 +26,7 @@ windows {
   HEADERS += SerialPortWin32.hxx
   RC_FILE = HarmonyCartWin32.rc
 }
-unix {
+unix:!macx {
   SOURCES += SerialPortUNIX.cxx
   HEADERS += SerialPortUNIX.hxx
   TARGET = harmonycart
