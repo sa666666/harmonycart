@@ -45,5 +45,6 @@ macx {
   SOURCES += SerialPortMACOSX.cxx
   HEADERS += SerialPortMACOSX.hxx
   LIBS += -framework CoreFoundation -framework IOKit
+  ICON = macosx/Harmony_icon.icns
   CONFIG += x86 ppc
 }

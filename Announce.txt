@@ -29,7 +29,7 @@ The distributions currently available are:
 
   * Binary installer (exe) for Windows 32-bit (HarmonyCart-1.0-win32.exe)
 
-  * Binary distribution for Mac OSX (HarmonyCart1.0.dmg)
+  * Binary distribution for Mac OSX (HarmonyCartOSX1.0.dmg)
 
   * Binary distribution in 32-bit Ubuntu DEB format (harmonycart_1.0-1_i386.deb)
 
