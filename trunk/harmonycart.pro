@@ -24,7 +24,7 @@ RESOURCES += resources.qrc
 windows {
   SOURCES += SerialPortWin32.cxx
   HEADERS += SerialPortWin32.hxx
-  RC_FILE = HarmonyCartWin32.rc
+  RC_FILE = win32/HarmonyCartWin32.rc
 }
 unix:!macx {
   SOURCES += SerialPortUNIX.cxx
@@ -45,4 +45,5 @@ macx {
   SOURCES += SerialPortMACOSX.cxx
   HEADERS += SerialPortMACOSX.hxx
   LIBS += -framework CoreFoundation -framework IOKit
+  CONFIG += x86 ppc
 }
