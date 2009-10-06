@@ -10,7 +10,7 @@ AppSupportURL=http://atariage.com
 AppUpdatesURL=http://atariage.com
 DefaultDirName={pf}\HarmonyCart
 DefaultGroupName=HarmonyCart
-OutputBaseFilename="harmonycart-1.0-win32"
+OutputBaseFilename="HarmonyCart-1.0-win32"
 Compression=lzma
 SolidCompression=yes
 
