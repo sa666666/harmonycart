@@ -198,8 +198,8 @@ EEPROM</string>
          <layout class="QHBoxLayout" name="horizontalLayout_7">
           <item>
            <layout class="QGridLayout" name="gridLayout_4">
-            <property name="verticalSpacing">
-             <number>4</number>
+            <property name="spacing">
+             <number>-1</number>
             </property>
             <item row="0" column="0">
              <widget class="QLabel" name="label_10">
@@ -1087,7 +1087,7 @@ Left-click to use the chosen ROM.</string>
      <x>0</x>
      <y>0</y>
      <width>720</width>
-     <height>22</height>
+     <height>28</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
