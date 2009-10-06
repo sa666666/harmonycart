@@ -198,6 +198,9 @@ EEPROM</string>
          <layout class="QHBoxLayout" name="horizontalLayout_7">
           <item>
            <layout class="QGridLayout" name="gridLayout_4">
+            <property name="verticalSpacing">
+             <number>4</number>
+            </property>
             <item row="0" column="0">
              <widget class="QLabel" name="label_10">
               <property name="minimumSize">
@@ -742,7 +745,7 @@ supported by the Harmony Cart.</string>
          </layout>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_13">
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
           <item>
            <widget class="QLabel" name="label_5">
             <property name="minimumSize">
@@ -770,6 +773,12 @@ supported by the Harmony Cart.</string>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="minimumSize">
+             <size>
+              <width>250</width>
+              <height>0</height>
+             </size>
+            </property>
             <property name="maximumSize">
              <size>
               <width>592</width>
@@ -796,38 +805,34 @@ for single-load ROM images.</string>
            </widget>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_4">
-            <item>
-             <spacer name="horizontalSpacer">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QPushButton" name="downloadButton">
-              <property name="minimumSize">
-               <size>
-                <width>150</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="toolTip">
-               <string>Download the currently selected ROM
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="downloadButton">
+            <property name="minimumSize">
+             <size>
+              <width>150</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>Download the currently selected ROM
 image to the Harmony Cart.</string>
-              </property>
-              <property name="text">
-               <string>Download</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
+            </property>
+            <property name="text">
+             <string>Download</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
@@ -1082,7 +1087,7 @@ Left-click to use the chosen ROM.</string>
      <x>0</x>
      <y>0</y>
      <width>720</width>
-     <height>28</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
