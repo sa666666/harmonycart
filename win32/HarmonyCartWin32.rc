@@ -71,13 +71,15 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
+            VALUE "Comments", "The cross-platform Harmony programming tool. HarmonyCart is released under the GPLv3."
+            VALUE "CompanyName", "AtariAge (http://atariage.com)"
             VALUE "FileDescription", "HarmonyCart"
-            VALUE "FileVersion", "1, 0, 0, 0"
+            VALUE "FileVersion", "1.0"
             VALUE "InternalName", "HarmonyCart"
             VALUE "LegalCopyright", "Copyright (C) 2009 Stephen Anthony"
-            VALUE "OriginalFilename", "HarmonyCart"
+            VALUE "OriginalFilename", "HarmonyCart.exe"
             VALUE "ProductName", "HarmonyCart"
-            VALUE "ProductVersion", "1, 0, 0, 0"
+            VALUE "ProductVersion", "1.0"
         END
     END
     BLOCK "VarFileInfo"
