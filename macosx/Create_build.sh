@@ -25,10 +25,11 @@ echo "Adding Qt framework ..."
 macdeployqt ../HarmonyCart.app/ -no-plugins
 
 echo "Copying documentation ..."
-ditto ../Announce.txt ../Changes.txt ../Copyright.txt ../License.txt ../Readme.txt ../Todo.txt ${DISK}
+ditto ../Announce.txt ../Changes.txt ../Copyright.txt ../License.txt ../Readme.txt ${DISK}
 
-echo "Copying application ..."
+echo "Copying application and 'arm' files ..."
 cp -r ../HarmonyCart.app ${DISK}
+cp -r ../arm $DISK
 
 echo "Ejecting ${DMG} ..."
 hdiutil eject ${DISK}
