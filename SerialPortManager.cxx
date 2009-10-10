@@ -46,8 +46,7 @@ bool SerialPortManager::openCartPort()
   if(harmonyCartAvailable())
   {
     myPort.closePort();
-    myPort.openPort(myPortName);
-    return true;
+    return myPort.openPort(myPortName);
   }
   return false;
 }

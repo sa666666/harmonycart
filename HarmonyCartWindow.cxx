@@ -146,6 +146,9 @@ void HarmonyCartWindow::setupConnections()
   qpGroup->addButton(ui->qp15Button, 15); ui->qp15Button->installEventFilter(this);
   qpGroup->addButton(ui->qp16Button, 16); ui->qp16Button->installEventFilter(this);
   connect(qpGroup, SIGNAL(buttonClicked(int)), this, SLOT(slotQPButtonClicked(int)));
+
+  // Other
+  connect(ui->romBSType, SIGNAL(activated(int)), this, SLOT(slotBSTypeChanged(int)));
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -469,6 +472,12 @@ void HarmonyCartWindow::slotQPButtonClicked(int id)
   s.endGroup();
 
   loadROM(file);
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+void HarmonyCartWindow::slotBSTypeChanged(int id)
+{
+cerr << "id = " << id << endl;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
