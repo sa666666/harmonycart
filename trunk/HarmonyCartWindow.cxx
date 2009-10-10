@@ -324,8 +324,9 @@ void HarmonyCartWindow::slotOpenROM()
   // Switch to Development tab
   ui->tabWidget->setCurrentIndex(1);
 
+  QFileInfo info(ui->romFileEdit->text());
   QString file = QFileDialog::getOpenFileName(this,
-    tr("Select ROM Image"), "", tr("Atari 2600 ROM Image (*.bin *.a26)"));
+    tr("Select ROM Image"), info.absolutePath(), tr("Atari 2600 ROM Image (*.a26 *.bin *.rom)"));
 
   if(!file.isNull())
     loadROM(file);
@@ -473,8 +474,9 @@ void HarmonyCartWindow::slotQPButtonClicked(int id)
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void HarmonyCartWindow::slotSelectEEPROM()
 {
+  QFileInfo info(ui->eepromFileEdit->text());
   QString file = QFileDialog::getOpenFileName(this,
-    tr("Select EEPROM Loader Image"), "", tr("BIOS Image (*.bin)"));
+    tr("Select EEPROM Loader Image"), info.absolutePath(), tr("BIOS Image (*.bin)"));
 
   if(!file.isNull())
     ui->eepromFileEdit->setText(file);
@@ -483,8 +485,9 @@ void HarmonyCartWindow::slotSelectEEPROM()
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void HarmonyCartWindow::slotSelectHBIOS()
 {
+  QFileInfo info(ui->hbiosFileEdit->text());
   QString file = QFileDialog::getOpenFileName(this,
-    tr("Select HBIOS Image"), "", tr("BIOS Image (*.bin)"));
+    tr("Select HBIOS Image"), info.absolutePath(), tr("BIOS Image (*.bin)"));
 
   if(!file.isNull())
     ui->hbiosFileEdit->setText(file);
@@ -493,8 +496,9 @@ void HarmonyCartWindow::slotSelectHBIOS()
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void HarmonyCartWindow::slotSelectSDMount()
 {
+  QFileInfo info(ui->sdcardFileEdit->text());
   QString dir = QFileDialog::getExistingDirectory(this,
-    tr("Select SD Card Location"), "", QFileDialog::ShowDirsOnly);
+    tr("Select SD Card Location"), info.absolutePath(), QFileDialog::ShowDirsOnly);
 
   if(!dir.isNull())
     ui->sdcardFileEdit->setText(dir);
@@ -503,8 +507,9 @@ void HarmonyCartWindow::slotSelectSDMount()
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void HarmonyCartWindow::slotSelectARMPath()
 {
+  QFileInfo info(ui->armpathFileEdit->text());
   QString dir = QFileDialog::getExistingDirectory(this,
-    tr("Select 'ARM' Directory"), "", QFileDialog::ShowDirsOnly);
+    tr("Select 'ARM' Directory"), info.absolutePath(), QFileDialog::ShowDirsOnly);
 
   if(!dir.isNull())
     ui->armpathFileEdit->setText(dir);
@@ -540,8 +545,9 @@ void HarmonyCartWindow::loadROM(const QString& filename)
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void HarmonyCartWindow::assignToQPButton(QPushButton* button, int id)
 {
+  QFileInfo info(ui->romFileEdit->text());
   QString file = QFileDialog::getOpenFileName(this,
-    tr("Select ROM Image"), "", tr("Atari 2600 ROM Image (*.bin *.a26)"));
+    tr("Select ROM Image"), info.absolutePath(), tr("Atari 2600 ROM Image (*.a26 *.bin *.rom)"));
 
   if(!file.isNull())
     assignToQPButton(button, id, file, true);
@@ -549,7 +555,7 @@ void HarmonyCartWindow::assignToQPButton(QPushButton* button, int id)
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void HarmonyCartWindow::assignToQPButton(QPushButton* button, int id,
-                                     const QString& file, bool save)
+                                         const QString& file, bool save)
 {
   QFileInfo info(file);
 
