@@ -21,6 +21,7 @@
 #include <QAction>
 #include <QLabel>
 #include <QProgressBar>
+#include <sstream>
 
 #include "Cart.hxx"
 #include "SerialPortManager.hxx"
@@ -66,6 +67,7 @@ Q_OBJECT
     void slotAbout();
     void slotQPButtonClicked(int id);
     void slotBSTypeChanged(int id);
+    void slotShowLog(bool checked);
     void slotShowDefaultMsg();
 
     void slotSelectEEPROM();
@@ -77,6 +79,7 @@ Q_OBJECT
     Ui::HarmonyCartWindow* ui;
 
     Cart myCart;
+    ostringstream myLog;
     SerialPortManager myManager;
 
     QLabel* myStatus;

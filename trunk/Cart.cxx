@@ -21,6 +21,7 @@
 #include <cstring>
 #include <fstream>
 #include <sstream>
+#include <ostream>
 
 #include "bspf.hxx"
 
@@ -32,13 +33,20 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Cart::Cart()
   : myDetectedDevice(0),
-    myOscillator("10000")
+    myOscillator("10000"),
+    myLog(&cout)
 {
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Cart::~Cart()
 {
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+void Cart::setLogger(ostream* out)
+{
+  myLog = out;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -51,7 +59,7 @@ string Cart::autodetectHarmony(SerialPort& port)
   string result = lpc_PhilipsChipVersion(port);
   if (strncmp(result.c_str(), "ERROR:", 6) == 0)
   {
-    cerr << result << endl;
+    *myLog << result << endl;
     return result;
   }
 
@@ -116,13 +124,13 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
     type = CartDetector::autodetectType(rombuf, romsize);
   if(autodetect || type == CartDetector::autodetectType(rombuf, romsize))
   {
-    cout << "Bankswitch type: " << Bankswitch::typeToName(type)
-         << " (auto-detected)" << endl;
+    *myLog << "Bankswitch type: " << Bankswitch::typeToName(type)
+          << " (auto-detected)" << endl;
   }
   else
   {
-    cout << "Bankswitch type: " << Bankswitch::typeToName(type)
-         << " (WARNING: overriding auto-detection)" << endl;
+    *myLog << "Bankswitch type: " << Bankswitch::typeToName(type)
+          << " (WARNING: overriding auto-detection)" << endl;
   }
 
   // First determine the name of the bankswitch file to use
@@ -184,7 +192,7 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
       break;
     default:
       result = "Bankswitch type \'" + Bankswitch::typeToName(type) + "\' not supported.";
-      cout << "ERROR: " << result << endl;
+      *myLog << "ERROR: " << result << endl;
       goto cleanup;
       break;
   }
@@ -306,13 +314,13 @@ uInt8* Cart::readFile(const string& filename, uInt32& size)
   uInt8* buffer = (uInt8*) NULL;
   size = 0;
 
-  cout << "Reading from file: \'" << filename << "\'" << endl;
+  *myLog << "Reading from file: \'" << filename << "\'" << endl;
 
   // Read file into buffer
   ifstream in(filename.c_str(), ios::binary);
   if(!in)
   {
-    cerr << "ERROR: file not found\n";
+    *myLog << "ERROR: file not found\n";
     return buffer;
   }
   // Figure out how much data we should read
@@ -324,7 +332,7 @@ uInt8* Cart::readFile(const string& filename, uInt32& size)
 
   buffer = new uInt8[length];
   in.read((char*)buffer, length);
-  cout << "Read in " << length << " bytes" << endl;
+  *myLog << "Read in " << length << " bytes" << endl;
   in.close();
 
   size = length;
@@ -653,8 +661,8 @@ string Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
   if(BinaryLength % 4 != 0)
   {
     uInt32 newBinaryLength = ((BinaryLength + 3)/4) * 4;
-    cerr << "Warning:  data not aligned to 32 bits, padded (length was "
-         << BinaryLength << ", now " << newBinaryLength << ")\n";
+    *myLog << "Warning:  data not aligned to 32 bits, padded (length was "
+          << BinaryLength << ", now " << newBinaryLength << ")\n";
     BinaryLength = newBinaryLength;
   }
   uInt8* binaryContent = new uInt8[BinaryLength];
@@ -715,12 +723,12 @@ string Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
       binaryContent[i + 0x1C] = (unsigned char)(ivt_CRC >> (8 * i));
   }
 
-  cout << "Synchronizing";
+  *myLog << "Synchronizing";
 
   /* SA_CHANGED: '100' to '3' to shorten autodetection */
   for (nQuestionMarks = found = 0; !found && nQuestionMarks < 3; nQuestionMarks++)
   {
-    cout << ".";
+    *myLog << ".";
     port.send("?");
 
     memset(Answer, 0, sizeof(Answer));
@@ -741,7 +749,7 @@ string Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
       int WatchDogSeconds = (10 * chars + 5) / port.getBaud() + 10;
       xtal = atol(myOscillator.c_str()) * 1000;
       ticks = (uInt32)WatchDogSeconds * ((xtal + 15) / 16);
-      cout << "Entering ISP; re-synchronizing (watchdog = " << WatchDogSeconds << " seconds)\n";
+      *myLog << "Entering ISP; re-synchronizing (watchdog = " << WatchDogSeconds << " seconds)\n";
       sprintf(temp, "T %u\r\n", ticks);
       port.send(temp);
       port.receive(Answer, sizeof(Answer)-1, 1, 100);
@@ -770,7 +778,7 @@ string Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
     goto cleanup;
   }
 
-  cout << " OK\n";
+  *myLog << " OK\n";
 
   port.send("Synchronized\n");
   port.receive(Answer, sizeof(Answer) - 1, 2, 1000);
@@ -799,7 +807,7 @@ string Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
     goto cleanup;
   }
 
-  cout << "Read bootcode version: ";
+  *myLog << "Read bootcode version: ";
 
   cmdstr = "K\n";
   port.send(cmdstr);
@@ -814,12 +822,12 @@ string Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
   if (strncmp(Answer + strlen(cmdstr), "0\r\n", 3) == 0)
   {
     strippedAnswer = Answer + strlen(cmdstr) + 3;
-    cout << strippedAnswer;
+    *myLog << strippedAnswer;
   }
   else
-    cout << "unknown\n";
+    *myLog << "unknown\n";
 
-  cout << "Read part ID: ";
+  *myLog << "Read part ID: ";
 
   cmdstr = "J\n";
   port.send(cmdstr);
@@ -840,7 +848,7 @@ string Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
   myDetectedDevice = i;
   if (myDetectedDevice == 0)
   {
-    cout << "unknown";
+    *myLog << "unknown";
   }
   else
   {
@@ -849,9 +857,9 @@ string Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
             LPCtypes[myDetectedDevice].Product,
             LPCtypes[myDetectedDevice].FlashSize,
             LPCtypes[myDetectedDevice].RAMSize);
-    cout << version;
+    *myLog << version;
   }
-  cout << " (" << hex << Pos << dec << ")\n";
+  *myLog << " (" << hex << Pos << dec << ")\n";
 
   // Make sure the data can fit in the flash we have available
   if(size > LPCtypes[myDetectedDevice].FlashSize * 1024)
@@ -875,7 +883,7 @@ string Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
   // Start with sector 1 and go upward... Sector 0 containing the interrupt vectors
   // will be loaded last, since it contains a checksum and device will re-enter
   // bootloader mode as long as this checksum is invalid.
-  cout << "Will start programming at Sector 1 if possible, and conclude with Sector 0 to ensure that checksum is written last.\n";
+  *myLog << "Will start programming at Sector 1 if possible, and conclude with Sector 0 to ensure that checksum is written last.\n";
   if (LPCtypes[myDetectedDevice].SectorTable[0] >= BinaryLength)
   {
     Sector = 0;
@@ -888,7 +896,7 @@ string Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
   }
 
   // Erasing sector 0 first
-  cout << "Erasing sector 0 first, to invalidate checksum. ";
+  *myLog << "Erasing sector 0 first, to invalidate checksum. ";
 
   sprintf(tmpString, "P %d %d\n", 0, 0);
   if (!lpc_SendAndVerify(port, tmpString, Answer, sizeof Answer))
@@ -903,7 +911,7 @@ string Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
     result << "ERROR: Wrong answer on Erase-Command " << lpc_GetAndReportErrorNumber(Answer);
     goto cleanup;
   }
-  cout << "OK \n";
+  *myLog << "OK \n";
 
   // OK, the main loop where we start writing to the cart
   while (1)
@@ -914,7 +922,7 @@ string Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
       goto cleanup;
     }
 
-    cout << "Sector " << Sector << flush;
+    *myLog << "Sector " << Sector << flush;
     if(progress)
       progress->setLabelText("Downloading sector " + QString::number(Sector) + " ...                  ");
 
@@ -928,7 +936,7 @@ string Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
         goto cleanup;
       }
 
-      cout << "." << flush;
+      *myLog << "." << flush;
 
       if (Sector != 0) // Sector 0 already erased
       {
@@ -940,7 +948,7 @@ string Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
           goto cleanup;
         }
 
-        cout << "." << flush;
+        *myLog << "." << flush;
       }
     }
 
@@ -951,7 +959,7 @@ string Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
     for (SectorOffset = 0; SectorOffset < SectorLength; SectorOffset += SectorChunk)
     {
       if (SectorOffset > 0)
-        cout << "|" << flush;
+        *myLog << "|" << flush;
 
       // If the Flash ROM sector size is bigger than the number of bytes
       // we can copy from RAM to Flash, we must "chop up" the sector and
@@ -972,11 +980,11 @@ string Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
       sprintf(tmpString, "W %d %d\n", lpc_ReturnValueLpcRamBase(), CopyLength);
       if (!lpc_SendAndVerify(port, tmpString, Answer, sizeof Answer))
       {
-        cerr << "ERROR: Wrong answer on Write-Command " << lpc_GetAndReportErrorNumber(Answer);
+        *myLog << "ERROR: Wrong answer on Write-Command " << lpc_GetAndReportErrorNumber(Answer);
         goto cleanup;
       }
 
-      cout << "." << flush;
+      *myLog << "." << flush;
 
       block_CRC = 0;
       Line = 0;
@@ -986,7 +994,7 @@ string Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
       {
         for (Block = 0; Block < 4; Block++)  // Each block 45 bytes
         {
-          cout << "." << flush;
+          *myLog << "." << flush;
 
           // Inform the calling application about having written another chuck of data
           if(progress)
@@ -1148,7 +1156,7 @@ string Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
       }
     }
 
-    cout << "\n" << flush;
+    *myLog << "\n" << flush;
 
     if ((SectorStart + SectorLength) >= BinaryLength && Sector!=0)
     {
@@ -1174,11 +1182,11 @@ string Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
 
   if (WaitForWatchDog)
   {
-    cerr << "Wait for restart, in " << (WatchDogSeconds - (tDoneUpload - tStartUpload)) << " seconds from now\n";
+    *myLog << "Wait for restart, in " << (WatchDogSeconds - (tDoneUpload - tStartUpload)) << " seconds from now\n";
   }
   else
   {
-    cout << "Now launching the brand new code\n" << flush;
+    *myLog << "Now launching the brand new code\n" << flush;
 
     if(LPCtypes[myDetectedDevice].ChipVariant == CHIP_VARIANT_LPC2XXX)
       sprintf(tmpString, "G %d A\n", StartAddress);
@@ -1211,14 +1219,14 @@ string Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
       }
     }
 
-    cout << flush;
+    *myLog << flush;
   }
 cleanup:
   delete[] binaryContent;  binaryContent = NULL;
   if(progress)
     progress->setValue(progressSize);
 
-  cerr << result.str() << endl;
+  *myLog << result.str() << endl;
   return result.str();
 }
 
