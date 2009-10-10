@@ -42,6 +42,11 @@ class Cart
     Cart();
     ~Cart();
 
+    /**
+      Log all output to the given stream.
+    */
+    void setLogger(ostream* out);
+
   public:
     /**
       Attempt to locate the Harmony cart on the given serial port.  If
@@ -128,6 +133,11 @@ class Cart
     unsigned char lpc_GetAndReportErrorNumber(const char* Answer);
 
   private:
+    uInt32   myDetectedDevice;
+    uInt32   myRetry;
+    string   myOscillator;
+    ostream* myLog;
+
     /* LPC_RAMSTART, LPC_RAMBASE
      *
      * Used in PhilipsDownload() to decide whether to Flash code or just place in in RAM
@@ -210,10 +220,6 @@ class Cart
     static LPC_DEVICE_TYPE LPCtypes[52];
 
     static uInt8 ourARHeader[256];
-
-    uInt32 myDetectedDevice;
-    uInt32 myRetry;
-    string myOscillator;
 };
 
 #endif

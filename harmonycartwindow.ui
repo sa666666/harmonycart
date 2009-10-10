@@ -1127,6 +1127,7 @@ Left-click to use the chosen ROM.</string>
     </widget>
     <addaction name="actAutoDownFileSelect"/>
     <addaction name="actAutoVerifyDownload"/>
+    <addaction name="actShowLogAfterDownload"/>
     <addaction name="actIncDownload"/>
     <addaction name="menuRetryCount"/>
    </widget>
@@ -1283,6 +1284,14 @@ Left-click to use the chosen ROM.</string>
    </property>
    <property name="toolTip">
     <string>Update BIOS</string>
+   </property>
+  </action>
+  <action name="actShowLogAfterDownload">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show log after download</string>
    </property>
   </action>
  </widget>

@@ -103,6 +103,7 @@ void HarmonyCartWindow::setupConnections()
   group->addAction(ui->actRetry2);
   group->addAction(ui->actRetry3);
   connect(group, SIGNAL(triggered(QAction*)), this, SLOT(slotRetry(QAction*)));
+  connect(ui->actShowLogAfterDownload, SIGNAL(toggled(bool)), this, SLOT(slotShowLog(bool)));
 
   // Help menu
   connect(ui->actAbout, SIGNAL(triggered()), this, SLOT(slotAbout()));
@@ -164,10 +165,13 @@ void HarmonyCartWindow::readSettings()
     else if(retrycount == 1)  ui->actRetry1->setChecked(true);
     else if(retrycount == 2)  ui->actRetry2->setChecked(true);
     else if(retrycount == 3)  ui->actRetry3->setChecked(true);
-    myCart.setRetry(retrycount);
+    ui->actShowLogAfterDownload->setChecked(s.value("showlog", false).toBool());
     ui->actAutoDownFileSelect->setChecked(s.value("autodownload", false).toBool());
     ui->actAutoVerifyDownload->setChecked(s.value("autoverify", false).toBool());
   s.endGroup();
+
+  slotShowLog(ui->actShowLogAfterDownload->isChecked());
+  myCart.setRetry(retrycount);
 
   s.beginGroup("QPButtons");
     assignToQPButton(ui->qp1Button, 1, s.value("button1", "").toString(), false);
@@ -212,6 +216,7 @@ void HarmonyCartWindow::closeEvent(QCloseEvent* event)
     s.setValue("retrycount", retrycount);
     s.setValue("autodownload", ui->actAutoDownFileSelect->isChecked());
     s.setValue("autoverify", ui->actAutoVerifyDownload->isChecked());
+    s.setValue("showlog", ui->actShowLogAfterDownload->isChecked());
   s.endGroup();
 
   s.beginGroup("Paths");
@@ -308,11 +313,15 @@ void HarmonyCartWindow::slotDownloadBIOS()
 
   if(myManager.openCartPort())
   {
+    myLog.str("");
     string result = myCart.downloadBIOS(myManager.port(), biosfile.toStdString(),
                       ui->actAutoVerifyDownload->isChecked());
     myStatus->setText(result.c_str());
 
     myManager.closeCartPort();
+
+    if(ui->actShowLogAfterDownload->isChecked())
+      QMessageBox::information(this, "Download BIOS", QString(myLog.str().c_str()));
   }
   else
     myStatus->setText("Couldn't open serial port.");
@@ -376,11 +385,15 @@ void HarmonyCartWindow::slotDownloadROM()
     QString t = regex.cap();
     BSType type = Bankswitch::nameToType(regex.cap().toStdString());
 
+    myLog.str("");
     string result = myCart.downloadROM(myManager.port(), armpath.toStdString(),
       romfile.toStdString(), type, ui->actAutoVerifyDownload->isChecked());
     myStatus->setText(result.c_str());
 
     myManager.closeCartPort();
+
+    if(ui->actShowLogAfterDownload->isChecked())
+      QMessageBox::information(this, "Download ROM", QString(myLog.str().c_str()));
   }
   else
     myStatus->setText("Couldn't open serial port.");
@@ -478,6 +491,15 @@ void HarmonyCartWindow::slotQPButtonClicked(int id)
 void HarmonyCartWindow::slotBSTypeChanged(int id)
 {
 cerr << "id = " << id << endl;
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+void HarmonyCartWindow::slotShowLog(bool checked)
+{
+  if(checked)
+    myCart.setLogger(&myLog);
+  else
+    myCart.setLogger(&cout);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
