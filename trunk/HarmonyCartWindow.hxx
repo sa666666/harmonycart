@@ -65,6 +65,7 @@ Q_OBJECT
     void slotRetry(QAction* action);
     void slotAbout();
     void slotQPButtonClicked(int id);
+    void slotBSTypeChanged(int id);
     void slotShowDefaultMsg();
 
     void slotSelectEEPROM();
