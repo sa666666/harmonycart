@@ -60,8 +60,6 @@ void SerialPortManager::closeCartPort()
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void SerialPortManager::connectHarmonyCart(Cart& cart)
 {
-ostringstream message;
-
   myFoundHarmonyCart = false;
 
   // First try the port that was successful the last time

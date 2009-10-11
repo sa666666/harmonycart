@@ -61,9 +61,15 @@ bool SerialPortMACOSX::openPort(const string& device)
 
   switch (myBaud)
   {
-//    case 1152000: NEWTERMIOS_SETBAUDRATE(B1152000); break;
-//    case  576000: NEWTERMIOS_SETBAUDRATE(B576000);  break;
+#if defined (B1152000)
+    case 1152000: NEWTERMIOS_SETBAUDRATE(B1152000); break;
+#endif
+#if defined (B576000)
+    case  576000: NEWTERMIOS_SETBAUDRATE(B576000);  break;
+#endif
+#if defined (B230400)
     case  230400: NEWTERMIOS_SETBAUDRATE(B230400);  break;
+#endif
     case  115200: NEWTERMIOS_SETBAUDRATE(B115200);  break;
     case   57600: NEWTERMIOS_SETBAUDRATE(B57600);   break;
     case   38400: NEWTERMIOS_SETBAUDRATE(B38400);   break;

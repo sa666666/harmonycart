@@ -74,9 +74,6 @@ HarmonyCartWindow::HarmonyCartWindow(QWidget* parent)
   QCoreApplication::setOrganizationName("HarmonyCart");
   QCoreApplication::setApplicationName("Harmony Programming Tool");
   readSettings();
-
-  // Find and connect to HarmonyCart (make sure ::readSettings() is called first)
-  slotConnectHarmonyCart();
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
