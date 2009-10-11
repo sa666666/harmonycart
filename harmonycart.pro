@@ -8,7 +8,6 @@ SOURCES += main.cxx \
     Cart.cxx \
     CartDetector.cxx \
     SerialPortManager.cxx
-
 HEADERS += HarmonyCartWindow.hxx \
     bspf.hxx \
     BSType.hxx \
@@ -16,37 +15,47 @@ HEADERS += HarmonyCartWindow.hxx \
     CartDetector.hxx \
     SerialPortManager.hxx \
     SerialPort.hxx \
-    Version.hxx
-
+    Version.hxx \
+    FindHarmonyThread.hxx
 FORMS += harmonycartwindow.ui
 RESOURCES += resources.qrc
-
-windows {
-  SOURCES += SerialPortWin32.cxx
-  HEADERS += SerialPortWin32.hxx
-  RC_FILE = win32/HarmonyCartWin32.rc
+windows { 
+    SOURCES += SerialPortWin32.cxx
+    HEADERS += SerialPortWin32.hxx
+    RC_FILE = win32/HarmonyCartWin32.rc
 }
-unix:!macx {
-  SOURCES += SerialPortUNIX.cxx
-  HEADERS += SerialPortUNIX.hxx
-  TARGET = harmonycart
-
-  target.path = /usr/bin
-  docs.path  = /usr/share/doc/harmonycart
-  docs.files = docs/* Announce.txt  Changes.txt  Copyright.txt  License.txt  Readme.txt
-  arm.path  = /usr/share/harmonycart
-  arm.files = arm/*
-  desktop.path  = /usr/share/applications
-  desktop.files = unix/harmonycart.desktop
-  icon.path  = /usr/share/icons
-  icon.files = unix/harmonycart.png
-
-  INSTALLS += target icon docs arm desktop
+unix:!macx { 
+    SOURCES += SerialPortUNIX.cxx
+    HEADERS += SerialPortUNIX.hxx
+    TARGET = harmonycart
+    target.path = /usr/bin
+    docs.path = /usr/share/doc/harmonycart
+    docs.files = docs/* \
+        Announce.txt \
+        Changes.txt \
+        Copyright.txt \
+        License.txt \
+        Readme.txt
+    arm.path = /usr/share/harmonycart
+    arm.files = arm/*
+    desktop.path = /usr/share/applications
+    desktop.files = unix/harmonycart.desktop
+    icon.path = /usr/share/icons
+    icon.files = unix/harmonycart.png
+    INSTALLS += target \
+        icon \
+        docs \
+        arm \
+        desktop
 }
-macx {
-  SOURCES += SerialPortMACOSX.cxx
-  HEADERS += SerialPortMACOSX.hxx
-  LIBS += -framework CoreFoundation -framework IOKit
-  ICON = macosx/Harmony_icon.icns
-  CONFIG += x86 ppc
+macx { 
+    SOURCES += SerialPortMACOSX.cxx
+    HEADERS += SerialPortMACOSX.hxx
+    LIBS += -framework \
+        CoreFoundation \
+        -framework \
+        IOKit
+    ICON = macosx/Harmony_icon.icns
+    CONFIG += x86 \
+        ppc
 }
