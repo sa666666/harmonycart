@@ -131,6 +131,8 @@ int main(int ac, char* av[])
 
   if(ac == 1)  // Launch GUI
   {
+    // Only start a 'connect' thread if we're in UI mode
+    win.connectHarmonyCart();
     win.show();
     return app.exec();
   }

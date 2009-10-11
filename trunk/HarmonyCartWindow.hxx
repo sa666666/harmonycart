@@ -43,6 +43,7 @@ Q_OBJECT
 
   public:
     SerialPortManager& portManager() { return myManager; }
+    void connectHarmonyCart() { slotConnectHarmonyCart(); }
     string armPath() { return ui->armpathFileEdit->text().toStdString(); }
     bool verifyDownload() { return ui->actAutoVerifyDownload->isChecked(); }
 
