@@ -37,6 +37,7 @@ using namespace std;
 
 #include "CartDetector.hxx"
 #include "HarmonyCartWindow.hxx"
+#include "FindHarmonyThread.hxx"
 #include "ui_harmonycartwindow.h"
 #include "Version.hxx"
 
@@ -48,6 +49,10 @@ HarmonyCartWindow::HarmonyCartWindow(QWidget* parent)
 {
   // Create GUI
   ui->setupUi(this);
+
+  // Create thread to find Harmony cart
+  // We use a thread so the UI isn't blocked
+  myFindHarmonyThread = new FindHarmonyThread(myManager, myCart);
 
   // Set up signal/slot connections
   setupConnections();
@@ -71,16 +76,14 @@ HarmonyCartWindow::HarmonyCartWindow(QWidget* parent)
   readSettings();
 
   // Find and connect to HarmonyCart (make sure ::readSettings() is called first)
-  // Delay calling this so the app can start up
-  myStatus->setText("Searching for Harmony Cart.");
-  myLED->setPixmap(QPixmap(":icons/pics/ledoff.png"));
-  QTimer::singleShot(200, this, SLOT(slotConnectHarmonyCart()));
+  slotConnectHarmonyCart();
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 HarmonyCartWindow::~HarmonyCartWindow()
 {
   delete ui;
+  delete myFindHarmonyThread;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -150,6 +153,8 @@ void HarmonyCartWindow::setupConnections()
 
   // Other
   connect(ui->romBSType, SIGNAL(activated(int)), this, SLOT(slotBSTypeChanged(int)));
+
+  connect(myFindHarmonyThread, SIGNAL(finished()), this, SLOT(slotUpdateFindHarmonyStatus()));
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -267,7 +272,16 @@ bool HarmonyCartWindow::eventFilter(QObject* object, QEvent* event)
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void HarmonyCartWindow::slotConnectHarmonyCart()
 {
-  myManager.connectHarmonyCart(myCart);
+  myStatus->setText("Searching for Harmony Cart.");
+  myLED->setPixmap(QPixmap(":icons/pics/ledoff.png"));
+
+  // Start a thread to do this potentially time-consuming operation
+  myFindHarmonyThread->start();
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+void HarmonyCartWindow::slotUpdateFindHarmonyStatus()
+{
   if(myManager.harmonyCartAvailable())
   {
     myHarmonyCartMessage = "Harmony \'";

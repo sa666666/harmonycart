@@ -21,10 +21,12 @@
 #include <QAction>
 #include <QLabel>
 #include <QProgressBar>
+#include <QThread>
 #include <sstream>
 
 #include "Cart.hxx"
 #include "SerialPortManager.hxx"
+#include "FindHarmonyThread.hxx"
 #include "ui_harmonycartwindow.h"
 
 namespace Ui
@@ -57,6 +59,7 @@ Q_OBJECT
 
   private slots:
     void slotConnectHarmonyCart();
+    void slotUpdateFindHarmonyStatus();
 
     void slotDownloadBIOS();
     void slotDownloadROM();
@@ -77,6 +80,8 @@ Q_OBJECT
 
   private:
     Ui::HarmonyCartWindow* ui;
+
+    FindHarmonyThread* myFindHarmonyThread;
 
     Cart myCart;
     ostringstream myLog;
