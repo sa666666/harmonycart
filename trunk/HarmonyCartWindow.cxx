@@ -74,6 +74,9 @@ HarmonyCartWindow::HarmonyCartWindow(QWidget* parent)
   QCoreApplication::setOrganizationName("HarmonyCart");
   QCoreApplication::setApplicationName("Harmony Programming Tool");
   readSettings();
+
+  // By default, start looking for ROMs in the users' home directory
+  myLastDir.setPath(QDir::home().absolutePath());
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -305,7 +308,7 @@ void HarmonyCartWindow::slotDownloadBIOS()
   if(!myManager.harmonyCartAvailable())
   {
     myDownloadInProgress = false;
-    myStatus->setText("Harmony Cart not found.");
+    statusMessage("Harmony Cart not found.");
     return;
   }
 
@@ -327,7 +330,7 @@ void HarmonyCartWindow::slotDownloadBIOS()
     myLog.str("");
     string result = myCart.downloadBIOS(myManager.port(), biosfile.toStdString(),
                       ui->actAutoVerifyDownload->isChecked());
-    myStatus->setText(result.c_str());
+    statusMessage(QString(result.c_str()));
 
     myManager.closeCartPort();
 
@@ -335,9 +338,8 @@ void HarmonyCartWindow::slotDownloadBIOS()
       QMessageBox::information(this, "Download BIOS", QString(myLog.str().c_str()));
   }
   else
-    myStatus->setText("Couldn't open serial port.");
+    statusMessage("Couldn't open serial port.");
 
-  QTimer::singleShot(2000, this, SLOT(slotShowDefaultMsg()));
   myDownloadInProgress = false;
 }
 
@@ -347,9 +349,11 @@ void HarmonyCartWindow::slotOpenROM()
   // Switch to Development tab
   ui->tabWidget->setCurrentIndex(1);
 
-  QFileInfo info(ui->romFileEdit->text());
+  QString location = ui->romFileEdit->text() != "" ?
+    QFileInfo(ui->romFileEdit->text()).absolutePath() :
+    myLastDir.absolutePath();
   QString file = QFileDialog::getOpenFileName(this,
-    tr("Select ROM Image"), info.absolutePath(), tr("Atari 2600 ROM Image (*.a26 *.bin *.rom)"));
+    tr("Select ROM Image"), location, tr("Atari 2600 ROM Image (*.a26 *.bin *.rom)"));
 
   if(!file.isNull())
     loadROM(file);
@@ -364,7 +368,7 @@ void HarmonyCartWindow::slotDownloadROM()
   if(!myManager.harmonyCartAvailable())
   {
     myDownloadInProgress = false;
-    myStatus->setText("Harmony Cart not found.");
+    statusMessage("Harmony Cart not found.");
     return;
   }
 
@@ -399,7 +403,7 @@ void HarmonyCartWindow::slotDownloadROM()
     myLog.str("");
     string result = myCart.downloadROM(myManager.port(), armpath.toStdString(),
       romfile.toStdString(), type, ui->actAutoVerifyDownload->isChecked());
-    myStatus->setText(result.c_str());
+    statusMessage(QString(result.c_str()));
 
     myManager.closeCartPort();
 
@@ -407,9 +411,8 @@ void HarmonyCartWindow::slotDownloadROM()
       QMessageBox::information(this, "Download ROM", QString(myLog.str().c_str()));
   }
   else
-    myStatus->setText("Couldn't open serial port.");
+    statusMessage("Couldn't open serial port.");
 
-  QTimer::singleShot(2000, this, SLOT(slotShowDefaultMsg()));
   myDownloadInProgress = false;
 }
 
@@ -442,11 +445,9 @@ void HarmonyCartWindow::slotCopyHBIOS()
     QFile::remove(dest.absoluteFilePath());
 
   if(QFile::copy(source.absoluteFilePath(), dest.absoluteFilePath()))
-    myStatus->setText("HBIOS file copied.");
+    statusMessage("HBIOS file copied.");
   else
-    myStatus->setText("HBIOS file NOT copied; check file permissions.");
-
-  QTimer::singleShot(2000, this, SLOT(slotShowDefaultMsg()));
+    statusMessage("HBIOS file NOT copied; check file permissions.");
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -516,9 +517,11 @@ void HarmonyCartWindow::slotShowLog(bool checked)
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void HarmonyCartWindow::slotSelectEEPROM()
 {
-  QFileInfo info(ui->eepromFileEdit->text());
+  QString location = ui->eepromFileEdit->text() != "" ?
+    QFileInfo(ui->eepromFileEdit->text()).absolutePath() :
+    myLastDir.absolutePath();
   QString file = QFileDialog::getOpenFileName(this,
-    tr("Select EEPROM Loader Image"), info.absolutePath(), tr("BIOS Image (*.bin)"));
+    tr("Select EEPROM Loader Image"), location, tr("BIOS Image (*.bin)"));
 
   if(!file.isNull())
     ui->eepromFileEdit->setText(file);
@@ -527,9 +530,11 @@ void HarmonyCartWindow::slotSelectEEPROM()
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void HarmonyCartWindow::slotSelectHBIOS()
 {
-  QFileInfo info(ui->hbiosFileEdit->text());
+  QString location = ui->hbiosFileEdit->text() != "" ?
+    QFileInfo(ui->hbiosFileEdit->text()).absolutePath() :
+    myLastDir.absolutePath();
   QString file = QFileDialog::getOpenFileName(this,
-    tr("Select HBIOS Image"), info.absolutePath(), tr("BIOS Image (*.bin)"));
+    tr("Select HBIOS Image"), location, tr("BIOS Image (*.bin)"));
 
   if(!file.isNull())
     ui->hbiosFileEdit->setText(file);
@@ -538,9 +543,11 @@ void HarmonyCartWindow::slotSelectHBIOS()
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void HarmonyCartWindow::slotSelectSDMount()
 {
-  QFileInfo info(ui->sdcardFileEdit->text());
+  QString location = ui->sdcardFileEdit->text() != "" ?
+    QFileInfo(ui->sdcardFileEdit->text()).absolutePath() :
+    myLastDir.absolutePath();
   QString dir = QFileDialog::getExistingDirectory(this,
-    tr("Select SD Card Location"), info.absolutePath(), QFileDialog::ShowDirsOnly);
+    tr("Select SD Card Location"), location, QFileDialog::ShowDirsOnly);
 
   if(!dir.isNull())
     ui->sdcardFileEdit->setText(dir);
@@ -549,9 +556,11 @@ void HarmonyCartWindow::slotSelectSDMount()
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void HarmonyCartWindow::slotSelectARMPath()
 {
-  QFileInfo info(ui->armpathFileEdit->text());
+  QString location = ui->armpathFileEdit->text() != "" ?
+    QFileInfo(ui->armpathFileEdit->text()).absolutePath() :
+    myLastDir.absolutePath();
   QString dir = QFileDialog::getExistingDirectory(this,
-    tr("Select 'ARM' Directory"), info.absolutePath(), QFileDialog::ShowDirsOnly);
+    tr("Select 'ARM' Directory"), location, QFileDialog::ShowDirsOnly);
 
   if(!dir.isNull())
     ui->armpathFileEdit->setText(dir);
@@ -587,12 +596,15 @@ void HarmonyCartWindow::loadROM(const QString& filename)
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void HarmonyCartWindow::assignToQPButton(QPushButton* button, int id)
 {
-  QFileInfo info(ui->romFileEdit->text());
   QString file = QFileDialog::getOpenFileName(this,
-    tr("Select ROM Image"), info.absolutePath(), tr("Atari 2600 ROM Image (*.a26 *.bin *.rom)"));
+    tr("Select ROM Image"), myLastDir.absolutePath(), tr("Atari 2600 ROM Image (*.a26 *.bin *.rom)"));
 
   if(!file.isNull())
+  {
     assignToQPButton(button, id, file, true);
+    // Remember this location for the next time a file is selected
+    myLastDir.setPath(file);
+  }
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -617,6 +629,14 @@ void HarmonyCartWindow::assignToQPButton(QPushButton* button, int id,
       s.setValue(key, info.canonicalFilePath());
     s.endGroup();
   }
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+void HarmonyCartWindow::statusMessage(const QString& msg)
+{
+  // Show the message for a short time, then reset to the default message
+  myStatus->setText(msg);
+  QTimer::singleShot(4000, this, SLOT(slotShowDefaultMsg()));
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

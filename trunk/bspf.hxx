@@ -49,18 +49,13 @@ typedef unsigned int uInt32;
 
 // The following code should provide access to the standard C++ objects and
 // types: cout, cerr, string, ostream, istream, etc.
-#ifdef BSPF_OLD_STYLE_CXX_HEADERS
-  #include <iostream.h>
-  #include <iomanip.h>
-  #include <string>
-#else
-  #include <iostream>
-  #include <iomanip>
-  #include <string>
-  using namespace std;
-#endif
-
+#include <iostream>
+#include <iomanip>
+#include <string>
+#include <vector>
 #include <algorithm>
+using namespace std;
+
 
 #ifdef HAVE_INTTYPES
   #include <inttypes.h>
@@ -92,6 +87,8 @@ typedef unsigned int uInt32;
   #define BSPF_snprintf snprintf
   #define BSPF_vsnprintf vsnprintf
 #endif
+
+typedef vector<string> StringList;
 
 // Some convenience functions
 template<typename T> inline void BSPF_swap(T &a, T &b) { T tmp = a; a = b; b = tmp; }

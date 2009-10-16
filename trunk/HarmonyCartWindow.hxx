@@ -22,6 +22,7 @@
 #include <QLabel>
 #include <QProgressBar>
 #include <QThread>
+#include <QDir>
 #include <sstream>
 
 #include "Cart.hxx"
@@ -58,6 +59,8 @@ Q_OBJECT
     void assignToQPButton(QPushButton* button, int id);
     void assignToQPButton(QPushButton* button, int id, const QString& file, bool save);
 
+    void statusMessage(const QString& msg);
+
   private slots:
     void slotConnectHarmonyCart();
     void slotUpdateFindHarmonyStatus();
@@ -90,6 +93,7 @@ Q_OBJECT
 
     QLabel* myStatus;
     QLabel* myLED;
+    QDir myLastDir;
 
     QString myHarmonyCartMessage;
     bool myDownloadInProgress;
