@@ -76,7 +76,7 @@ class Bankswitch
         case BS_CV:   return "CV";
         case BS_3E:   return "3E";
         case BS_UA:   return "UA";
-        case BS_F0:   return "MB";
+        case BS_F0:   return "F0";
         case BS_E0:   return "E0";
         case BS_E7:   return "E7";
         case BS_FE:   return "FE";
@@ -102,7 +102,7 @@ class Bankswitch
       else if(s == "f8")    return  BS_F8;
       else if(s == "f6")    return  BS_F6;
       else if(s == "f4")    return  BS_F4;
-      else if(s == "fasc")  return  BS_FA;
+      else if(s == "fa")    return  BS_FA;
       else if(s == "3f")    return  BS_3F;
       else if(s == "f8sc")  return  BS_F8SC;
       else if(s == "f6sc")  return  BS_F6SC;
@@ -111,7 +111,7 @@ class Bankswitch
       else if(s == "cv")    return  BS_CV;
       else if(s == "3e")    return  BS_3E;
       else if(s == "ua")    return  BS_UA;
-      else if(s == "mb")    return  BS_F0;
+      else if(s == "f0")    return  BS_F0;
       else if(s == "e0")    return  BS_E0;
       else if(s == "e7")    return  BS_E7;
       else if(s == "fe")    return  BS_FE;
