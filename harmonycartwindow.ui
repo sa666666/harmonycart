@@ -139,6 +139,9 @@
                   <height>29</height>
                  </size>
                 </property>
+                <property name="toolTip">
+                 <string>Copy and paste an EEPROM loader image.</string>
+                </property>
                 <property name="tabChangesFocus" stdset="0">
                  <bool>true</bool>
                 </property>
@@ -262,6 +265,9 @@ EEPROM</string>
                   <height>29</height>
                  </size>
                 </property>
+                <property name="toolTip">
+                 <string>Copy and paste an HBIOS image.</string>
+                </property>
                 <property name="readOnly">
                  <bool>false</bool>
                 </property>
@@ -304,6 +310,9 @@ EEPROM</string>
                   <width>592</width>
                   <height>29</height>
                  </size>
+                </property>
+                <property name="toolTip">
+                 <string>Copy and paste your SD card directory.</string>
                 </property>
                 <property name="readOnly">
                  <bool>false</bool>
@@ -495,6 +504,9 @@ HBIOS</string>
               <height>29</height>
              </size>
             </property>
+            <property name="toolTip">
+             <string>Copy and paste a single-load ROM image.</string>
+            </property>
             <property name="readOnly">
              <bool>false</bool>
             </property>
@@ -549,6 +561,9 @@ HBIOS</string>
               <width>120</width>
               <height>0</height>
              </size>
+            </property>
+            <property name="toolTip">
+             <string>Size of the chosen ROM image.</string>
             </property>
             <property name="frameShape">
              <enum>QFrame::Panel</enum>
@@ -734,6 +749,10 @@ supported by the Harmony Cart.</string>
             <property name="enabled">
              <bool>false</bool>
             </property>
+            <property name="toolTip">
+             <string>Only download the differences from the
+current cartridge content.</string>
+            </property>
             <property name="text">
              <string>Incremental Download</string>
             </property>
@@ -781,6 +800,10 @@ supported by the Harmony Cart.</string>
               <width>592</width>
               <height>29</height>
              </size>
+            </property>
+            <property name="toolTip">
+             <string>Copy and paste the location of the 'ARM' files
+for single-load ROM images.</string>
             </property>
             <property name="readOnly">
              <bool>false</bool>
