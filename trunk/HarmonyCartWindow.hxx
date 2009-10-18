@@ -72,7 +72,7 @@ Q_OBJECT
     void slotOpenROM();
     void slotRetry(QAction* action);
     void slotAbout();
-    void slotQPButtonClicked(int id);
+    void slotQPButtonClicked(QAbstractButton* b);
     void slotBSTypeChanged(int id);
     void slotShowLog(bool checked);
     void slotShowDefaultMsg();
@@ -84,8 +84,8 @@ Q_OBJECT
 
   private:
     Ui::HarmonyCartWindow* ui;
-
     FindHarmonyThread* myFindHarmonyThread;
+    QButtonGroup* myQPGroup;
 
     Cart myCart;
     ostringstream myLog;
