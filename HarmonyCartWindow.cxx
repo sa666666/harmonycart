@@ -131,25 +131,25 @@ void HarmonyCartWindow::setupConnections()
   connect(ui->openARMPathButton, SIGNAL(clicked()), this, SLOT(slotSelectARMPath()));
 
   // Quick-select buttons
-  QButtonGroup* qpGroup = new QButtonGroup(this);
-  qpGroup->setExclusive(false);
-  qpGroup->addButton(ui->qp1Button, 1);   ui->qp1Button->installEventFilter(this);
-  qpGroup->addButton(ui->qp2Button, 2);   ui->qp2Button->installEventFilter(this);
-  qpGroup->addButton(ui->qp3Button, 3);   ui->qp3Button->installEventFilter(this);
-  qpGroup->addButton(ui->qp4Button, 4);   ui->qp4Button->installEventFilter(this);
-  qpGroup->addButton(ui->qp5Button, 5);   ui->qp5Button->installEventFilter(this);
-  qpGroup->addButton(ui->qp6Button, 6);   ui->qp6Button->installEventFilter(this);
-  qpGroup->addButton(ui->qp7Button, 7);   ui->qp7Button->installEventFilter(this);
-  qpGroup->addButton(ui->qp8Button, 8);   ui->qp8Button->installEventFilter(this);
-  qpGroup->addButton(ui->qp9Button, 9);   ui->qp9Button->installEventFilter(this);
-  qpGroup->addButton(ui->qp10Button, 10); ui->qp10Button->installEventFilter(this);
-  qpGroup->addButton(ui->qp11Button, 11); ui->qp11Button->installEventFilter(this);
-  qpGroup->addButton(ui->qp12Button, 12); ui->qp12Button->installEventFilter(this);
-  qpGroup->addButton(ui->qp13Button, 13); ui->qp13Button->installEventFilter(this);
-  qpGroup->addButton(ui->qp14Button, 14); ui->qp14Button->installEventFilter(this);
-  qpGroup->addButton(ui->qp15Button, 15); ui->qp15Button->installEventFilter(this);
-  qpGroup->addButton(ui->qp16Button, 16); ui->qp16Button->installEventFilter(this);
-  connect(qpGroup, SIGNAL(buttonClicked(int)), this, SLOT(slotQPButtonClicked(int)));
+  myQPGroup = new QButtonGroup(this);
+  myQPGroup->setExclusive(false);
+  myQPGroup->addButton(ui->qp1Button, 1);   ui->qp1Button->installEventFilter(this);
+  myQPGroup->addButton(ui->qp2Button, 2);   ui->qp2Button->installEventFilter(this);
+  myQPGroup->addButton(ui->qp3Button, 3);   ui->qp3Button->installEventFilter(this);
+  myQPGroup->addButton(ui->qp4Button, 4);   ui->qp4Button->installEventFilter(this);
+  myQPGroup->addButton(ui->qp5Button, 5);   ui->qp5Button->installEventFilter(this);
+  myQPGroup->addButton(ui->qp6Button, 6);   ui->qp6Button->installEventFilter(this);
+  myQPGroup->addButton(ui->qp7Button, 7);   ui->qp7Button->installEventFilter(this);
+  myQPGroup->addButton(ui->qp8Button, 8);   ui->qp8Button->installEventFilter(this);
+  myQPGroup->addButton(ui->qp9Button, 9);   ui->qp9Button->installEventFilter(this);
+  myQPGroup->addButton(ui->qp10Button, 10); ui->qp10Button->installEventFilter(this);
+  myQPGroup->addButton(ui->qp11Button, 11); ui->qp11Button->installEventFilter(this);
+  myQPGroup->addButton(ui->qp12Button, 12); ui->qp12Button->installEventFilter(this);
+  myQPGroup->addButton(ui->qp13Button, 13); ui->qp13Button->installEventFilter(this);
+  myQPGroup->addButton(ui->qp14Button, 14); ui->qp14Button->installEventFilter(this);
+  myQPGroup->addButton(ui->qp15Button, 15); ui->qp15Button->installEventFilter(this);
+  myQPGroup->addButton(ui->qp16Button, 16); ui->qp16Button->installEventFilter(this);
+  connect(myQPGroup, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(slotQPButtonClicked(QAbstractButton*)));
 
   // Other
   connect(ui->romBSType, SIGNAL(activated(int)), this, SLOT(slotBSTypeChanged(int)));
@@ -487,16 +487,32 @@ void HarmonyCartWindow::slotAbout()
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void HarmonyCartWindow::slotQPButtonClicked(int id)
+void HarmonyCartWindow::slotQPButtonClicked(QAbstractButton* b)
 {
   // Get the full path from the settings
+  QPushButton* button = static_cast<QPushButton*>(b);
+  int id = myQPGroup->id(b);
   QString key = "button" + QString::number(id);
   QSettings s;
   s.beginGroup("QPButtons");
     QString file = s.value(key, "").toString();
   s.endGroup();
 
-  loadROM(file);
+  QFileInfo info(file);
+  if(info.exists())
+    loadROM(file);
+  else if(file != "")
+  {
+    if(QMessageBox::Yes == QMessageBox::warning(this, "Warning",
+      "This ROM no longer exists.  Do you wish to remove it\nfrom the QuickPick list?",
+      QMessageBox::Yes, QMessageBox::No))
+    {
+      button->setText("");
+      s.beginGroup("QPButtons");
+        s.remove(key);
+      s.endGroup();
+    }
+  }
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
