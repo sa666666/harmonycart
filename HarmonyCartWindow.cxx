@@ -82,8 +82,12 @@ HarmonyCartWindow::HarmonyCartWindow(QWidget* parent)
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 HarmonyCartWindow::~HarmonyCartWindow()
 {
+  if(myFindHarmonyThread)
+  {
+    myFindHarmonyThread->quit();
+    delete myFindHarmonyThread;
+  }
   delete ui;
-  delete myFindHarmonyThread;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -208,6 +212,13 @@ void HarmonyCartWindow::readSettings()
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void HarmonyCartWindow::closeEvent(QCloseEvent* event)
 {
+  // Make sure we don't prematurely kill any running threads
+  if(myFindHarmonyThread->isRunning())
+  {
+    event->ignore();
+    return;
+  }
+
   // Save settings
   QSettings s;
 
