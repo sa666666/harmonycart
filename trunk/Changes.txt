@@ -10,8 +10,38 @@
                              Release History
 ===========================================================================
 
+1.1: (Oct. 20, 2009)
+
+  * Added logging of download progress.  When activated, a dialog will
+    appear after the download has completed, outlining what operations
+    were performed.  This is useful for detecting errors in operation.
+
+  * The Harmony cart autodetection is now done in a separate thread, so
+    the UI won't lock up while autodetection is running.  This fixes
+    problems where the app seems to be frozen during startup.
+
+  * The various file request dialogs now remember the last location
+    selected, so you don't need to 'drill down' to the same location
+    multiple times.
+
+  * When clicking on a ROM in the QuickPick list, the app now checks to
+    see if the file exists.  If it doesn't, a dialog asks whether to
+    remove it from the list.
+
+  * Tooltips were added to all remaining UI items; this should make the
+    app much easier to use.
+
+  * Increased the time that messages are shown in the status bar from two
+    to four seconds, so you have a better chance of reading the results.
+
+  * Fixed several typos in the list of bankswitch types; some ROMs were
+    being mislabeled.
+
+  * Added support for OSX Snow Leopard.
+
+-Have fun!
+
+
 1.0: (Oct. 7, 2009)
 
   * Initial release for Linux, Mac OSX and Windows.
-
--Have fun!

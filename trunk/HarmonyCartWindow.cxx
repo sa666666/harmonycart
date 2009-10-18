@@ -527,9 +527,8 @@ void HarmonyCartWindow::slotQPButtonClicked(QAbstractButton* b)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void HarmonyCartWindow::slotBSTypeChanged(int id)
+void HarmonyCartWindow::slotBSTypeChanged(int /*id*/)
 {
-cerr << "id = " << id << endl;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
