@@ -14,6 +14,7 @@
 // $Id$
 //=========================================================================
 
+
 #ifndef __SERIALPORT_HXX
 #define __SERIALPORT_HXX
 
@@ -21,9 +22,8 @@
 
 /**
   This class provides an interface for a standard serial port.
-  For now, this is used when connecting a Harmony Cart,
-  and as such it always uses 38400, 8n1, hardware flow control
-  (with swapped control lines).
+  For now, it always assumes 8n1; the baud rate can be
+  redefined.
 
   @author  Stephen Anthony
 */
@@ -31,9 +31,9 @@ class SerialPort
 {
   public:
     SerialPort() :
-      myBaud(38400),
+      myBaud(9600),
       mySerialTimeoutCount(0),
-      myControlLinesSwapped(true) { }
+      myControlLinesSwapped(false) { }
     virtual ~SerialPort() { }
 
     /**
@@ -107,7 +107,7 @@ class SerialPort
 
     /**
       Receives a buffer from the open com port. Returns when the buffer is
-      filled, the numer of requested linefeeds has been received or the timeout
+      filled, the number of requested linefeeds has been received or the timeout
       period has passed.
 
       @param Answer   Buffer to hold the bytes read from the serial port
@@ -214,7 +214,6 @@ class SerialPort
       @param RTS  The state to set the RTS line to
     */
     virtual void controlModemLines(bool DTR, bool RTS) = 0;
-
 
     /**
       Get/set the baud rate for this port.
