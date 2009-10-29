@@ -27,6 +27,9 @@ SerialPortManager::SerialPortManager()
     myPortName(""),
     myVersionID("")
 {
+  myPort.setBaud(38400);
+  myPort.setControlSwap(true);
+  myPort.closePort();
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
