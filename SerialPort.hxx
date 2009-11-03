@@ -14,7 +14,6 @@
 // $Id$
 //=========================================================================
 
-
 #ifndef __SERIALPORT_HXX
 #define __SERIALPORT_HXX
 
@@ -58,27 +57,6 @@ class SerialPort
     virtual bool isOpen() = 0;
 
     /**
-      Receives a buffer from the open com port. Returns all the characters
-      ready (waits for up to 'n' milliseconds before accepting that no more
-      characters are ready) or when the buffer is full. 'n' is system dependent,
-      see SerialTimeout routines.
-
-      @param answer    Buffer to hold the bytes read from the serial port
-      @param max_size  The size of buffer pointed to by answer
-      @return  The number of bytes read
-    */
-    virtual uInt32 receiveBlock(void* answer, uInt32 max_size) = 0;
-
-    /**
-      Write block of bytes to the serial port.
-
-      @param data  The byte(s) to write to the port
-      @param size  The size of the block
-      @return  The number of bytes written
-    */
-    virtual uInt32 sendBlock(const void* data, uInt32 size) = 0;
-
-    /**
       Sets (or resets) the timeout to the timout period requested.  Starts
       counting to this period.  This timeout support is a little odd in that
       the timeout specifies the accumulated deadtime waiting to read not the
@@ -106,6 +84,42 @@ class SerialPort
     virtual const StringList& getPortNames() = 0;
 
     /**
+      Utility function to write a string to the serial port, automatically
+      determining the size of the block.
+
+      @param data  The string to write to the port
+      @return  The number of bytes written
+    */
+    uInt32 send(const void* data, uInt32 size = 0)
+    {
+      return sendBlock(data, size == 0 ? strlen((const char*)data) : size);
+    }
+
+    /**
+      Receives a fixed block from the open com port. Returns when the
+      block is completely filled or the timeout period has passed.
+
+      @param block   Buffer to hold the bytes read from the serial port
+      @param size    The size of the buffer pointed to by block
+      @param timeOut The maximum amount of time to wait before giving up on
+                     completing the read
+      @return The number of bytes read
+    */
+    uInt32 receive(void* block, uInt32 size, uInt32 timeout = 500)
+    {
+      uInt32 realsize = 0, read;
+      char *result = (char*)block;
+
+      setTimeout(timeout);
+      do {
+        read = receiveBlock(result + realsize, size - realsize);
+        realsize += read;
+      } while ((realsize < size) && !timeoutCheck());
+
+      return realsize;
+    }
+
+    /**
       Receives a buffer from the open com port. Returns when the buffer is
       filled, the number of requested linefeeds has been received or the timeout
       period has passed.
@@ -116,7 +130,7 @@ class SerialPort
                       returning
       @param timeout  The maximum amount of time to wait before
                       reading with an incomplete buffer (in milliseconds)
-      @return  The number of bytes read (-1 indicates error)
+      @return  The number of bytes read
     */
     uInt32 receive(const char* Ans, uInt32 MaxSize,
                    uInt32 Wanted, uInt32 timeout)
@@ -149,64 +163,6 @@ class SerialPort
     }
 
     /**
-      Utility function to write a string to the serial port, automatically
-      determining the size of the block.
-
-      @param data  The string to write to the port
-      @return  The number of bytes written (-1 indicates error)
-    */
-    uInt32 send(const char* data)
-    {
-      return sendBlock(data, strlen(data));
-    }
-
-    /**
-      Receives a fixed block from the open com port. Returns when the
-      block is completely filled or the timeout period has passed.
-
-      @param block   Buffer to hold the bytes read from the serial port
-      @param size    The size of the buffer pointed to by block
-      @param timeOut The maximum amount of time to wait before giving up on
-                     completing the read
-      @return 0 if successful, non-zero otherwise.
-    */
-    uInt32 receiveBlockComplete(void* block, uInt32 size, uInt32 timeout)
-    {
-      uInt32 realsize = 0, read;
-      char *result = (char*)block;
-
-      setTimeout(timeout);
-      do {
-        read = receiveBlock(result + realsize, size - realsize);
-        realsize += read;
-      } while ((realsize < size) && !timeoutCheck());
-
-      return realsize != size ? 1 : 0;
-    }
-
-    /**
-      Check to see if the serial timeout timer has run down.
-
-      @return  True if timer has run out, false if timer still has time left
-    */
-    bool timeoutCheck()
-    {
-      return mySerialTimeoutCount == 0;
-    }
-
-    /**
-      Performs a timer tick.  In this simple case all we do is count down
-      with protection against underflow and wrapping at the low end.
-    */
-    void timeoutTick()
-    {
-      if(mySerialTimeoutCount <= 1)
-        mySerialTimeoutCount = 0;
-      else
-        mySerialTimeoutCount--;
-    }
-
-    /**
       Controls the modem lines to place the microcontroller into various
       states during the programming process.
 
@@ -234,6 +190,50 @@ class SerialPort
     */
     const string& getID() const  { return myID; }
     void setID(const string& id) { myID = id;   }
+
+  protected:
+    /**
+      Receives a buffer from the open com port. Returns all the characters
+      ready (waits for up to 'n' milliseconds before accepting that no more
+      characters are ready) or when the buffer is full. 'n' is system dependent,
+      see SerialTimeout routines.
+
+      @param answer    Buffer to hold the bytes read from the serial port
+      @param max_size  The size of buffer pointed to by answer
+      @return  The number of bytes read
+    */
+    virtual uInt32 receiveBlock(void* answer, uInt32 max_size) = 0;
+
+    /**
+      Write block of bytes to the serial port.
+
+      @param data  The byte(s) to write to the port
+      @param size  The size of the block
+      @return  The number of bytes written
+    */
+    virtual uInt32 sendBlock(const void* data, uInt32 size) = 0;
+
+    /**
+      Check to see if the serial timeout timer has run down.
+
+      @return  True if timer has run out, false if timer still has time left
+    */
+    bool timeoutCheck()
+    {
+      return mySerialTimeoutCount == 0;
+    }
+
+    /**
+      Performs a timer tick.  In this simple case all we do is count down
+      with protection against underflow and wrapping at the low end.
+    */
+    void timeoutTick()
+    {
+      if(mySerialTimeoutCount <= 1)
+        mySerialTimeoutCount = 0;
+      else
+        mySerialTimeoutCount--;
+    }
 
   protected:
     uInt32 myBaud;

@@ -18,6 +18,8 @@
 #include <QProgressDialog>
 #include <QPixmap>
 #include <QIcon>
+#include <QString>
+#include <QDir>
 #include <cstring>
 #include <fstream>
 #include <sstream>
@@ -198,7 +200,11 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
   }
 
   // Now load the proper bankswitch file
-  armfile = armpath + BSPF_PATH_SEPARATOR + armfile;
+  // This incredibly ugly line makes sure that the path separator works on all ports
+  // It seems that '/' is used even on Windows, but all separators must be converted
+  // to '\' before passing it to C++ streams
+  // Damn Windows for being the only OS that uses '\'
+  armfile = QDir(QString(armpath.c_str()) + "/" + QString(armfile.c_str())).canonicalPath().toStdString();
   armbuf = readFile(armfile, armsize);
   if(armsize == 0)
   {
@@ -314,7 +320,7 @@ uInt8* Cart::readFile(const string& filename, uInt32& size)
   uInt8* buffer = (uInt8*) NULL;
   size = 0;
 
-  *myLog << "Reading from file: \'" << filename << "\'" << endl;
+  *myLog << "Reading from file: \'" << filename << "\' ... ";
 
   // Read file into buffer
   ifstream in(filename.c_str(), ios::binary);
@@ -332,7 +338,7 @@ uInt8* Cart::readFile(const string& filename, uInt32& size)
 
   buffer = new uInt8[length];
   in.read((char*)buffer, length);
-  *myLog << "Read in " << length << " bytes" << endl;
+  *myLog << "read in " << length << " bytes" << endl;
   in.close();
 
   size = length;
