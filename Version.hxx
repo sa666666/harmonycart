@@ -19,4 +19,6 @@
 
 #define HARMONY_VERSION "1.1"
 
+#define HARMONY_BUILD $Revision$
+
 #endif // VERSION_HXX
