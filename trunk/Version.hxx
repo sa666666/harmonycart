@@ -11,7 +11,7 @@
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 //
-// $Id$
+// $Id: Version.hxx 76 2009-11-07 17:37:35Z stephena $
 //=========================================================================
 
 #ifndef VERSION_HXX
@@ -19,6 +19,6 @@
 
 #define HARMONY_VERSION "1.1"
 
-#define HARMONY_BUILD $Revision$
+#define HARMONY_BUILD $Rev$
 
 #endif // VERSION_HXX
