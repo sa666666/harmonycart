@@ -16,17 +16,21 @@ HEADERS += HarmonyCartWindow.hxx \
     SerialPortManager.hxx \
     SerialPort.hxx \
     Version.hxx \
-    FindHarmonyThread.hxx
+    FindHarmonyThread.hxx \
+    bspf_harmony.hxx
 FORMS += harmonycartwindow.ui
 RESOURCES += resources.qrc
 windows { 
-    SOURCES += SerialPortWin32.cxx
-    HEADERS += SerialPortWin32.hxx
+    INCLUDEPATH += win32
+    SOURCES += win32/SerialPortWin32.cxx
+    HEADERS += win32/SerialPortWin32.hxx
     RC_FILE = win32/HarmonyCartWin32.rc
 }
 unix:!macx { 
-    SOURCES += SerialPortUNIX.cxx
-    HEADERS += SerialPortUNIX.hxx
+    DEFINES += HAVE_INTTYPES
+    INCLUDEPATH += unix
+    SOURCES += unix/SerialPortUNIX.cxx
+    HEADERS += unix/SerialPortUNIX.hxx
     TARGET = harmonycart
     target.path = /usr/bin
     docs.path = /usr/share/doc/harmonycart
@@ -49,13 +53,16 @@ unix:!macx {
         desktop
 }
 macx { 
-    SOURCES += SerialPortMACOSX.cxx
-    HEADERS += SerialPortMACOSX.hxx
+    DEFINES += HAVE_INTTYPES
+    INCLUDEPATH += macosx
+    SOURCES += macosx/SerialPortMACOSX.cxx
+    HEADERS += macosx/SerialPortMACOSX.hxx
     LIBS += -framework \
         CoreFoundation \
         -framework \
         IOKit
     ICON = macosx/Harmony_icon.icns
-    QMAKE_MAC_SDK=/Developer/SDKs/MacOSX10.5.sdk
-    CONFIG += x86 ppc
+    QMAKE_MAC_SDK = /Developer/SDKs/MacOSX10.5.sdk
+    CONFIG += x86 \
+        ppc
 }

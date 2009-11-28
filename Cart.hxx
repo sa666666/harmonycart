@@ -23,7 +23,7 @@ class QProgressDialog;
 
 #include <vector>
 
-#include "bspf.hxx"
+#include "bspf_harmony.hxx"
 
 #include "BSType.hxx"
 #include "SerialPort.hxx"

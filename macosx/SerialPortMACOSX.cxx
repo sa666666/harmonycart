@@ -14,7 +14,7 @@
 // $Id$
 //=========================================================================
 
-#include "bspf.hxx"
+#include "bspf_harmony.hxx"
 
 #include <cstdio>
 #include <fcntl.h>

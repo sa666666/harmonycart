@@ -24,7 +24,7 @@
 #include <cstring>
 #include <fstream>
 
-#include "bspf.hxx"
+#include "bspf_harmony.hxx"
 #include "CartDetector.hxx"
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

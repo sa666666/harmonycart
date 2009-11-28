@@ -14,7 +14,7 @@
 // $Id$
 //=========================================================================
 
-#include "bspf.hxx"
+#include "bspf_harmony.hxx"
 
 #ifndef __SERIALPORT_MACOSX_HXX
 #define __SERIALPORT_MACOSX_HXX

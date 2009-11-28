@@ -10,56 +10,64 @@
 //
 // Copyright (c) 1995-2009 by Bradford W. Mott and the Stella Team
 //
-// See the file "License.txt" for information on usage and redistribution of
+// See the file "license" for information on usage and redistribution of
 // this file, and for a DISCLAIMER OF ALL WARRANTIES.
 //
 // $Id$
 //============================================================================
 
-#ifndef __BSPF_HXX
-#define __BSPF_HXX
+#ifndef BSPF_HXX
+#define BSPF_HXX
 
 /**
   This file defines various basic data types and preprocessor variables
   that need to be defined for different operating systems.
 
   @author Bradford W. Mott
+  @version $Id$
 */
 
-/** What system are we using? */
-#if defined(WIN32) || defined(_WIN32)
-  #define BSPF_WIN32
-#elif defined(__APPLE__) || defined(MAC_OS_X)
-  #define BSPF_MAC_OSX
+#ifdef HAVE_INTTYPES
+  #include <inttypes.h>
+
+  // Types for 8-bit signed and unsigned integers
+  typedef int8_t Int8;
+  typedef uint8_t uInt8;
+  // Types for 16-bit signed and unsigned integers
+  typedef int16_t Int16;
+  typedef uint16_t uInt16;
+  // Types for 32-bit signed and unsigned integers
+  typedef int32_t Int32;
+  typedef uint32_t uInt32;
+  // Types for 64-bit signed and unsigned integers
+  typedef int64_t Int64;
+  typedef uint64_t uInt64;
+#elif defined BSPF_WIN32
+  // Types for 8-bit signed and unsigned integers
+  typedef signed char Int8;
+  typedef unsigned char uInt8;
+  // Types for 16-bit signed and unsigned integers
+  typedef signed short Int16;
+  typedef unsigned short uInt16;
+  // Types for 32-bit signed and unsigned integers
+  typedef signed int Int32;
+  typedef unsigned int uInt32;
+  // Types for 64-bit signed and unsigned integers
+  typedef __int64 Int64;
+  typedef unsigned __int64 uInt64;
 #else
-  #define BSPF_UNIX
+  #error Update BSPF.hxx for datatypes
 #endif
 
-// Types for 8-bit signed and unsigned integers
-typedef signed char Int8;
-typedef unsigned char uInt8;
-
-// Types for 16-bit signed and unsigned integers
-typedef signed short Int16;
-typedef unsigned short uInt16;
-
-// Types for 32-bit signed and unsigned integers
-typedef signed int Int32;
-typedef unsigned int uInt32;
 
 // The following code should provide access to the standard C++ objects and
 // types: cout, cerr, string, ostream, istream, etc.
 #include <iostream>
 #include <iomanip>
 #include <string>
-#include <vector>
-#include <algorithm>
 using namespace std;
 
-
-#ifdef HAVE_INTTYPES
-  #include <inttypes.h>
-#endif
+#include <algorithm>
 
 // Defines to help with path handling
 #if defined BSPF_UNIX
@@ -88,7 +96,17 @@ using namespace std;
   #define BSPF_vsnprintf vsnprintf
 #endif
 
-typedef vector<string> StringList;
+// CPU architecture type
+// This isn't complete yet, but takes care of all the major platforms
+#if defined(__i386__) || defined(_M_IX86)
+  #define BSPF_ARCH "i386"
+#elif defined(__x86_64__) || defined(_WIN64)
+  #define BSPF_ARCH "x86_64"
+#elif defined(__powerpc__) || defined(__ppc__)
+  #define BSPF_ARCH "ppc"
+#else
+  #define BSPF_ARCH "NOARCH"
+#endif
 
 // Some convenience functions
 template<typename T> inline void BSPF_swap(T &a, T &b) { T tmp = a; a = b; b = tmp; }
@@ -103,5 +121,9 @@ inline string BSPF_tolower(const string& s)
 }
 
 static const string EmptyString("");
+
+#ifdef _WIN32_WCE
+  #include "missing.h"
+#endif
 
 #endif
