@@ -10,7 +10,7 @@
                              Release History
 ===========================================================================
 
-1.1: (Oct. 20, 2009)
+1.1: (Dec. xx, 2009)
 
   * Added logging of download progress.  When activated, a dialog will
     appear after the download has completed, outlining what operations
@@ -33,6 +33,12 @@
 
   * Increased the time that messages are shown in the status bar from two
     to four seconds, so you have a better chance of reading the results.
+
+  * Implemented 'Retry Count' menu setting, to configure how often a 
+    write should be attempted before considering it a failure.
+
+  * The download buttons are now disabled during an active download, to
+    indicate another download isn't possible at this time.
 
   * Fixed several typos in the list of bankswitch types; some ROMs were
     being mislabeled.

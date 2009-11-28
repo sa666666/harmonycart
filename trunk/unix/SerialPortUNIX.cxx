@@ -14,7 +14,7 @@
 // $Id$
 //=========================================================================
 
-#include "bspf.hxx"
+#include "bspf_harmony.hxx"
 
 #if defined(__OpenBSD__)
   #include <errno.h>

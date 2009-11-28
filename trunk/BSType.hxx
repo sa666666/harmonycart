@@ -23,7 +23,7 @@
 #ifndef BSTYPE_HXX
 #define BSTYPE_HXX
 
-#include "bspf.hxx"
+#include "bspf_harmony.hxx"
 
 enum BSType
 {

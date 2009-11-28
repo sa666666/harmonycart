@@ -25,7 +25,7 @@
 #include <sstream>
 #include <ostream>
 
-#include "bspf.hxx"
+#include "bspf_harmony.hxx"
 
 #include "BSType.hxx"
 #include "Cart.hxx"

@@ -17,7 +17,7 @@
 #ifndef __SERIALPORTMANAGER_HXX
 #define __SERIALPORTMANAGER_HXX
 
-#include "bspf.hxx"
+#include "bspf_harmony.hxx"
 #include "Cart.hxx"
 
 #if defined(BSPF_WIN32)

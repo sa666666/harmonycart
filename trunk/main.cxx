@@ -19,7 +19,7 @@
 #include <cstring>
 #include "ui_harmonycartwindow.h"
 
-#include "bspf.hxx"
+#include "bspf_harmony.hxx"
 #include "BSType.hxx"
 #include "Cart.hxx"
 #include "SerialPort.hxx"

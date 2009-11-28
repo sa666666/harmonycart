@@ -14,7 +14,7 @@
 // $Id$
 //=========================================================================
 
-#include "bspf.hxx"
+#include "bspf_harmony.hxx"
 
 #undef UNICODE
 #include <windows.h>
