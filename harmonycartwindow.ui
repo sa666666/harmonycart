@@ -744,20 +744,6 @@ supported by the Harmony Cart.</string>
             </item>
            </widget>
           </item>
-          <item>
-           <widget class="QCheckBox" name="checkBox">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="toolTip">
-             <string>Only download the differences from the
-current cartridge content.</string>
-            </property>
-            <property name="text">
-             <string>Incremental Download</string>
-            </property>
-           </widget>
-          </item>
          </layout>
         </item>
         <item>
@@ -1135,7 +1121,7 @@ Left-click to use the chosen ROM.</string>
     </property>
     <widget class="QMenu" name="menuRetryCount">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="contextMenuPolicy">
       <enum>Qt::ActionsContextMenu</enum>
@@ -1151,7 +1137,6 @@ Left-click to use the chosen ROM.</string>
     <addaction name="actAutoDownFileSelect"/>
     <addaction name="actAutoVerifyDownload"/>
     <addaction name="actShowLogAfterDownload"/>
-    <addaction name="actIncDownload"/>
     <addaction name="menuRetryCount"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
