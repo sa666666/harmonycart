@@ -71,7 +71,7 @@ class Cart
                        bool verify, bool showprogress = true);
 
     /** Set number of write retries before bailing out. */
-    void setRetry(int retry) { myRetry = retry; }
+    void setRetry(int retry) { myRetry = retry + 1; }
 
   private:
     enum TARGET           { PHILIPS_ARM, ANALOG_DEVICES_ARM };

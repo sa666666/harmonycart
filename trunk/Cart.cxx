@@ -35,6 +35,7 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Cart::Cart()
   : myDetectedDevice(0),
+    myRetry(1),
     myOscillator("10000"),
     myLog(&cout)
 {
@@ -640,7 +641,7 @@ string Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
   long WatchDogSeconds = 0;
   int WaitForWatchDog = 0;
   const char* cmdstr;
-  int repeat = 0;
+  uInt32 repeat = 0;
   ostringstream result;
 
   // Puffer for data to resend after "RESEND\r\n" Target responce
@@ -1050,7 +1051,7 @@ string Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
           Line++;
           if (Line == 20)
           {
-            for (repeat = 0; repeat < 3; repeat++)
+            for (repeat = 0; repeat < myRetry; repeat++)
             {
               // printf("block_CRC = %d\n", block_CRC);
               sprintf(tmpString, "%d\n", block_CRC);
@@ -1070,9 +1071,9 @@ string Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
                 break;
             }
 
-            if (repeat >= 3)
+            if (repeat >= myRetry)
             {
-              result << "ERROR: writing block_CRC (1)";
+              result << "ERROR: writing block_CRC (1), retries = " << repeat;
               goto cleanup;
             }
             Line = 0;
@@ -1083,7 +1084,7 @@ string Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
 
       if (Line != 0)
       {
-        for (repeat = 0; repeat < 3; repeat++)
+        for (repeat = 0; repeat < myRetry; repeat++)
         {
           sprintf(tmpString, "%d\n", block_CRC);
           port.send(tmpString);
@@ -1102,9 +1103,9 @@ string Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
             break;
         }
 
-        if (repeat >= 3)
+        if (repeat >= myRetry)
         {
-          result << "ERROR: writing block_CRC (3)";
+          result << "ERROR: writing block_CRC (3), retries = " << repeat;
           goto cleanup;
         }
       }

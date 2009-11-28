@@ -170,6 +170,7 @@ void HarmonyCartWindow::readSettings()
   s.beginGroup("MainWindow");
     myManager.setDefaultPort(s.value("harmonyport", "").toString().toStdString());
     int retrycount = s.value("retrycount", 0).toInt();
+    if(retrycount < 0 || retrycount > 3)  retrycount = 0;
     if(retrycount == 0)       ui->actRetry0->setChecked(true);
     else if(retrycount == 1)  ui->actRetry1->setChecked(true);
     else if(retrycount == 2)  ui->actRetry2->setChecked(true);
@@ -325,7 +326,6 @@ void HarmonyCartWindow::slotDownloadBIOS()
 
   // Switch to BIOS tab
   ui->tabWidget->setCurrentIndex(0);
-  myDownloadInProgress = true;
 
   QString biosfile = ui->eepromFileEdit->text();
   if(biosfile == "" || !QFile::exists(biosfile))
@@ -335,6 +335,9 @@ void HarmonyCartWindow::slotDownloadBIOS()
       "Couldn't find eeloader.bin file.\nMake sure you've selected it.");
     return;
   }
+
+  myDownloadInProgress = true;
+  ui->updateBIOSButton->setEnabled(!myDownloadInProgress);
 
   if(myManager.openCartPort())
   {
@@ -352,6 +355,7 @@ void HarmonyCartWindow::slotDownloadBIOS()
     statusMessage("Couldn't open serial port.");
 
   myDownloadInProgress = false;
+  ui->updateBIOSButton->setEnabled(!myDownloadInProgress);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -385,7 +389,6 @@ void HarmonyCartWindow::slotDownloadROM()
 
   // Switch to Development tab
   ui->tabWidget->setCurrentIndex(1);
-  myDownloadInProgress = true;
 
   QString armpath = ui->armpathFileEdit->text();
   QString romfile = ui->romFileEdit->text();
@@ -404,6 +407,9 @@ void HarmonyCartWindow::slotDownloadROM()
     return;
   }
 
+  myDownloadInProgress = true;
+  ui->downloadButton->setEnabled(!myDownloadInProgress);
+
   if(myManager.openCartPort())
   {
     QRegExp regex("([a-zA-Z0-9]*)");
@@ -415,6 +421,7 @@ void HarmonyCartWindow::slotDownloadROM()
     string result = myCart.downloadROM(myManager.port(), armpath.toStdString(),
       romfile.toStdString(), type, ui->actAutoVerifyDownload->isChecked());
     statusMessage(QString(result.c_str()));
+    ui->downloadButton->setEnabled(true);
 
     myManager.closeCartPort();
 
@@ -425,6 +432,7 @@ void HarmonyCartWindow::slotDownloadROM()
     statusMessage("Couldn't open serial port.");
 
   myDownloadInProgress = false;
+  ui->downloadButton->setEnabled(!myDownloadInProgress);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
