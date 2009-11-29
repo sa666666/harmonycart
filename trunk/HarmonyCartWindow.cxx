@@ -35,6 +35,7 @@
 #include <sstream>
 using namespace std;
 
+#include "AboutDialog.hxx"
 #include "CartDetector.hxx"
 #include "HarmonyCartWindow.hxx"
 #include "FindHarmonyThread.hxx"
@@ -487,22 +488,15 @@ void HarmonyCartWindow::slotAbout()
         << "<p>Copyright &copy; 2009 <a href=\"mailto:stephena@users.sf.net\">Stephen Anthony</a><br>"
         << "Check for updates at <a href=\"http://atariage.com\">http://atariage.com</a><p>"
         << "</center>"
-        << "<p>This&nbsp;software&nbsp;is&nbsp;released&nbsp;under&nbsp;the&nbsp;GNU&nbsp;GPLv3,<br>"
-        << "and&nbsp;includes&nbsp;code&nbsp;from&nbsp;the&nbsp;following&nbsp;projects:</p>"
-        << "<p></p>"
-        << "<p>"
-        << "&nbsp;&nbsp;&nbsp;lpc21isp&nbsp;:&nbsp;Philips&nbsp;LPCxxxx&nbsp;programming&nbsp;code<br>"
-        << "&nbsp;&nbsp;&nbsp;KrokCom&nbsp;:&nbsp;UI&nbsp;code,&nbsp;icons&nbsp;and&nbsp;other&nbsp;images<br>"
-        << "&nbsp;&nbsp;&nbsp;Stella&nbsp;:&nbsp;bankswitch&nbsp;autodetection&nbsp;code<br>"
-        << "</p>";
+        << "<p>This software is released under the GNU GPLv3, and includes items from the following projects:</p>"
+        << "<p><ul>"
+        << "<li>lpc21isp: Philips&nbsp;LPCxxxx programming code</li>"
+        << "<li>KrokCom: UI code, icons and other images</li>"
+        << "<li>Stella: bankswitch autodetection code</li>"
+        << "</ul></p>";
 
-  QMessageBox mb;
-  mb.setWindowTitle("Info about Harmony Programming Tool");
-  mb.setIconPixmap(QPixmap(":icons/pics/cart.png"));
-  mb.setWindowIcon(QPixmap(":icons/pics/appicon.png"));
-  mb.setTextFormat(Qt::RichText);
-  mb.setText(about.str().c_str());
-  mb.exec();
+  AboutDialog aboutdlg(this, "Info about Harmony Programming Tool", about.str().c_str());
+  aboutdlg.exec();
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
