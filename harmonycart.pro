@@ -7,7 +7,8 @@ SOURCES += main.cxx \
     HarmonyCartWindow.cxx \
     Cart.cxx \
     CartDetector.cxx \
-    SerialPortManager.cxx
+    SerialPortManager.cxx \
+    AboutDialog.cxx
 HEADERS += HarmonyCartWindow.hxx \
     bspf.hxx \
     BSType.hxx \
@@ -17,8 +18,10 @@ HEADERS += HarmonyCartWindow.hxx \
     SerialPort.hxx \
     Version.hxx \
     FindHarmonyThread.hxx \
-    bspf_harmony.hxx
-FORMS += harmonycartwindow.ui
+    bspf_harmony.hxx \
+    AboutDialog.hxx
+FORMS += harmonycartwindow.ui \
+    aboutdialog.ui
 RESOURCES += resources.qrc
 windows { 
     INCLUDEPATH += win32
