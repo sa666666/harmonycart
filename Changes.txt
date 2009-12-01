@@ -10,7 +10,7 @@
                              Release History
 ===========================================================================
 
-1.1: (Dec. xx, 2009)
+1.1: (Dec. 1, 2009)
 
   * Added logging of download progress.  When activated, a dialog will
     appear after the download has completed, outlining what operations
@@ -44,6 +44,8 @@
     being mislabeled.
 
   * Added support for OSX Snow Leopard.
+
+  * Updated HBIOS files to latest version (1.03c)
 
 -Have fun!
 

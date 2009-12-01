@@ -10,4 +10,4 @@ visit the HarmonyCart Website at:
 Enjoy,
 
 Stephen Anthony
-Dec. xx, 2009
+Dec. 1, 2009
