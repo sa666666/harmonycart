@@ -24,6 +24,7 @@
 #include <fstream>
 #include <sstream>
 #include <ostream>
+#include <time.h>
 
 #include "bspf_harmony.hxx"
 

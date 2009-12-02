@@ -14,12 +14,13 @@
 // $Id$
 //=========================================================================
 
-#include "bspf_harmony.hxx"
 
 #undef UNICODE
 #include <windows.h>
-
 #include <sstream>
+#include <cstdio>
+
+#include "bspf_harmony.hxx"
 #include "SerialPortWin32.hxx"
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
