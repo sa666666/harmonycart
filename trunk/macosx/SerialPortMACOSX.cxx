@@ -243,7 +243,7 @@ kern_return_t SerialPortMACOSX::createSerialIterator(io_iterator_t* serialIterat
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-char* SerialPortMACOSX::getRegistryString(io_object_t sObj, char* propName)
+const char* SerialPortMACOSX::getRegistryString(io_object_t sObj, const char* propName)
 {
   static char resultStr[256];
   CFTypeRef nameCFstring;
