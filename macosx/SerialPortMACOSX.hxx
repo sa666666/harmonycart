@@ -120,7 +120,7 @@ class SerialPortMACOSX : public SerialPort
 
   private:
     kern_return_t createSerialIterator(io_iterator_t* serialIterator);
-    char* getRegistryString(io_object_t sObj, char* propName);
+    const char* getRegistryString(io_object_t sObj, const char* propName);
 
   private:
     // File descriptor for serial connection
