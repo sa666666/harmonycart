@@ -5,9 +5,9 @@ Windows systems.  Both GUI and commandline usage is supported.
 If you'd like to verify that you have the latest release of HarmonyCart
 visit the HarmonyCart Website at:
 
-  http://atariage.com
+  http://harmony.atariage.com
 
 Enjoy,
 
 Stephen Anthony
-Dec. 1, 2009
+Dec. 14, 2009
