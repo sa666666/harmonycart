@@ -43,4 +43,4 @@ Distribution Site
 
 The HarmonyCart distributions can be obtained from the AtariAge Website at:
 
-  http://atariage.com
+  http://harmony.atariage.com

@@ -5,9 +5,9 @@
 AppName=HarmonyCart
 AppVerName=HarmonyCart 1.1
 AppPublisher=Stephen Anthony
-AppPublisherURL=http://atariage.com
-AppSupportURL=http://atariage.com
-AppUpdatesURL=http://atariage.com
+AppPublisherURL=http://harmony.atariage.com
+AppSupportURL=http://harmony.atariage.com
+AppUpdatesURL=http://harmony.atariage.com
 DefaultDirName={pf}\HarmonyCart
 DefaultGroupName=HarmonyCart
 OutputBaseFilename="HarmonyCart-1.1-win32"
