@@ -10,7 +10,7 @@
                              Release History
 ===========================================================================
 
-1.1: (Dec. 1, 2009)
+1.1: (Dec. 11, 2009)
 
   * Added logging of download progress.  When activated, a dialog will
     appear after the download has completed, outlining what operations
@@ -45,7 +45,10 @@
 
   * Added support for OSX Snow Leopard.
 
-  * Updated HBIOS files to latest version (1.03c)
+  * Updated HBIOS and ARM files to latest version (1.03c).
+
+  * Updated PAL50 version of eeloader.bin for better compatibility with
+    A7800 PAL systems.
 
 -Have fun!
 

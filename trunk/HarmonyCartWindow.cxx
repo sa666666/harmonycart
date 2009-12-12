@@ -519,7 +519,8 @@ void HarmonyCartWindow::slotAbout()
         << "<li>Fixed several typos in the list of bankswitch types; some ROMs were "
         << "being mislabeled.</li>"
         << "<li>Added support for OSX Snow Leopard.</li>"
-        << "<li>Updated HBIOS files to latest version (1.03c)</li>"
+        << "<li>Updated HBIOS and ARM files to latest version (1.03c).</li>"
+        << "<li>Updated PAL50 version of eeloader.bin for better compatibility with A7800 PAL systems.</li>"
           ;
 
   AboutDialog aboutdlg(this, "Info about Harmony Programming Tool", about.str().c_str());
