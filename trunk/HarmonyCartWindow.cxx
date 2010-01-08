@@ -73,7 +73,11 @@ HarmonyCartWindow::HarmonyCartWindow(QWidget* parent)
 
   // Initialize settings
   QCoreApplication::setApplicationName("HarmonyCart");
+#ifdef BSPF_MAC_OSX
   QCoreApplication::setOrganizationName("atariage");
+#else
+  QCoreApplication::setOrganizationName("atariage.com");
+#endif
   readSettings();
 
   // By default, start looking for ROMs in the users' home directory
@@ -490,9 +494,9 @@ void HarmonyCartWindow::slotAbout()
         << "</center>"
         << "<p>This software is released under the GNU GPLv3, and includes items from the following projects:</p>"
         << "<p><ul>"
-        << "<li>lpc21isp: Philips&nbsp;LPCxxxx programming code</li>"
-        << "<li>KrokCom: UI code, icons and other images</li>"
-        << "<li>Stella: bankswitch autodetection code</li>"
+        << "<li><a href=\"http://sourceforge.net/projects/lpc21isp\">lpc21isp</a>: Philips&nbsp;LPCxxxx programming code</li>"
+        << "<li><a href=\"http://krokcom.sf.net\">KrokCom</a>: UI code, icons and other images</li>"
+        << "<li><a href=\"http://stella.sf.net\">Stella</a>: bankswitch autodetection code</li>"
         << "</ul></p>"
         << "<p>Changes in this version include:</p>"
         << "<ul>"
