@@ -72,8 +72,8 @@ HarmonyCartWindow::HarmonyCartWindow(QWidget* parent)
   ui->downloadButton->setDisabled(true);  ui->actDownloadROM->setDisabled(true);
 
   // Initialize settings
-  QCoreApplication::setOrganizationName("HarmonyCart");
-  QCoreApplication::setApplicationName("Harmony Programming Tool");
+  QCoreApplication::setApplicationName("HarmonyCart");
+  QCoreApplication::setOrganizationName("atariage");
   readSettings();
 
   // By default, start looking for ROMs in the users' home directory
