@@ -66,6 +66,5 @@ macx {
         IOKit
     ICON = macosx/Harmony_icon.icns
     QMAKE_MAC_SDK = /Developer/SDKs/MacOSX10.5.sdk
-    CONFIG += x86 \
-        ppc
+    CONFIG += x86 ppc
 }
