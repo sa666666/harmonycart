@@ -489,7 +489,7 @@ void HarmonyCartWindow::slotAbout()
   ostringstream about;
   about << "<center>"
         << "<p><b>Harmony Programming Tool v" << HARMONY_VERSION << "</b></p>"
-        << "<p>Copyright &copy; 2009 <a href=\"mailto:stephena@users.sf.net\">Stephen Anthony</a><br>"
+        << "<p>Copyright &copy; 2009-2010 <a href=\"mailto:stephena@users.sf.net\">Stephen Anthony</a><br>"
         << "Check for updates at <a href=\"http://harmony.atariage.com\">http://harmony.atariage.com</a><p>"
         << "</center>"
         << "<p>This software is released under the GNU GPLv3, and includes items from the following projects:</p>"
@@ -498,7 +498,10 @@ void HarmonyCartWindow::slotAbout()
         << "<li><a href=\"http://krokcom.sf.net\">KrokCom</a>: UI code, icons and other images</li>"
         << "<li><a href=\"http://stella.sf.net\">Stella</a>: bankswitch autodetection code</li>"
         << "</ul></p>"
-        << "<p>Changes in this version include:</p>"
+        << "<p>Release 1.2 changes:</p>"
+        << "<ul>"
+        << "</ul>"
+        << "<p>Release 1.1 changes:</p>"
         << "<ul>"
         << "<li>Added logging of download progress.  When activated, a dialog will "
         << "appear after the download has completed, outlining what operations "
@@ -525,7 +528,8 @@ void HarmonyCartWindow::slotAbout()
         << "<li>Added support for OSX Snow Leopard.</li>"
         << "<li>Updated HBIOS and ARM files to latest version (1.03c).</li>"
         << "<li>Updated PAL50 version of eeloader.bin for better compatibility with A7800 PAL systems.</li>"
-          ;
+        << "</ul>"
+        ;
 
   AboutDialog aboutdlg(this, "Info about Harmony Programming Tool", about.str().c_str());
   aboutdlg.exec();
