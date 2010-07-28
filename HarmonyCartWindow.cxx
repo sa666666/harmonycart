@@ -500,7 +500,7 @@ void HarmonyCartWindow::slotAbout()
         << "</ul></p>"
         << "<p>Release 1.2 changes:</p>"
         << "<ul>"
-        << "<li>Added support for LPC17xx chip in A7800 version of HarmonyCart.</li>"
+        << "<li>Added support for LPC17xx chip in A7800 version of Harmony cartridge.</li>"
         << "<li>Updated lpc21isp code to version 1.79.</li>"
         << "<li>Updated bankswitch autodetection code to latest from Stella 3.2.</li>"
         << "</ul>"
