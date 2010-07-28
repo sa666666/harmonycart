@@ -6,7 +6,7 @@
 //  H   H  A   A  R R    M   M  O   O  N  NN    Y
 //  H   H  A   A  R  R   M   M   OOO   N   N    Y
 //
-// Copyright (c) 2009 by Stephen Anthony <stephena@users.sourceforge.net>
+// Copyright (c) 2009-2010 by Stephen Anthony <stephena@users.sf.net>
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -152,10 +152,17 @@ class Cart
      *                by the startup code.
      */
     enum {
-      LPC_RAMSTART_LPC2XXX = 0x40000000,
-      LPC_RAMBASE_LPC2XXX  = 0x40000200,
-      LPC_RAMSTART_LPC17XX = 0x10000000,
-      LPC_RAMBASE_LPC17XX  = 0x10000200
+      LPC_RAMSTART_LPC2XXX = 0x40000000L,
+      LPC_RAMBASE_LPC2XXX  = 0x40000200L,
+
+      LPC_RAMSTART_LPC17XX = 0x10000000L,
+      LPC_RAMBASE_LPC17XX  = 0x10000200L,
+
+      LPC_RAMSTART_LPC13XX = 0x10000000L,
+      LPC_RAMBASE_LPC13XX  = 0x10000300L,
+
+      LPC_RAMSTART_LPC11XX = 0x10000000L,
+      LPC_RAMBASE_LPC11XX  = 0x10000300L
     };
 
     /* Return values used by PhilipsDownload(): reserving all values from 0x1000 to 0x1FFF */
@@ -193,17 +200,19 @@ class Cart
      */
     enum { LPC_FLASHMASK =  0xFFC00000 /* 22 bits = 4 MB */ };
 
-    enum CHIP_VARIANT { CHIP_VARIANT_LPC2XXX, CHIP_VARIANT_LPC17XX, CHIP_VARIANT_UNKNOWN };
+    enum CHIP_VARIANT { CHIP_VARIANT_LPC2XXX, CHIP_VARIANT_LPC17XX,
+                        CHIP_VARIANT_LPC13XX, CHIP_VARIANT_LPC11XX,
+                        CHIP_VARIANT_UNKNOWN };
 
     struct LPC_DEVICE_TYPE {
-      uInt32 id;
-      uInt32 Product;
-      uInt32 FlashSize;          /* in kiB, for informational purposes only */
-      uInt32 RAMSize;            /* in kiB, for informational purposes only */
-      uInt32 FlashSectors;       /* total number of sectors */
-      uInt32 MaxCopySize;        /* maximum size that can be copied to Flash in a single command */
-      const uInt32* SectorTable; /* pointer to a sector table with constant the sector sizes */
-      CHIP_VARIANT ChipVariant;
+      const uInt32 id;
+      const char*  Product;
+      const uInt32 FlashSize;      /* in kiB, for informational purposes only */
+      const uInt32 RAMSize;        /* in kiB, for informational purposes only */
+            uInt32 FlashSectors;   /* total number of sectors */
+            uInt32 MaxCopySize;    /* maximum size that can be copied to Flash in a single command */
+      const uInt32* SectorTable;   /* pointer to a sector table with constant the sector sizes */
+      const CHIP_VARIANT ChipVariant;
     };
 
     static const uInt32 SectorTable_210x[15];
@@ -217,7 +226,7 @@ class Cart
     // Used for LPC17xx devices
     static const uInt32 SectorTable_17xx[30];
     static uInt32 SectorTable_RAM[1];
-    static LPC_DEVICE_TYPE LPCtypes[52];
+    static LPC_DEVICE_TYPE LPCtypes[66];
 
     static uInt8 ourARHeader[256];
 };

@@ -6,7 +6,7 @@
 //  H   H  A   A  R R    M   M  O   O  N  NN    Y
 //  H   H  A   A  R  R   M   M   OOO   N   N    Y
 //
-// Copyright (c) 2009 by Stephen Anthony <stephena@users.sourceforge.net>
+// Copyright (c) 2009-2010 by Stephen Anthony <stephena@users.sf.net>
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -500,6 +500,9 @@ void HarmonyCartWindow::slotAbout()
         << "</ul></p>"
         << "<p>Release 1.2 changes:</p>"
         << "<ul>"
+        << "<li>Added support for LPC17xx chip in A7800 version of HarmonyCart.</li>"
+        << "<li>Updated lpc21isp code to version 1.79.</li>"
+        << "<li>Updated bankswitch autodetection code to latest from Stella 3.2.</li>"
         << "</ul>"
         << "<p>Release 1.1 changes:</p>"
         << "<ul>"

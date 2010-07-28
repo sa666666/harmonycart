@@ -659,6 +659,11 @@ supported by the Harmony Cart.</string>
             </item>
             <item>
              <property name="text">
+              <string>DPC+* (extended Pitfall II)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
               <string>E0 (8K Parker Bros)</string>
              </property>
             </item>
@@ -1093,7 +1098,7 @@ Left-click to use the chosen ROM.</string>
      <x>0</x>
      <y>0</y>
      <width>720</width>
-     <height>28</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

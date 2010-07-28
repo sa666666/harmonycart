@@ -11,7 +11,7 @@
 ===========================================================================
 
 If you would like to contribute to HarmonyCart development then send email
-to Stephen Anthony at stephena@users.sourceforge.net.
+to Stephen Anthony at stephena@users.sf.net.
 
 A bugtracker is also available on the AtariAge website:
 
