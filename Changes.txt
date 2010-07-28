@@ -15,7 +15,7 @@
   * Added support for LPC17xx chip used in the A7800 version of the
     Harmony cartridge.
 
-  * Updated LPCxxxx I/O code from lpc2isp version 1.79.
+  * Updated LPCxxxx I/O code from lpc21isp version 1.79.
 
   * Updated bankswitch autodetection code from Stella version 3.2.
 
