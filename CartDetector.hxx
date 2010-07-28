@@ -6,7 +6,7 @@
 //  H   H  A   A  R R    M   M  O   O  N  NN    Y
 //  H   H  A   A  R  R   M   M   OOO   N   N    Y
 //
-// Copyright (c) 2009 by Stephen Anthony <stephena@users.sourceforge.net>
+// Copyright (c) 2009-2010 by Stephen Anthony <stephena@users.sf.net>
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -68,14 +68,34 @@ class CartDetector
     static bool isProbablySC(const uInt8* image, uInt32 size);
 
     /**
-      Returns true if the image is probably a 3F bankswitching cartridge
+      Returns true if the image is probably a 0840 bankswitching cartridge
     */
-    static bool isProbably3F(const uInt8* image, uInt32 size);
+    static bool isProbably0840(const uInt8* image, uInt32 size);
 
     /**
       Returns true if the image is probably a 3E bankswitching cartridge
     */
     static bool isProbably3E(const uInt8* image, uInt32 size);
+
+    /**
+      Returns true if the image is probably a 3F bankswitching cartridge
+    */
+    static bool isProbably3F(const uInt8* image, uInt32 size);
+
+    /**
+      Returns true if the image is probably a 4A50 bankswitching cartridge
+    */
+    static bool isProbably4A50(const uInt8* image, uInt32 size);
+
+    /**
+      Returns true if the image is probably a CV bankswitching cartridge
+    */
+    static bool isProbablyCV(const uInt8* image, uInt32 size);
+
+    /**
+      Returns true if the image is probably a DPC+ bankswitching cartridge
+    */
+    static bool isProbablyDPCplus(const uInt8* image, uInt32 size);
 
     /**
       Returns true if the image is probably a E0 bankswitching cartridge
@@ -93,14 +113,14 @@ class CartDetector
     static bool isProbablyEF(const uInt8* image, uInt32 size);
 
     /**
-      Returns true if the image is probably a UA bankswitching cartridge
+      Returns true if the image is probably an F6 bankswitching cartridge
     */
-    static bool isProbablyUA(const uInt8* image, uInt32 size);
+    static bool isProbablyF6(const uInt8* image, uInt32 size);
 
     /**
-      Returns true if the image is probably a 4A50 bankswitching cartridge
+      Returns true if the image is probably an FE bankswitching cartridge
     */
-    static bool isProbably4A50(const uInt8* image, uInt32 size);
+    static bool isProbablyFE(const uInt8* image, uInt32 size);
 
     /**
       Returns true if the image is probably a SB bankswitching cartridge
@@ -108,19 +128,9 @@ class CartDetector
     static bool isProbablySB(const uInt8* image, uInt32 size);
 
     /**
-      Returns true if the image is probably a 0840 bankswitching cartridge
+      Returns true if the image is probably a UA bankswitching cartridge
     */
-    static bool isProbably0840(const uInt8* image, uInt32 size);
-
-    /**
-      Returns true if the image is probably a CV bankswitching cartridge
-    */
-    static bool isProbablyCV(const uInt8* image, uInt32 size);
-
-    /**
-      Returns true if the image is probably an FE bankswitching cartridge
-    */
-    static bool isProbablyFE(const uInt8* image, uInt32 size);
+    static bool isProbablyUA(const uInt8* image, uInt32 size);
 
     /**
       Returns true if the image is probably an X07 bankswitching cartridge

@@ -1,4 +1,4 @@
-This is release 1.1 of HarmonyCart.  HarmonyCart is a cross-platform
+This is release 1.2 of HarmonyCart.  HarmonyCart is a cross-platform
 application used to program the Harmony Cartridge for Linux/UNIX, OSX and
 Windows systems.  Both GUI and commandline usage is supported.
 
@@ -10,4 +10,4 @@ visit the HarmonyCart Website at:
 Enjoy,
 
 Stephen Anthony
-Dec. 11, 2009
+Aug. xx, 2009

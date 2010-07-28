@@ -4,7 +4,7 @@
 # usage:
 #    Create_build.sh <version>
 #
-# The result will be a file called ~/Desktop/HarmonyCartOSX<ver>.dmg
+# The result will be a file called ~/Desktop/HarmonyCart-<ver>-macosx.dmg
 
 if [ $# != 1 ]; then
 	echo "usage: Create_build.sh version"
@@ -12,8 +12,8 @@ if [ $# != 1 ]; then
 fi
 
 VER="$1"
-DMG="HarmonyCartOSX${VER}.dmg"
-DISK="/Volumes/HarmonyCartOSX"
+DMG="HarmonyCart-${VER}-macosx.dmg"
+DISK="/Volumes/HarmonyCart"
 
 echo "Creating ${DMG} file ..."
 gunzip -c template.dmg.gz > ${DMG}
