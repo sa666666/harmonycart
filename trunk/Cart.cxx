@@ -108,7 +108,6 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
 {
   string result = "";
   bool autodetect = type == BS_AUTO;
-
   uInt32 romsize = 0, armsize = 0, size = 0;
   uInt8 *rombuf = NULL, *armbuf = NULL;
   uInt8 binary[512*1024], *binary_ptr = binary;
@@ -158,6 +157,10 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
     case BS_DPC:
       armfile = "DPC.arm";
       break;
+    case BS_DPCP:
+      // ARM file not required if size is already 32KB
+      armfile = romsize == 32768 ? "" : "DPC+.arm";
+      break;
     case BS_E0:
       armfile = "E0.arm";
       break;
@@ -206,12 +209,15 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
   // It seems that '/' is used even on Windows, but all separators must be converted
   // to '\' before passing it to C++ streams
   // Damn Windows for being the only OS that uses '\'
-  armfile = QDir(QString(armpath.c_str()) + "/" + QString(armfile.c_str())).canonicalPath().toStdString();
-  armbuf = readFile(armfile, armsize);
-  if(armsize == 0)
+  if(armfile != "")
   {
-    result = "Couldn't open bankswitch ARM file.";
-    goto cleanup;
+    armfile = QDir(QString(armpath.c_str()) + "/" + QString(armfile.c_str())).canonicalPath().toStdString();
+    armbuf = readFile(armfile, armsize);
+    if(armsize == 0)
+    {
+      result = "Couldn't open bankswitch ARM file.";
+      goto cleanup;
+    }
   }
 
   // Now we have to combine the rom and ARM code
@@ -234,8 +240,17 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
   {
     if(type == BS_F4)  // F4
     {
-      // Compress last bank
-      romsize = 28672 + compressLastBank(rombuf);
+      try
+      {
+        // Compress last bank
+        romsize = 28672 + compressLastBank(rombuf);
+      }
+      catch(const char* msg)
+      {
+        result = msg;
+        *myLog << "ERROR: " << result << endl;
+        goto cleanup;
+      }
     }
     else if(type == BS_4K && romsize < 4096)  // 2K & 'Sub2K'
     {
@@ -271,7 +286,7 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
       else  // size is multiple of 8448
       {
         // To save space, we skip 2K in each Supercharger load
-        uInt32 numLoads = romsize/8448;
+        uInt32 numLoads = romsize / 8448;
         uInt8* tmp = new uInt8[numLoads*(6144+256)];
         uInt8 *tmp_ptr = tmp, *rom_ptr = rombuf;
         for(uInt32 i = 0; i < numLoads; ++i, tmp_ptr += 6144+256, rom_ptr += 8448)
@@ -446,7 +461,11 @@ uInt32 Cart::compressLastBank(uInt8* binary)
     {bc[cb++]=b;for(a=0;a<b;++a) bc[cb++]=bufliteral[a];b=0;}
 
   if (cb>3424) // subject to change...
-    {fprintf(stderr,"Unable to compress: file is %d bytes\n",cb+28672);exit(2);}
+  {
+    char buf[100];
+    sprintf(buf, "Unable to compress: file is %d bytes", cb+28672);
+    throw buf;
+  }
 
   // decompression test
   for (a=0;a<4096;++a)
@@ -475,11 +494,17 @@ uInt32 Cart::compressLastBank(uInt8* binary)
     if(dec[a] != buflast[a])
       break;
 
-  if (a < 4096)
-    {fprintf(stderr,"Unknown compression error\n");exit(3);}
-  else
+  if (a >= 4096)
+  {
     for (a = 0; a < cb; ++a)
       binary[28672+a] = bc[a];
+  }
+  else
+  {
+    char buf[100];
+    sprintf(buf, "Unknown compression error");
+    throw buf;
+  }
 
   return cb;
 }

@@ -417,7 +417,7 @@ void HarmonyCartWindow::slotDownloadROM()
 
   if(myManager.openCartPort())
   {
-    QRegExp regex("([a-zA-Z0-9]*)");
+    QRegExp regex("([a-zA-Z0-9+]*)");
     regex.indexIn(ui->romBSType->currentText());
     QString t = regex.cap();
     BSType type = Bankswitch::nameToType(regex.cap().toStdString());
@@ -502,7 +502,8 @@ void HarmonyCartWindow::slotAbout()
         << "<ul>"
         << "<li>Added support for LPC17xx chip in A7800 version of Harmony cartridge.</li>"
         << "<li>Updated lpc21isp code to version 1.79.</li>"
-        << "<li>Updated bankswitch autodetection code to latest from Stella 3.2.</li>"
+        << "<li>Added support for 32KB DPC+ ROMs.</li>"
+        << "<li>Updated bankswitch autodetection code to latest from Stella 3.7.4.</li>"
         << "</ul>"
         << "<p>Release 1.1 changes:</p>"
         << "<ul>"
