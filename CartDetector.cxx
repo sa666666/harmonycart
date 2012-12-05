@@ -291,9 +291,25 @@ bool CartDetector::isProbably4A50(const uInt8* image, uInt32 size)
   // 4A50 carts store address $4A50 at the NMI vector, which
   // in this scheme is always in the last page of ROM at
   // $1FFA - $1FFB (at least this is true in rev 1 of the format)
-  int idx = size - 6;  // $1FFA
-  return (image[idx] == 0x50 && image[idx+1] == 0x4A);
+  if(image[size-6] == 0x50 && image[size-5] == 0x4A)
+    return true;
+
+  // Program starts at $1Fxx with NOP $6Exx or NOP $6Fxx?
+  if(((image[0xfffd] & 0x1f) == 0x1f) &&
+      (image[image[0xfffd] * 256 + image[0xfffc]] == 0x0c) &&
+      ((image[image[0xfffd] * 256 + image[0xfffc] + 2] & 0xfe) == 0x6e))
+    return true;
+
+  return false;
 }
+
+#if 0
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+bool CartDetector::isProbablyCTY(const uInt8* image, uInt32 size)
+{
+  return false;  // TODO - add autodetection
+}
+#endif
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 bool CartDetector::isProbablyCV(const uInt8* image, uInt32 size)
@@ -301,8 +317,8 @@ bool CartDetector::isProbablyCV(const uInt8* image, uInt32 size)
   // CV RAM access occurs at addresses $f3ff and $f400
   // These signatures are attributed to the MESS project
   uInt8 signature[2][3] = {
-    { 0x9D, 0xFF, 0xF3 },  // STA $F3FF
-    { 0x99, 0x00, 0xF4 }   // STA $F400
+    { 0x9D, 0xFF, 0xF3 },  // STA $F3FF.X
+    { 0x99, 0x00, 0xF4 }   // STA $F400.Y
   };
   if(searchForBytes(image, size, signature[0], 3, 1))
     return true;
@@ -375,14 +391,17 @@ bool CartDetector::isProbablyEF(const uInt8* image, uInt32 size)
   // EF cart bankswitching switches banks by accessing addresses 0xFE0
   // to 0xFEF, usually with either a NOP or LDA
   // It's likely that the code will switch to bank 0, so that's what is tested
-  uInt8 signature[2][3] = {
+  uInt8 signature[4][3] = {
     { 0x0C, 0xE0, 0xFF },  // NOP $FFE0
-    { 0xAD, 0xE0, 0xFF }   // LDA $FFE0
+    { 0xAD, 0xE0, 0xFF },  // LDA $FFE0
+    { 0x0C, 0xE0, 0x1F },  // NOP $1FE0
+    { 0xAD, 0xE0, 0x1F }   // LDA $1FE0
   };
-  if(searchForBytes(image, size, signature[0], 3, 1))
-    return true;
-  else
-    return searchForBytes(image, size, signature[1], 3, 1);
+  for(uInt32 i = 0; i < 4; ++i)
+    if(searchForBytes(image, size, signature[i], 3, 1))
+      return true;
+
+  return false;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
