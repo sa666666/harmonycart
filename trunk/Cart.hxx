@@ -74,9 +74,9 @@ class Cart
     void setRetry(int retry) { myRetry = retry + 1; }
 
   private:
-    enum TARGET           { PHILIPS_ARM, ANALOG_DEVICES_ARM };
-    enum TARGET_MODE      { PROGRAM_MODE, RUN_MODE          };
-    enum FILE_FORMAT_TYPE { FORMAT_BINARY, FORMAT_HEX       };
+    enum TARGET           { NXP_ARM, ANALOG_DEVICES_ARM };
+    enum TARGET_MODE      { PROGRAM_MODE, RUN_MODE      };
+    enum FILE_FORMAT_TYPE { FORMAT_BINARY, FORMAT_HEX   };
 
     /**
       Read data from given file and return it in a buffer, along
@@ -107,9 +107,9 @@ class Cart
       for more detailed commments.  All such functions are named starting
       with 'lpc_'.
     */
-    string lpc_PhilipsChipVersion(SerialPort& port);
-    string lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
-                               bool verify = false, QProgressDialog* progress = 0);
+    string lpc_NxpChipVersion(SerialPort& port);
+    string lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
+                           bool verify = false, QProgressDialog* progress = 0);
     uInt32 lpc_ReturnValueLpcRamStart();
     uInt32 lpc_ReturnValueLpcRamBase();
 
@@ -181,13 +181,13 @@ class Cart
 
     enum {
       USER_ABORT_SYNC    = 0x100A,   /* User aborted synchronisation process */
-      UNLOCK_ERROR       = 0x1100,   /* return value is 0x1100 + philips ISP returned value (0 to 255) */
-      WRONG_ANSWER_PREP  = 0x1200,   /* return value is 0x1200 + philips ISP returned value (0 to 255) */
-      WRONG_ANSWER_ERAS  = 0x1300,   /* return value is 0x1300 + philips ISP returned value (0 to 255) */
-      WRONG_ANSWER_WRIT  = 0x1400,   /* return value is 0x1400 + philips ISP returned value (0 to 255) */
-      WRONG_ANSWER_PREP2 = 0x1500,   /* return value is 0x1500 + philips ISP returned value (0 to 255) */
-      WRONG_ANSWER_COPY  = 0x1600,   /* return value is 0x1600 + philips ISP returned value (0 to 255) */
-      FAILED_RUN         = 0x1700    /* return value is 0x1700 + philips ISP returned value (0 to 255) */
+      UNLOCK_ERROR       = 0x1100,   /* return value is 0x1100 + NXP ISP returned value (0 to 255) */
+      WRONG_ANSWER_PREP  = 0x1200,   /* return value is 0x1200 + NXP ISP returned value (0 to 255) */
+      WRONG_ANSWER_ERAS  = 0x1300,   /* return value is 0x1300 + NXP ISP returned value (0 to 255) */
+      WRONG_ANSWER_WRIT  = 0x1400,   /* return value is 0x1400 + NXP ISP returned value (0 to 255) */
+      WRONG_ANSWER_PREP2 = 0x1500,   /* return value is 0x1500 + NXP ISP returned value (0 to 255) */
+      WRONG_ANSWER_COPY  = 0x1600,   /* return value is 0x1600 + NXP ISP returned value (0 to 255) */
+      FAILED_RUN         = 0x1700    /* return value is 0x1700 + NXP ISP returned value (0 to 255) */
     };
 
     /* LPC_FLASHMASK
@@ -200,9 +200,11 @@ class Cart
      */
     enum { LPC_FLASHMASK =  0xFFC00000 /* 22 bits = 4 MB */ };
 
-    enum CHIP_VARIANT { CHIP_VARIANT_LPC2XXX, CHIP_VARIANT_LPC17XX,
-                        CHIP_VARIANT_LPC13XX, CHIP_VARIANT_LPC11XX,
-                        CHIP_VARIANT_UNKNOWN };
+    enum CHIP_VARIANT {
+      CHIP_VARIANT_NONE,
+      CHIP_VARIANT_LPC2XXX, CHIP_VARIANT_LPC17XX,
+      CHIP_VARIANT_LPC13XX, CHIP_VARIANT_LPC11XX
+    };
 
     struct LPC_DEVICE_TYPE {
       const uInt32 id;
@@ -226,7 +228,7 @@ class Cart
     // Used for LPC17xx devices
     static const uInt32 SectorTable_17xx[30];
     static uInt32 SectorTable_RAM[1];
-    static LPC_DEVICE_TYPE LPCtypes[66];
+    static LPC_DEVICE_TYPE LPCtypes[101];
 
     static uInt8 ourARHeader[256];
 };

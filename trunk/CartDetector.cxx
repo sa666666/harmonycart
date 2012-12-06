@@ -303,14 +303,6 @@ bool CartDetector::isProbably4A50(const uInt8* image, uInt32 size)
   return false;
 }
 
-#if 0
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool CartDetector::isProbablyCTY(const uInt8* image, uInt32 size)
-{
-  return false;  // TODO - add autodetection
-}
-#endif
-
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 bool CartDetector::isProbablyCV(const uInt8* image, uInt32 size)
 {

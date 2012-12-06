@@ -76,9 +76,7 @@ void SerialPortManager::connectHarmonyCart(Cart& cart)
     for(uInt32 i = 0; i < ports.size(); ++i)
     {
       if(detect(ports[i], cart))
-      {
         break;
-      }
     }
   }
 }
