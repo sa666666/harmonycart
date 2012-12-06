@@ -9,5 +9,5 @@ visit the HarmonyCart Website at:
 
 Enjoy,
 
-Stephen Anthony
-Aug. xx, 2009
+Stephen Anthony (stephena@users.sf.net)
+December 2012
