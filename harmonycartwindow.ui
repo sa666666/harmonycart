@@ -114,6 +114,11 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
               <property name="text">
                <string>EEPROM:</string>
               </property>
@@ -258,7 +263,7 @@ EEPROM</string>
               </property>
               <property name="font">
                <font>
-                <pointsize>10</pointsize>
+                <pointsize>9</pointsize>
                </font>
               </property>
               <property name="text">
@@ -309,7 +314,7 @@ EEPROM</string>
               </property>
               <property name="font">
                <font>
-                <pointsize>10</pointsize>
+                <pointsize>9</pointsize>
                </font>
               </property>
               <property name="text">
@@ -499,7 +504,7 @@ HBIOS</string>
              <widget class="QLabel" name="label_3">
               <property name="font">
                <font>
-                <pointsize>10</pointsize>
+                <pointsize>9</pointsize>
                 <kerning>false</kerning>
                </font>
               </property>
@@ -512,7 +517,7 @@ HBIOS</string>
              <widget class="QLabel" name="label_4">
               <property name="font">
                <font>
-                <pointsize>10</pointsize>
+                <pointsize>9</pointsize>
                </font>
               </property>
               <property name="text">
@@ -524,7 +529,7 @@ HBIOS</string>
              <widget class="QLabel" name="label_5">
               <property name="font">
                <font>
-                <pointsize>10</pointsize>
+                <pointsize>9</pointsize>
                </font>
               </property>
               <property name="text">
@@ -610,7 +615,7 @@ HBIOS</string>
                 </property>
                 <property name="font">
                  <font>
-                  <pointsize>10</pointsize>
+                  <pointsize>9</pointsize>
                  </font>
                 </property>
                 <property name="text">
