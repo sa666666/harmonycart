@@ -3,14 +3,14 @@
 
 [Setup]
 AppName=HarmonyCart
-AppVerName=HarmonyCart 1.1
+AppVerName=HarmonyCart 1.2
 AppPublisher=Stephen Anthony
 AppPublisherURL=http://harmony.atariage.com
 AppSupportURL=http://harmony.atariage.com
 AppUpdatesURL=http://harmony.atariage.com
 DefaultDirName={pf}\HarmonyCart
 DefaultGroupName=HarmonyCart
-OutputBaseFilename="HarmonyCart-1.1-win32"
+OutputBaseFilename="HarmonyCart-1.2-win32"
 Compression=lzma
 SolidCompression=yes
 
@@ -22,7 +22,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 Source: "..\Release\HarmonyCart.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "*.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\Release\*.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\arm\*"; DestDir: "{app}\arm"; Flags: ignoreversion
 Source: "..\*.txt"; DestDir: "{app}\docs"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
@@ -32,4 +32,3 @@ Name: "{group}\HarmonyCart"; Filename: "{app}\HarmonyCart.exe"; WorkingDir: "{ap
 Name: "{userdesktop}\HarmonyCart"; Filename: "{app}\HarmonyCart.exe"; WorkingDir: "{app}"; Tasks: desktopicon
 ;Name: "{group}\Documentation"; Filename: "{app}\docs\index.html"
 Name: "{group}\Uninstall HarmonyCart"; Filename: "{uninstallexe}"
-
