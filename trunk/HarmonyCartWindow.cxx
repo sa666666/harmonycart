@@ -175,14 +175,20 @@ void HarmonyCartWindow::readSettings()
   s.beginGroup("MainWindow");
     myManager.setDefaultPort(s.value("harmonyport", "").toString().toStdString());
     int retrycount = s.value("retrycount", 0).toInt();
-    if(retrycount < 0 || retrycount > 3)  retrycount = 0;
-    if(retrycount == 0)       ui->actRetry0->setChecked(true);
-    else if(retrycount == 1)  ui->actRetry1->setChecked(true);
-    else if(retrycount == 2)  ui->actRetry2->setChecked(true);
-    else if(retrycount == 3)  ui->actRetry3->setChecked(true);
+    switch(retrycount)
+    {
+      case 1:  ui->actRetry1->setChecked(true);  break;
+      case 2:  ui->actRetry2->setChecked(true);  break;
+      case 3:  ui->actRetry3->setChecked(true);  break;
+      case 0:
+      default: ui->actRetry0->setChecked(true);  break;
+    }
     ui->actShowLogAfterDownload->setChecked(s.value("showlog", false).toBool());
     ui->actAutoDownFileSelect->setChecked(s.value("autodownload", false).toBool());
     ui->actAutoVerifyDownload->setChecked(s.value("autoverify", false).toBool());
+    int activetab = s.value("activetab", 0).toInt();
+    if(activetab < 0 || activetab > 1)  activetab = 0;
+    ui->tabWidget->setCurrentIndex(activetab);
   s.endGroup();
 
   slotShowLog(ui->actShowLogAfterDownload->isChecked());
@@ -239,6 +245,7 @@ void HarmonyCartWindow::closeEvent(QCloseEvent* event)
     s.setValue("autodownload", ui->actAutoDownFileSelect->isChecked());
     s.setValue("autoverify", ui->actAutoVerifyDownload->isChecked());
     s.setValue("showlog", ui->actShowLogAfterDownload->isChecked());
+    s.setValue("activetab", ui->tabWidget->currentIndex());
   s.endGroup();
 
   s.beginGroup("Paths");
@@ -498,15 +505,17 @@ void HarmonyCartWindow::slotAbout()
         << "<li><a href=\"http://krokcom.sf.net\">KrokCom</a>: UI code, icons and other images</li>"
         << "<li><a href=\"http://stella.sf.net\">Stella</a>: bankswitch autodetection code</li>"
         << "</ul></p>"
-        << "<p>Release 1.2 changes:</p>"
+        << "<p>Version 1.2 (December 2012):</p>"
         << "<ul>"
         << "<li>Updated lpc21isp code to version 1.83 (supports latest LPCxxxx chips).</li>"
         << "<li>Updated HBIOS and ARM files to latest version (1.05).</li>"
-        << "<li>Added support for 32KB DPC+ ROMs with the ARM code already embedded.</li>"
-        << "<li>Fixed crash when an F4 ROM couldn't be compressed; an error message is now shown.</li>"
+        << "<li>Added support for 32KB 'DPC+' ROMs with the ARM code already embedded.</li>"
+        << "<li>Fixed crash when an 'F4' ROM couldn't be compressed; an error message is now shown.</li>"
+        << "<li>Fixed bugs in user interface (cut off text, etc).</li>"
+        << "<li>The previously selected tab (BIOS or Development) is now used when the app starts.</li>"
         << "<li>Updated bankswitch autodetection code to latest from Stella 3.7.4.</li>"
         << "</ul>"
-        << "<p>Release 1.1 changes:</p>"
+        << "<p>Version 1.1 (December 2009):</p>"
         << "<ul>"
         << "<li>Added logging of download progress.  When activated, a dialog will "
         << "appear after the download has completed, outlining what operations "
@@ -533,6 +542,10 @@ void HarmonyCartWindow::slotAbout()
         << "<li>Added support for OSX Snow Leopard.</li>"
         << "<li>Updated HBIOS and ARM files to latest version (1.03c).</li>"
         << "<li>Updated PAL50 version of eeloader.bin for better compatibility with A7800 PAL systems.</li>"
+        << "</ul>"
+        << "<p>Version 1.0 (October 2009):</p>"
+        << "<ul>"
+        << "<li>Initial release."
         << "</ul>"
         ;
 
