@@ -10,14 +10,24 @@
                              Release History
 ===========================================================================
 
-1.2: (Aug. xx, 2010)
+1.2: (Dec. 7, 2012)
 
-  * Added support for LPC17xx chip used in the A7800 version of the
-    Harmony cartridge.
+  * Updated lpc21isp code to version 1.83 (supports latest LPCxxxx chips).
 
-  * Updated LPCxxxx I/O code from lpc21isp version 1.79.
+  * Updated HBIOS and ARM files to latest version (1.05).
 
-  * Updated bankswitch autodetection code from Stella version 3.2.
+  * Added support for 32KB 'DPC+' ROMs with the ARM code already embedded.
+
+  * Fixed crash when an 'F4' ROM couldn't be compressed; an error message
+    is now shown.
+
+  * Fixed bugs in user interface (cut off text, progress bar not always
+    appearing, etc).
+
+  * The previously selected tab (BIOS or Development) is now used when the
+    app starts.
+
+  * Updated bankswitch autodetection code to latest from Stella 3.7.4.
 
 -Have fun!
 

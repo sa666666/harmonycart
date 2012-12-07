@@ -16,17 +16,22 @@ DMG="HarmonyCart-${VER}-macosx.dmg"
 DISK="/Volumes/HarmonyCart"
 DEST=~/Desktop/${DMG}
 
+if [ -d "${DISK}" ]; then
+    echo "Volume already mounted, unmount before proceeding ..."
+    exit 0
+fi
+
 echo "Creating ${DMG} file ..."
 gunzip -c template.dmg.gz > "${DMG}"
 
 echo "Mounting ${DMG} file ..."
 hdiutil attach "${DMG}"
 
-echo "Adding Qt framework ..."
-macdeployqt ../HarmonyCart.app/ -no-plugins
-
 echo "Copying documentation ..."
 ditto ../Announce.txt ../Changes.txt ../Copyright.txt ../License.txt ../Readme.txt "${DISK}"
+
+echo "Adding Qt framework ..."
+macdeployqt ../HarmonyCart.app/ -no-plugins
 
 echo "Copying application and 'arm' files ..."
 cp -r ../HarmonyCart.app "${DISK}"
@@ -37,7 +42,7 @@ hdiutil eject "${DISK}"
 
 if [ -f "${DEST}" ]; then
 	echo "Removing duplicate image found on desktop ..."
-  rm -f "${DEST}"
+    rm -f "${DEST}"
 fi
 
 echo "Compressing image, moving to Desktop ..."
