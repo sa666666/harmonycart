@@ -15,7 +15,6 @@
 //=========================================================================
 
 #include <QApplication>
-#include <QProgressDialog>
 #include <QPixmap>
 #include <QIcon>
 #include <QString>
@@ -40,6 +39,8 @@ Cart::Cart()
     myOscillator("10000"),
     myLog(&cout)
 {
+  myProgress.setWindowModality(Qt::WindowModal);
+  myProgress.setWindowIcon(QPixmap(":icons/pics/appicon.png"));
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -80,20 +81,7 @@ string Cart::downloadBIOS(SerialPort& port, const string& filename,
   uInt32 size = 0;
   uInt8* bios = readFile(filename, size);
   if(size > 0)
-  {
-    if(showprogress)
-    {
-      // Actually write the data to the cart/serial port, and
-      // use a progressbar to show progress
-      QProgressDialog progress;
-      progress.setWindowTitle("Updating BIOS");
-      progress.setWindowModality(Qt::WindowModal);
-      progress.setWindowIcon(QPixmap(":icons/pics/appicon.png"));
-      result = lpc_NxpDownload(port, bios, size, verify, &progress);
-    }
-    else
-      result = lpc_NxpDownload(port, bios, size, verify);
-  }
+    result = lpc_NxpDownload(port, bios, size, verify, showprogress);
   else
     result = "Couldn't open BIOS file";
 
@@ -112,7 +100,6 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
   uInt8 *rombuf = NULL, *armbuf = NULL;
   uInt8 binary[512*1024], *binary_ptr = binary;
   string armfile = "";
-  QProgressDialog progress;
 
   // Read the ROM file into a buffer
   rombuf = readFile(filename, romsize);
@@ -313,17 +300,7 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
     size = romsize + armsize;
   }
 
-  if(showprogress)
-  {
-    // Actually write the data to the cart/serial port, and
-    // use a progressbar to show progress
-    progress.setWindowTitle("Updating ROM");
-    progress.setWindowModality(Qt::WindowModal);
-    progress.setWindowIcon(QPixmap(":icons/pics/appicon.png"));
-    result = lpc_NxpDownload(port, binary, size, verify, &progress);
-  }
-  else
-    result = lpc_NxpDownload(port, binary, size, verify);
+  result = lpc_NxpDownload(port, binary, size, verify, showprogress);
 
 cleanup:
   delete[] rombuf;
@@ -510,6 +487,34 @@ uInt32 Cart::compressLastBank(uInt8* binary)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+void Cart::initializeProgress(const QString& title, int minimum, int maximum)
+{
+  myProgress.setWindowTitle(title);
+  myProgress.setRange(minimum, maximum);
+  myProgress.setMinimumDuration(0);
+  myProgress.setValue(0);
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+void Cart::updateProgressText(const QString& text)
+{
+  myProgress.setLabelText(text);
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+bool Cart::updateProgressValue(int step)
+{
+  myProgress.setValue(step);
+  return !myProgress.wasCanceled();
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+void Cart::finalizeProgress()
+{
+  myProgress.setValue(myProgress.maximum());
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 string Cart::lpc_NxpChipVersion(SerialPort& port)
 {
   int found, i;
@@ -616,7 +621,7 @@ string Cart::lpc_NxpChipVersion(SerialPort& port)
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
-                             bool verify, QProgressDialog* progress)
+                             bool verify, bool showprogress)
 {
   char Answer[128], ExpectedAnswer[128], temp[128];
   char *strippedAnswer, *endPtr;
@@ -671,12 +676,9 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
   }
   uInt8* binaryContent = new uInt8[BinaryLength];
   memcpy(binaryContent, data, size);
-  uInt32 progressStep = 0, progressSize = BinaryLength/45 + 20;
-  if(progress)
-  {
-    progress->setMinimumDuration(0);
-    progress->setRange(0, progressSize);
-  }
+  uInt32 progressStep = 0;
+  if(showprogress)
+    initializeProgress("Updating Flash", 0, BinaryLength/45 + 20);
 
   if(LPCtypes[myDetectedDevice].ChipVariant == CHIP_VARIANT_LPC2XXX)
   {
@@ -905,8 +907,8 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
     }
 
     *myLog << "Sector " << Sector << flush;
-    if(progress)
-      progress->setLabelText("Downloading sector " + QString::number(Sector) + " ...                  ");
+    if(showprogress)
+      updateProgressText("Downloading sector " + QString::number(Sector) + " ...                  ");
 
     if (BinaryOffset < lpc_ReturnValueLpcRamStart()) // Skip Erase when running from RAM
     {
@@ -979,10 +981,9 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
           *myLog << "." << flush;
 
           // Inform the calling application about having written another chuck of data
-          if(progress)
+          if(showprogress)
           {
-            progress->setValue(++progressStep);
-            if(progress->wasCanceled())
+            if(!updateProgressValue(++progressStep))
             {
               result << "Cancelled download";
               goto cleanup;
@@ -1204,8 +1205,8 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
 
 cleanup:
   delete[] binaryContent;  binaryContent = NULL;
-  if(progress)
-    progress->setValue(progressSize);
+  if(showprogress)
+    finalizeProgress();
 
   *myLog << result.str() << endl;
   return result.str();
