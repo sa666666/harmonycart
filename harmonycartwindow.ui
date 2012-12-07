@@ -2,14 +2,6 @@
 <ui version="4.0">
  <class>HarmonyCartWindow</class>
  <widget class="QMainWindow" name="HarmonyCartWindow">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>731</width>
-    <height>464</height>
-   </rect>
-  </property>
   <property name="sizePolicy">
    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
     <horstretch>0</horstretch>
@@ -90,13 +82,8 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-               </font>
-              </property>
               <property name="text">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:large; font-weight:600;&quot;&gt;Step 1: &lt;/span&gt;Select the location of the EEPROM loader image (usually eeloader.bin) and download it to the Harmony Cart.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               <string>&lt;font size=&quot;+1&quot;&gt;&lt;b&gt;Step 1: &lt;/b&gt;&lt;/font&gt;Select the location of the EEPROM loader image (usually eeloader.bin) and download it to the Harmony Cart.</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -113,11 +100,6 @@
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
-              </property>
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-               </font>
               </property>
               <property name="text">
                <string>EEPROM:</string>
@@ -176,11 +158,6 @@
               <height>95</height>
              </size>
             </property>
-            <property name="font">
-             <font>
-              <pointsize>10</pointsize>
-             </font>
-            </property>
             <property name="toolTip">
              <string>Download the currently selected EEPROM
 loader image to the Harmony Cart.</string>
@@ -237,11 +214,6 @@ EEPROM</string>
                 <height>0</height>
                </size>
               </property>
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-               </font>
-              </property>
               <property name="text">
                <string>&lt;font size=&quot;+1&quot;&gt;&lt;b&gt;Step 2: &lt;/b&gt;&lt;/font&gt;Select the location of the Multicart BIOS image (hbios.bin), as well as the drive letter/mount point/volume name of your SD card, and click Copy.</string>
               </property>
@@ -260,11 +232,6 @@ EEPROM</string>
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
-              </property>
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-               </font>
               </property>
               <property name="text">
                <string>HBIOS: </string>
@@ -311,11 +278,6 @@ EEPROM</string>
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
-              </property>
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-               </font>
               </property>
               <property name="text">
                <string>SD Card:</string>
@@ -371,11 +333,6 @@ EEPROM</string>
               <height>95</height>
              </size>
             </property>
-            <property name="font">
-             <font>
-              <pointsize>10</pointsize>
-             </font>
-            </property>
             <property name="toolTip">
              <string>Copy the currently selected HBIOS
 image to your SD card.</string>
@@ -427,11 +384,6 @@ HBIOS</string>
               <height>0</height>
              </size>
             </property>
-            <property name="font">
-             <font>
-              <pointsize>9</pointsize>
-             </font>
-            </property>
             <property name="text">
              <string>&lt;font size=&quot;+1&quot;&gt;&lt;b&gt;Step 3: &lt;/b&gt;&lt;/font&gt;Safely eject the SD card from your PC, then place the SD card back into the Harmony Cart and power it up in your console to complete the updating process.</string>
             </property>
@@ -478,11 +430,6 @@ HBIOS</string>
           </item>
           <item>
            <widget class="QLabel" name="label_2">
-            <property name="font">
-             <font>
-              <pointsize>9</pointsize>
-             </font>
-            </property>
             <property name="text">
              <string>Select ROM file and bankswitching type, the click on the Download button to send the ROM to the Harmony Cartridge.  Note that this will disable mult-cart capability.</string>
             </property>
@@ -502,12 +449,6 @@ HBIOS</string>
            <layout class="QVBoxLayout" name="verticalLayout">
             <item>
              <widget class="QLabel" name="label_3">
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-                <kerning>false</kerning>
-               </font>
-              </property>
               <property name="text">
                <string>ROM File:</string>
               </property>
@@ -515,11 +456,6 @@ HBIOS</string>
             </item>
             <item>
              <widget class="QLabel" name="label_4">
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-               </font>
-              </property>
               <property name="text">
                <string>ROM Size:</string>
               </property>
@@ -527,11 +463,6 @@ HBIOS</string>
             </item>
             <item>
              <widget class="QLabel" name="label_5">
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-               </font>
-              </property>
               <property name="text">
                <string>ARM Dir:</string>
               </property>
@@ -613,11 +544,6 @@ HBIOS</string>
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
-                <property name="font">
-                 <font>
-                  <pointsize>9</pointsize>
-                 </font>
-                </property>
                 <property name="text">
                  <string>Bankswitching:</string>
                 </property>
@@ -639,11 +565,6 @@ HBIOS</string>
                   <width>300</width>
                   <height>0</height>
                  </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>10</pointsize>
-                 </font>
                 </property>
                 <property name="toolTip">
                  <string>Override the bankswitching scheme
@@ -850,11 +771,6 @@ for single-load ROM images.</string>
                   <height>0</height>
                  </size>
                 </property>
-                <property name="font">
-                 <font>
-                  <pointsize>10</pointsize>
-                 </font>
-                </property>
                 <property name="toolTip">
                  <string>Download the currently selected ROM
 image to the Harmony Cart.</string>
@@ -877,11 +793,6 @@ image to the Harmony Cart.</string>
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>10</pointsize>
-           </font>
           </property>
           <property name="title">
            <string>Quick Pick</string>
@@ -1182,14 +1093,6 @@ Left-click to use the chosen ROM.</string>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>731</width>
-     <height>30</height>
-    </rect>
-   </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>File</string>

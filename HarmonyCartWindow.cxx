@@ -51,6 +51,12 @@ HarmonyCartWindow::HarmonyCartWindow(QWidget* parent)
   // Create GUI
   ui->setupUi(this);
 
+  // Fix BIOS and HBIOS buttons; make sure they're the same size
+  int w = BSPF_max(ui->updateBIOSButton->width(), ui->copyHBIOSButton->width());
+  int h = BSPF_max(ui->updateBIOSButton->height(), ui->copyHBIOSButton->height());
+  ui->updateBIOSButton->setFixedSize(w, h);
+  ui->copyHBIOSButton->setFixedSize(w, h);
+
   // Create thread to find Harmony cart
   // We use a thread so the UI isn't blocked
   myFindHarmonyThread = new FindHarmonyThread(myManager, myCart);
