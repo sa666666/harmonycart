@@ -19,7 +19,7 @@
 
 #define MAXCARTSIZE 32*1024
 
-class QProgressDialog;
+#include <QProgressDialog>
 
 #include <vector>
 
@@ -102,6 +102,22 @@ class Cart
     uInt32 compressLastBank(uInt8* binary);
 
     /**
+      Various methods to wrap a QProgressDialog, so that the underlying
+      NXP code doesn't have to know how the progress bar is implemented.
+      assumes a ROM size of 32K.
+
+      @param title    The title of the progress dialog window
+      @param minimum  The smallest value the progress bar will contain
+      @param maximum  The largest value the progress bar will contain
+      @param text     The prompt to print in the progress dialog window
+      @param step     The current value of the progress bar
+    */
+    void initializeProgress(const QString& title, int minimum, int maximum);
+    void updateProgressText(const QString& text);
+    bool updateProgressValue(int step);
+    void finalizeProgress();
+
+    /**
       The following functions originally come from the lpc21isp utilties,
       specifically lpc21isp.c and lpcprog.c.  See the functions themselves
       for more detailed commments.  All such functions are named starting
@@ -109,7 +125,7 @@ class Cart
     */
     string lpc_NxpChipVersion(SerialPort& port);
     string lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
-                           bool verify = false, QProgressDialog* progress = 0);
+                           bool verify = false, bool showprogress = false);
     uInt32 lpc_ReturnValueLpcRamStart();
     uInt32 lpc_ReturnValueLpcRamBase();
 
@@ -137,6 +153,8 @@ class Cart
     uInt32   myRetry;
     string   myOscillator;
     ostream* myLog;
+
+    QProgressDialog myProgress;
 
     /* LPC_RAMSTART, LPC_RAMBASE
      *
