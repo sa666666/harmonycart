@@ -511,7 +511,7 @@ void HarmonyCartWindow::slotAbout()
         << "<li>Updated HBIOS and ARM files to latest version (1.05).</li>"
         << "<li>Added support for 32KB 'DPC+' ROMs with the ARM code already embedded.</li>"
         << "<li>Fixed crash when an 'F4' ROM couldn't be compressed; an error message is now shown.</li>"
-        << "<li>Fixed bugs in user interface (cut off text, etc).</li>"
+        << "<li>Fixed bugs in user interface (cut off text, progress bar not always appearing, etc).</li>"
         << "<li>The previously selected tab (BIOS or Development) is now used when the app starts.</li>"
         << "<li>Updated bankswitch autodetection code to latest from Stella 3.7.4.</li>"
         << "</ul>"
