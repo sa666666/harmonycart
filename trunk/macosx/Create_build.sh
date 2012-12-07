@@ -27,11 +27,11 @@ gunzip -c template.dmg.gz > "${DMG}"
 echo "Mounting ${DMG} file ..."
 hdiutil attach "${DMG}"
 
+echo "Adding Qt framework ..."
+macdeployqt ../HarmonyCart.app/
+
 echo "Copying documentation ..."
 ditto ../Announce.txt ../Changes.txt ../Copyright.txt ../License.txt ../Readme.txt "${DISK}"
-
-echo "Adding Qt framework ..."
-macdeployqt ../HarmonyCart.app/ -no-plugins
 
 echo "Copying application and 'arm' files ..."
 cp -r ../HarmonyCart.app "${DISK}"
