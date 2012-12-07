@@ -64,7 +64,7 @@ string Cart::autodetectHarmony(SerialPort& port)
   string result = lpc_NxpChipVersion(port);
   if (strncmp(result.c_str(), "ERROR:", 6) == 0)
   {
-    *myLog << result << endl;
+    *myLog << result.c_str() << endl;
     return result;
   }
 
@@ -114,12 +114,12 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
     type = CartDetector::autodetectType(rombuf, romsize);
   if(autodetect || type == CartDetector::autodetectType(rombuf, romsize))
   {
-    *myLog << "Bankswitch type: " << Bankswitch::typeToName(type)
+    *myLog << "Bankswitch type: " << Bankswitch::typeToName(type).c_str()
           << " (auto-detected)" << endl;
   }
   else
   {
-    *myLog << "Bankswitch type: " << Bankswitch::typeToName(type)
+    *myLog << "Bankswitch type: " << Bankswitch::typeToName(type).c_str()
           << " (WARNING: overriding auto-detection)" << endl;
   }
 
@@ -186,7 +186,7 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
       break;
     default:
       result = "Bankswitch type \'" + Bankswitch::typeToName(type) + "\' not supported.";
-      *myLog << "ERROR: " << result << endl;
+      *myLog << "ERROR: " << result.c_str() << endl;
       goto cleanup;
       break;
   }
@@ -235,7 +235,7 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
       catch(const char* msg)
       {
         result = msg;
-        *myLog << "ERROR: " << result << endl;
+        *myLog << "ERROR: " << result.c_str() << endl;
         goto cleanup;
       }
     }
@@ -314,7 +314,7 @@ uInt8* Cart::readFile(const string& filename, uInt32& size)
   uInt8* buffer = (uInt8*) NULL;
   size = 0;
 
-  *myLog << "Reading from file: \'" << filename << "\' ... ";
+  *myLog << "Reading from file: \'" << filename.c_str() << "\' ... ";
 
   // Read file into buffer
   ifstream in(filename.c_str(), ios::binary);
@@ -1208,7 +1208,7 @@ cleanup:
   if(showprogress)
     finalizeProgress();
 
-  *myLog << result.str() << endl;
+  *myLog << result.str().c_str() << endl;
   return result.str();
 }
 
