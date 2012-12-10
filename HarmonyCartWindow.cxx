@@ -385,9 +385,7 @@ void HarmonyCartWindow::slotOpenROM()
   QString location = ui->romFileEdit->text() != "" ?
     QFileInfo(ui->romFileEdit->text()).absolutePath() :
     myLastDir.absolutePath();
-  QString file = QFileDialog::getOpenFileName(this,
-    tr("Select ROM Image"), location, tr("Atari 2600 ROM Image (*.a26 *.bin *.rom)"));
-
+  QString file = getOpenROMName(location);
   if(!file.isNull())
     loadROM(file);
 }
@@ -511,11 +509,13 @@ void HarmonyCartWindow::slotAbout()
         << "<li><a href=\"http://krokcom.sf.net\">KrokCom</a>: UI code, icons and other images</li>"
         << "<li><a href=\"http://stella.sf.net\">Stella</a>: bankswitch autodetection code</li>"
         << "</ul></p>"
-        << "<p>Version 1.2 (Dec. 7, 2012):</p>"
+        << "<p>Version 1.2 (Dec. 11, 2012):</p>"
         << "<ul>"
         << "<li>Updated lpc21isp code to version 1.83 (supports latest LPCxxxx chips).</li>"
         << "<li>Updated HBIOS and ARM files to latest version (1.05).</li>"
-        << "<li>Added support for 32KB 'DPC+' ROMs with the ARM code already embedded.</li>"
+        << "<li>Added support for Custom ROMs (such as 32KB 'DPC+') with the ARM code already embedded.</li>"
+        << "<li>The bankswitch autodetection now also uses the ROM filename extensions as defined in the "
+        << "Harmony manual; when present, these completely override the type of data in the ROM image.</li>"
         << "<li>Fixed crash when an 'F4' ROM couldn't be compressed; an error message is now shown.</li>"
         << "<li>Fixed bugs in user interface (cut off text, progress bar not always appearing, etc).</li>"
         << "<li>The previously selected tab (BIOS or Development) is now used when the app starts.</li>"
@@ -684,9 +684,7 @@ void HarmonyCartWindow::loadROM(const QString& filename)
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void HarmonyCartWindow::assignToQPButton(QPushButton* button, int id)
 {
-  QString file = QFileDialog::getOpenFileName(this,
-    tr("Select ROM Image"), myLastDir.absolutePath(), tr("Atari 2600 ROM Image (*.a26 *.bin *.rom)"));
-
+  QString file = getOpenROMName(myLastDir.absolutePath());
   if(!file.isNull())
   {
     assignToQPButton(button, id, file, true);
@@ -717,6 +715,19 @@ void HarmonyCartWindow::assignToQPButton(QPushButton* button, int id,
       s.setValue(key, info.canonicalFilePath());
     s.endGroup();
   }
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+QString HarmonyCartWindow::getOpenROMName(const QString& path)
+{
+  // What a whopper!
+  static QString filter = "Atari 2600 ROM Image (*.a26 *.bin *.rom *.2K *.4K *.F4 *.F4S *.F6 *.F6S *.F8 *.F8S *.FA *.FE *.3F *.3E *.E0 *.E7 *.CV *.UA *.AR *.DPC *.084 *.CU)";
+
+  QString file = QFileDialog::getOpenFileName(this,
+    tr("Select ROM Image"), path, tr(filter.toAscii()), 0,
+    QFileDialog::HideNameFilterDetails);
+
+  return file;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

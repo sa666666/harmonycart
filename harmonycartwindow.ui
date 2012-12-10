@@ -574,7 +574,7 @@ supported by the Harmony Cart.</string>
                 </property>
                 <item>
                  <property name="text">
-                  <string>None (Unknown)</string>
+                  <string>Custom (Unknown)</string>
                  </property>
                 </item>
                 <item>

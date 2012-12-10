@@ -30,9 +30,9 @@ enum BSType {
   BS_3E,   BS_3F,   BS_4A50, BS_4K,   BS_AR,    BS_CV,    BS_DPC,
   BS_DPCP, BS_E0,   BS_E7,   BS_EF,   BS_EFSC,  BS_F0,    BS_F4,
   BS_F4SC, BS_F6,   BS_F6SC, BS_F8,   BS_F8SC,  BS_FA,    BS_FE,
-  BS_MC,   BS_SB,   BS_UA,   BS_X07,
+  BS_MC,   BS_SB,   BS_UA,   BS_X07,  BS_CUSTOM,
 
-  BS_NONE, BS_AUTO
+  BS_AUTO
 };
 
 class Bankswitch
@@ -74,7 +74,7 @@ class Bankswitch
         case BS_SB:    return "SB";
         case BS_UA:    return "UA";
         case BS_X07:   return "X07";
-        case BS_NONE:  return "NONE/UNKNOWN";
+        case BS_CUSTOM:return "CUSTOM";
         case BS_AUTO:  return "AUTO";
       }
       return "NONE";
@@ -114,8 +114,8 @@ class Bankswitch
       else if(BSPF_equalsIgnoreCase(name, "SB"))    return BS_SB;
       else if(BSPF_equalsIgnoreCase(name, "UA"))    return BS_UA;
       else if(BSPF_equalsIgnoreCase(name, "X07"))   return BS_X07;
-      else if(BSPF_equalsIgnoreCase(name, "AUTO"))  return BS_AUTO;
-      else                                          return BS_NONE;
+      else if(BSPF_equalsIgnoreCase(name, "CUSTOM"))return BS_CUSTOM;
+      else                                          return BS_AUTO;
     }
 };
 

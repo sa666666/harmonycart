@@ -58,6 +58,7 @@ Q_OBJECT
     void loadROM(const QString& file);
     void assignToQPButton(QPushButton* button, int id);
     void assignToQPButton(QPushButton* button, int id, const QString& file, bool save);
+    QString getOpenROMName(const QString& path);
 
     void statusMessage(const QString& msg);
 

@@ -111,8 +111,8 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
 
   // Determine the bankswitch type
   if(autodetect)
-    type = CartDetector::autodetectType(rombuf, romsize);
-  if(autodetect || type == CartDetector::autodetectType(rombuf, romsize))
+    type = CartDetector::autodetectType(filename, rombuf, romsize);
+  if(autodetect || type == CartDetector::autodetectType(filename, rombuf, romsize))
   {
     *myLog << "Bankswitch type: " << Bankswitch::typeToName(type).c_str()
           << " (auto-detected)" << endl;
@@ -143,10 +143,6 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
       break;
     case BS_DPC:
       armfile = "DPC.arm";
-      break;
-    case BS_DPCP:
-      // ARM file not required if size is already 32KB
-      armfile = romsize == 32768 ? "" : "DPC+.arm";
       break;
     case BS_E0:
       armfile = "E0.arm";
@@ -183,6 +179,10 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
       break;
     case BS_UA:
       armfile = "UA.arm";
+      break;
+    case BS_DPCP:
+    case BS_CUSTOM:
+      // ARM file not required
       break;
     default:
       result = "Bankswitch type \'" + Bankswitch::typeToName(type) + "\' not supported.";

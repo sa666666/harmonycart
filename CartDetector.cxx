@@ -28,34 +28,71 @@
 #include "CartDetector.hxx"
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-BSType CartDetector::autodetectType(const string& rom)
+BSType CartDetector::autodetectType(const string& rom,
+                                    const uInt8* image, uInt32 size)
 {
-  BSType type = BS_NONE;
+  // First attempt to detect by filename extension
+  BSType type = autodetectTypeByExtension(rom);
+  if(type != BS_AUTO)
+    return type;
 
-  // Read file into buffer
-  ifstream in(rom.c_str(), ios::binary);
-  if(in)
+  // Then attempt to detect by actual ROM contents
+  if(!image || size == 0)
   {
-    // Figure out how much data we should read
-    in.seekg(0, ios::end);
-    streampos length = in.tellg();
-    in.seekg(0, ios::beg);
-    if(length > 0)
+    // Read file into buffer
+    ifstream in(rom.c_str(), ios::binary);
+    if(in)
     {
-      uInt8* buffer = new uInt8[length];
-      in.read((char*)buffer, length);
-      in.close();
-      type = autodetectType(buffer, length);
-      delete[] buffer;
+      // Figure out how much data we should read
+      in.seekg(0, ios::end);
+      streampos length = in.tellg();
+      in.seekg(0, ios::beg);
+      if(length > 0)
+      {
+        uInt8* buffer = new uInt8[length];
+        in.read((char*)buffer, length);
+        in.close();
+        type = autodetectTypeByContent(buffer, length);
+        delete[] buffer;
+      }
+      else
+        type = BS_CUSTOM;
     }
   }
+  else
+    type = autodetectTypeByContent(image, size);
+
   return type;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-BSType CartDetector::autodetectType(const uInt8* image, uInt32 size)
+BSType CartDetector::autodetectTypeByExtension(const string& rom)
 {
-  BSType type = BS_NONE;
+  // Extensions defined in Harmony manual and corresponding
+  // bankswitch types
+  static const char* exts[20] = {
+    "2K", "4K", "F4", "F4S", "F6", "F6S", "F8", "F8S",
+    "FA", "FE", "3F", "3E", "E0", "E7", "CV", "UA",
+    "AR", "DPC", "084", "CU"
+   };
+  static BSType types[20] = {
+    BS_4K, BS_4K, BS_F4, BS_F4SC, BS_F6, BS_F6SC, BS_F8, BS_F8SC,
+    BS_FA, BS_FE, BS_3F, BS_3E, BS_E0, BS_E7, BS_CV, BS_UA,
+    BS_AR, BS_DPC, BS_0840, BS_CUSTOM
+   };
+
+  const string& ext = BSPF_extension(rom);
+  for(int i = 0; i < 20; ++i)
+    if(BSPF_equalsIgnoreCase(exts[i], ext))
+      return types[i];
+
+  return BS_AUTO;
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+BSType CartDetector::autodetectTypeByContent(const uInt8* image, uInt32 size)
+{
+  BSType type = BS_CUSTOM;
 
   if((size % 8448) == 0 || size == 6144)
   {
@@ -186,8 +223,6 @@ BSType CartDetector::autodetectType(const uInt8* image, uInt32 size)
       type = BS_3E;
     else if(isProbably3F(image, size))
       type = BS_3F;
-    else
-      type = BS_4K;  // Most common bankswitching type
   }
 
   return type;
