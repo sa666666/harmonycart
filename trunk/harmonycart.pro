@@ -24,6 +24,7 @@ FORMS += harmonycartwindow.ui \
     aboutdialog.ui
 RESOURCES += resources.qrc
 windows { 
+    DEFINES += _CRT_SECURE_NO_WARNINGS
     INCLUDEPATH += win32
     SOURCES += win32/SerialPortWin32.cxx
     HEADERS += win32/SerialPortWin32.hxx

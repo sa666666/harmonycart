@@ -30,23 +30,36 @@ class CartDetector
 {
   public:
     /**
+      Try to auto-detect the bankswitching type of the cartridge,
+      based first on filename, then on actual file content
+
+      @param rom    The file containing the ROM image
+      @param image  A pointer to the ROM image (may be null)
+      @param size   The size of the ROM image (may be 0)
+      @return  The "best guess" for the cartridge type
+    */
+    static BSType autodetectType(const string& rom, const uInt8* image = 0, uInt32 size = 0);
+
+  private:
+    /**
       Try to auto-detect the bankswitching type of the cartridge
+      based on the filename extensions as defined in the Harmony
+      manual
 
       @param rom  The file containing the ROM image
       @return  The "best guess" for the cartridge type
     */
-    static BSType autodetectType(const string& rom);
+    static BSType autodetectTypeByExtension(const string& rom);
 
     /**
       Try to auto-detect the bankswitching type of the cartridge
+      based on an analysis of the ROM data (from Stella)
 
-      @param image  A pointer to the ROM image
-      @param size   The size of the ROM image
+      @param rom  The file containing the ROM image
       @return  The "best guess" for the cartridge type
     */
-    static BSType autodetectType(const uInt8* image, uInt32 size);
+    static BSType autodetectTypeByContent(const uInt8* image, uInt32 size);
 
-  private:
     /**
       Search the image for the specified byte signature
 

@@ -124,12 +124,21 @@ template<typename T> inline T BSPF_min (T a, T b) { return (a<b) ? a : b; }
 template<typename T> inline T BSPF_max (T a, T b) { return (a>b) ? a : b; }
 template<typename T> inline T BSPF_clamp (T a, T l, T u) { return (a<l) ? l : (a>u) ? u : a; }
 
+static const string EmptyString("");
+
 // Convert integer to string
 inline string BSPF_toString(int num)
 {
   ostringstream buf;
   buf << num;
   return buf.str();
+}
+
+// Get extension of string (characters after the last dot (.)
+inline string BSPF_extension(const string& s)
+{
+  string::size_type idx = s.rfind('.');
+  return idx != string::npos ? s.substr(idx+1) : EmptyString;
 }
 
 // Test whether two characters are equal (case insensitive)
@@ -173,7 +182,5 @@ inline bool BSPF_endsWithIgnoreCase(const string& s1, const string& s2)
       (BSPF_findIgnoreCase(s1, s2, s1.length() - s2.length()) != string::npos) :
       false;
 }
-
-static const string EmptyString("");
 
 #endif
