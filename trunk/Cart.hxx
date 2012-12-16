@@ -246,7 +246,7 @@ class Cart
     // Used for LPC17xx devices
     static const uInt32 SectorTable_17xx[30];
     static uInt32 SectorTable_RAM[1];
-    static LPC_DEVICE_TYPE LPCtypes[101];
+    static LPC_DEVICE_TYPE LPCtypes[109];
 
     static uInt8 ourARHeader[256];
 };
