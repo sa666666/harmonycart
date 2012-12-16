@@ -26,7 +26,28 @@
 #include "HarmonyCartWindow.hxx"
 #include "Version.hxx"
 
-void runCommandlineApp(HarmonyCartWindow& win, int ac, char* av[])
+void usage()
+{
+  cout << "Harmony Programming Tool version " << HARMONY_VERSION << endl
+       << endl
+       << "Usage: harmonycart [options ...] datafile" << endl
+       << "       Run without any options or datafile to use the graphical frontend" << endl
+       << "       Consult the manual for more in-depth information" << endl
+       << endl
+       << "Valid options are:" << endl
+       << endl
+       << "  -bios       Treat the specified datafile as an EEPROM loader BIOS image" << endl
+       << "              Otherwise, the datafile is treated as a ROM image instead" << endl
+       << "  -bs=[type]  Specify the bankswitching scheme for a ROM image" << endl
+       << "              (default is 'auto')" << endl
+       << "  -help       Displays the message you're now reading" << endl
+       << endl
+       << "This software is Copyright (c) 2009-2012 Stephen Anthony, and is released" << endl
+       << "under the GNU GPL version 3." << endl
+       << endl;
+}
+
+void runCommandlineApp(int ac, char* av[])
 {
   string datafile = "";
   BSType bstype = BS_AUTO;
@@ -35,14 +56,29 @@ void runCommandlineApp(HarmonyCartWindow& win, int ac, char* av[])
   // Parse commandline args
   for(int i = 1; i < ac; ++i)
   {
-    if(strstr(av[i], "-bs=") == av[i])
+    if(BSPF_startsWithIgnoreCase(av[i], "-bs="))
       bstype = Bankswitch::nameToType(av[i]+4);
-    else if(strcmp(av[i], "-bios") == 0)
+    else if(BSPF_equalsIgnoreCase(av[i], "-bios"))
       biosupdate = true;
+    else if(BSPF_equalsIgnoreCase(av[i], "-help"))
+    {
+      usage();
+      return;
+    }
+    else if(BSPF_startsWithIgnoreCase(av[i], "-"))
+    {
+      // Unknown argument
+      cout << "Unknown argument \'" << av[i] << "\'" << endl << endl;
+      usage();
+      return;
+    }
 //    else if(...)         // add more options here
     else
       datafile = av[i];
   }
+
+  QApplication app(ac, av);
+  HarmonyCartWindow win;
 
   Cart cart;
   SerialPortManager& manager = win.portManager();
@@ -101,36 +137,11 @@ void runCommandlineApp(HarmonyCartWindow& win, int ac, char* av[])
 
 int main(int ac, char* av[])
 {
-  if(ac == 2 && !strcmp(av[1], "-help"))
-  {
-    cout << "Harmony Programming Tool version " << HARMONY_VERSION << endl
-         << endl
-         << "Usage: harmonycart [options ...] datafile" << endl
-         << "       Run without any options or datafile to use the graphical frontend" << endl
-         << "       Consult the manual for more in-depth information" << endl
-         << endl
-         << "Valid options are:" << endl
-         << endl
-         << "  -bios       Treat the specified datafile as an EEPROM loader BIOS image" << endl
-         << "              Otherwise, the datafile is treated as a ROM image instead" << endl
-         << "  -bs=[type]  Specify the bankswitching scheme for a ROM image" << endl
-         << "              (default is 'auto')" << endl
-         << "  -help       Displays the message you're now reading" << endl
-         << endl
-         << "This software is Copyright (c) 2009-2012 Stephen Anthony, and is released" << endl
-         << "under the GNU GPL version 3." << endl
-         << endl;
-    return 0;
-  }
-
-  // The application and window needs to be created even if we're using
-  // commandline mode, since the settings are controlled by a QSettings
-  // object which needs a Qt context.
-  QApplication app(ac, av);
-  HarmonyCartWindow win;
-
   if(ac == 1)  // Launch GUI
   {
+    QApplication app(ac, av);
+    HarmonyCartWindow win;
+
     // Only start a 'connect' thread if we're in UI mode
     win.connectHarmonyCart();
     win.show();
@@ -138,7 +149,7 @@ int main(int ac, char* av[])
   }
   else  // Assume we're working from the commandline
   {
-    runCommandlineApp(win, ac, av);
+    runCommandlineApp(ac, av);
   }
 
   return 0;
