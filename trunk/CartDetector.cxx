@@ -45,7 +45,7 @@ BSType CartDetector::autodetectType(const string& rom,
     {
       // Figure out how much data we should read
       in.seekg(0, ios::end);
-      streampos length = in.tellg();
+      uInt32 length = (uInt32)in.tellg();
       in.seekg(0, ios::beg);
       if(length > 0)
       {

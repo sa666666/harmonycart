@@ -24,14 +24,14 @@ FORMS += harmonycartwindow.ui \
     aboutdialog.ui
 RESOURCES += resources.qrc
 windows { 
-    DEFINES += _CRT_SECURE_NO_WARNINGS
+    DEFINES += _CRT_SECURE_NO_WARNINGS BSPF_WIN32
     INCLUDEPATH += win32
     SOURCES += win32/SerialPortWin32.cxx
     HEADERS += win32/SerialPortWin32.hxx
     RC_FILE = win32/HarmonyCartWin32.rc
 }
 unix:!macx { 
-    DEFINES += HAVE_INTTYPES
+    DEFINES += HAVE_INTTYPES BSPF_UNIX
     INCLUDEPATH += unix
     SOURCES += unix/SerialPortUNIX.cxx
     HEADERS += unix/SerialPortUNIX.hxx
@@ -57,14 +57,11 @@ unix:!macx {
         desktop
 }
 macx { 
-    DEFINES += HAVE_INTTYPES
+    DEFINES += HAVE_INTTYPES BSPF_MAC_OSX
     INCLUDEPATH += macosx
     SOURCES += macosx/SerialPortMACOSX.cxx
     HEADERS += macosx/SerialPortMACOSX.hxx
-    LIBS += -framework \
-        CoreFoundation \
-        -framework \
-        IOKit
+    LIBS += -framework CoreFoundation \
+            -framework IOKit
     ICON = macosx/Harmony_icon.icns
-#    CONFIG += x86 x86_64
 }
