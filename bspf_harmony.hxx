@@ -29,15 +29,6 @@
 #define BSPF_HARMONY_HXX
 
 #include <vector>
-
-/** What system are we using? */
-#if defined(WIN32) || defined(_WIN32)
-  #define BSPF_WIN32
-#elif defined(__APPLE__) || defined(MAC_OS_X)
-  #define BSPF_MAC_OSX
-#else
-  #define BSPF_UNIX
-#endif
 #include "bspf.hxx"
 
 typedef vector<string> StringList;
