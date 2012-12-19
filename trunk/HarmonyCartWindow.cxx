@@ -509,7 +509,7 @@ void HarmonyCartWindow::slotAbout()
         << "<li><a href=\"http://krokcom.sf.net\">KrokCom</a>: UI code, icons and other images</li>"
         << "<li><a href=\"http://stella.sf.net\">Stella</a>: bankswitch autodetection code</li>"
         << "</ul></p>"
-        << "<p>Version 1.2 (Dec. xx, 2012):</p>"
+        << "<p>Version 1.2 (Dec. 19, 2012):</p>"
         << "<ul>"
         << "<li>Updated lpc21isp code to version 1.85 (supports latest LPCxxxx chips).</li>"
         << "<li>Updated HBIOS and ARM files to latest version (1.05).</li>"
