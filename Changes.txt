@@ -10,7 +10,7 @@
                              Release History
 ===========================================================================
 
-1.2: (Dec. xx, 2012)
+1.2: (Dec. 19, 2012)
 
   * Updated lpc21isp code to version 1.85 (supports latest LPCxxxx chips).
 
