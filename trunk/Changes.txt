@@ -24,7 +24,8 @@
     completely override the type of data in the ROM image.
 
   * Fixed crash when an 'F4' ROM couldn't be compressed; an error message
-    is now shown.
+    is now shown.  Also improved compression function; at least one ROM
+    that couldn't be compressed previously now works fine.
 
   * Fixed bugs in user interface (cut off text, progress bar not always
     appearing, etc).

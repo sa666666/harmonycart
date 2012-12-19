@@ -126,69 +126,30 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
   // First determine the name of the bankswitch file to use
   switch(type)
   {
-    case BS_0840:
-      armfile = "0840.arm";
-      break;
-    case BS_4K:
-      armfile = "2K4K.arm";
-      break;
-    case BS_3E:
-      armfile = "3E.arm";
-      break;
-    case BS_3F:
-      armfile = "3F.arm";
-      break;
-    case BS_CV:
-      armfile = "CV.arm";
-      break;
-    case BS_DPC:
-      armfile = "DPC.arm";
-      break;
-    case BS_E0:
-      armfile = "E0.arm";
-      break;
-    case BS_E7:
-      armfile = "E7.arm";
-      break;
-    case BS_FA:
-      armfile = "FA.arm";
-      break;
-    case BS_F4:
-      armfile = "F4.arm";
-      break;
-    case BS_F6:
-      armfile = "F6.arm";
-      break;
-    case BS_F8:
-      armfile = "F8.arm";
-      break;
-    case BS_F4SC:
-      armfile = "F4SC.arm";
-      break;
-    case BS_F6SC:
-      armfile = "F6SC.arm";
-      break;
-    case BS_F8SC:
-      armfile = "F8SC.arm";
-      break;
-    case BS_FE:
-      armfile = "FE.arm";
-      break;
-    case BS_AR:
-      armfile = "SC.arm";
-      break;
-    case BS_UA:
-      armfile = "UA.arm";
-      break;
-    case BS_DPCP:
-    case BS_CUSTOM:
-      // ARM file not required
-      break;
+    case BS_0840:   armfile = "0840.arm";   break;
+    case BS_4K:     armfile = "2K4K.arm";   break;
+    case BS_3E:     armfile = "3E.arm";     break;
+    case BS_3F:     armfile = "3F.arm";     break;
+    case BS_CV:     armfile = "CV.arm";     break;
+    case BS_DPC:    armfile = "DPC.arm";    break;
+    case BS_E0:     armfile = "E0.arm";     break;
+    case BS_E7:     armfile = "E7.arm";     break;
+    case BS_FA:     armfile = "FA.arm";     break;
+    case BS_F4:     armfile = "F4.arm";     break;
+    case BS_F6:     armfile = "F6.arm";     break;
+    case BS_F8:     armfile = "F8.arm";     break;
+    case BS_F4SC:   armfile = "F4SC.arm";   break;
+    case BS_F6SC:   armfile = "F6SC.arm";   break;
+    case BS_F8SC:   armfile = "F8SC.arm";   break;
+    case BS_FE:     armfile = "FE.arm";     break;
+    case BS_AR:     armfile = "SC.arm";     break;
+    case BS_UA:     armfile = "UA.arm";     break;
+    case BS_DPCP:   // ARM file not required
+    case BS_CUSTOM:                         break;
     default:
       result = "Bankswitch type \'" + Bankswitch::typeToName(type) + "\' not supported.";
       *myLog << "ERROR: " << result.c_str() << endl;
       goto cleanup;
-      break;
   }
 
   // Now load the proper bankswitch file
@@ -207,7 +168,13 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
     }
   }
 
-  // Now we have to combine the rom and ARM code
+  // Now we have to combine the ROM and ARM code
+  //   Certain cases below will take care of combining the ARM and ROM data
+  //   in a specific fashion; in those cases, 'size' will be non-zero,
+  //   indicating that no further processing is required.
+  //
+  //   Otherwise, normal cases will have 'size' as zero, indicating that ARM
+  //   and ROM data is to be combined later in the method.
 
   if(type == BS_F4SC)  // F4+SC
   {
@@ -221,16 +188,40 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
     if(armsize > 4096)
       memcpy(binary_ptr+4096, armbuf+4096, armsize-4096);
 
-    size = romsize;
+    size = romsize;  // No further processing required
   }
-  else
+  else if(type == BS_F4)  // F4
   {
-    if(type == BS_F4)  // F4
+    // Copy ARM data to determine remaining size
+    // Leave space for 8 bytes, to indicate the bank configuration
+    memcpy(binary_ptr, armbuf, armsize);
+    binary_ptr += armsize + 8;
+
+    // Reorganize bin for best compression
+    // Possible bank organizations:
+    //   12345670  02345671  01345672  01245673
+    //   01235674  01234675  01234576  01234567
+
+    uInt32 i;
+    for(i = 0; i < 8; ++i) // i = bank to go last
     {
+      uInt8* ptr = binary_ptr;
+      for(uInt32 h = 0; h < 8; ++h)
+      {
+        if (h != i)
+        {
+          memcpy(ptr, rombuf+4096*h, 4096);
+          ptr += 4096;
+        }
+      }
+
+      memcpy(ptr, rombuf+4096*i, 4096);
+      ptr += 4096;
+
+      // Compress last bank
       try
       {
-        // Compress last bank
-        romsize = 28672 + compressLastBank(rombuf);
+        romsize = 28672 + compressLastBank(binary_ptr);
       }
       catch(const char* msg)
       {
@@ -238,62 +229,90 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
         *myLog << "ERROR: " << result.c_str() << endl;
         goto cleanup;
       }
+      if(romsize+armsize < 32760)
+        break; // one of the banks fits
     }
-    else if(type == BS_4K && romsize < 4096)  // 2K & 'Sub2K'
-    {
-      // All ROMs 2K or less should be mirrored into the 4K address space
-      uInt32 power2 = 1;
-      while(power2 < romsize)
-        power2 <<= 1;
 
-      // Create a 4K buffer and reassign to rombuf
-      uInt8* tmp = new uInt8[4096];
-      uInt8* tmp_ptr = tmp;
-      for(uInt32 i = 0; i < 4096/power2; ++i, tmp_ptr += power2)
-        memcpy(tmp_ptr, rombuf, romsize);
+    if(i == 8)
+    {
+      result = "Cannot compress F4 binary";
+      *myLog << "ERROR: " << result.c_str() << endl;
+      goto cleanup;
+    }
+
+    // Output bank index:
+    //   70123456  07123456  01723456  01273456
+    //   01237456  01234756  01234576  01234567
+    uInt32 f = 0;
+    uInt8* ptr = binary_ptr - 8;
+    for(uInt32 h = 0; h < 8; ++h)
+    {
+      if(h != i)  *ptr++ = f++;
+      else        *ptr++ = 7;
+    }
+
+    size = armsize + 8 + romsize;  // No further processing required
+  }
+  else if(type == BS_4K && romsize < 4096)  // 2K & 'Sub2K'
+  {
+    // All ROMs 2K or less should be mirrored into the 4K address space
+    uInt32 power2 = 1;
+    while(power2 < romsize)
+      power2 <<= 1;
+
+    // Create a 4K buffer and reassign to rombuf
+    uInt8* tmp = new uInt8[4096];
+    uInt8* tmp_ptr = tmp;
+    for(uInt32 i = 0; i < 4096/power2; ++i, tmp_ptr += power2)
+      memcpy(tmp_ptr, rombuf, romsize);
+
+    delete[] rombuf;
+    rombuf = tmp;
+    romsize = 4096;
+  }
+  else if(type == BS_AR)  // Supercharger
+  {
+    // Take care of special AR ROM which are only 6K
+    if(romsize == 6144)
+    {
+      // Minimum buffer size is 6K + 256 bytes
+      uInt8* tmp = new uInt8[6144+256];
+      memcpy(tmp, rombuf, 6144);          // copy ROM
+      memcpy(tmp+6144, ourARHeader, 256); // copy missing header
 
       delete[] rombuf;
       rombuf = tmp;
-      romsize = 4096;
+      romsize = 6144 + 256;
     }
-    else if(type == BS_AR)  // Supercharger
+    else  // size is multiple of 8448
     {
-      // Take care of special AR ROM which are only 6K
-      if(romsize == 6144)
+      // To save space, we skip 2K in each Supercharger load
+      uInt32 numLoads = romsize / 8448;
+      uInt8* tmp = new uInt8[numLoads*(6144+256)];
+      uInt8 *tmp_ptr = tmp, *rom_ptr = rombuf;
+      for(uInt32 i = 0; i < numLoads; ++i, tmp_ptr += 6144+256, rom_ptr += 8448)
       {
-        // Minimum buffer size is 6K + 256 bytes
-        uInt8* tmp = new uInt8[6144+256];
-        memcpy(tmp, rombuf, 6144);          // copy ROM
-        memcpy(tmp+6144, ourARHeader, 256); // copy missing header
-
-        delete[] rombuf;
-        rombuf = tmp;
-        romsize = 6144 + 256;
+        memcpy(tmp_ptr, rom_ptr, 6144);                // 6KB  @ pos 0K
+        memcpy(tmp_ptr+6144, rom_ptr+6144+2048, 256);  // 256b @ pos 8K
       }
-      else  // size is multiple of 8448
-      {
-        // To save space, we skip 2K in each Supercharger load
-        uInt32 numLoads = romsize / 8448;
-        uInt8* tmp = new uInt8[numLoads*(6144+256)];
-        uInt8 *tmp_ptr = tmp, *rom_ptr = rombuf;
-        for(uInt32 i = 0; i < numLoads; ++i, tmp_ptr += 6144+256, rom_ptr += 8448)
-        {
-          memcpy(tmp_ptr, rom_ptr, 6144);                // 6KB  @ pos 0K
-          memcpy(tmp_ptr+6144, rom_ptr+6144+2048, 256);  // 256b @ pos 8K
-        }
 
-        delete[] rombuf;
-        rombuf = tmp;
-        romsize = numLoads * (6144+256);
-      }
+      delete[] rombuf;
+      rombuf = tmp;
+      romsize = numLoads * (6144+256);
     }
+  }
+  else if(type == BS_DPCP || type == BS_CUSTOM)
+  {
+    size = romsize;  // No further processing required
+  }
 
-    if ((type != BS_4K) || (romsize == 4096)) // this will fail if we upload a BIOS file
-    {
-      // Copy ARM data
-      memcpy(binary_ptr, armbuf, armsize);
-      binary_ptr += armsize;
-    }
+  // Do we need combine ARM and ROM data?
+  if(size == 0)
+  {
+    // Copy ARM data
+    memcpy(binary_ptr, armbuf, armsize);
+    binary_ptr += armsize;
+
     // Copy ROM data
     memcpy(binary_ptr, rombuf, romsize);
 
@@ -408,11 +427,16 @@ uInt32 Cart::compressLastBank(uInt8* binary)
     if (k >= 4)
     {
       if (b)
-        {bc[cb++]=b;for(a=0;a<b;++a) bc[cb++]=bufliteral[a];b=0;}
+      {
+        bc[cb++] = b;
+        for(a = 0; a < b; ++a)
+          bc[cb++] = bufliteral[a];
+        b = 0;
+      }
 
-      bc[cb++]=k-4+128;
-      bc[cb++]=j/256;
-      bc[cb++]=j%256;
+      bc[cb++] = k-4+128;
+      bc[cb++] = j/256;
+      bc[cb++] = j%256;
       mode_count++;
     }
     else
@@ -421,32 +445,50 @@ uInt32 Cart::compressLastBank(uInt8* binary)
       if (!k)
       {
         k = 1;
-        printf("y %X x %X\n",y,x);
+        // printf("y %X x %X\n",y,x);
       } // byte not found in entire binary ???
 
       for (a = 0; a < k; ++a)
-        bufliteral[a+b]=buf[y+a];
+        bufliteral[a+b] = buf[y+a];
 
       b += k;
-      if (b>127)
-        {bc[cb++]=127;for(a=0;a<127;++a) bc[cb++]=bufliteral[a];b=b-127;if (b) for (a=0;a<b;++a) bufliteral[a]=bufliteral[a+127];}
+      if (b > 127)
+      {
+        bc[cb++] = 127;
+        for(a = 0; a < 127; ++a)
+          bc[cb++] = bufliteral[a];
+        b = b-127;
+        if (b)
+          for (a = 0; a < b; ++a)
+            bufliteral[a] = bufliteral[a+127];
+      }
     }
     y += k;
   }
 
   if (b)
-    {bc[cb++]=b;for(a=0;a<b;++a) bc[cb++]=bufliteral[a];b=0;}
+  {
+    bc[cb++] = b;
+    for (a = 0; a < b; ++a)
+      bc[cb++] = bufliteral[a];
+    b=0;
+  }
 
+#if 0
   if (cb>3424) // subject to change...
   {
     char buf[100];
     sprintf(buf, "Unable to compress: file is %d bytes", cb+28672);
     throw buf;
   }
+#endif
 
   // decompression test
-  for (a=0;a<4096;++a)
-    { buflast[a] = buf[32768-4096 + a];  buf[32768-4096 + a] = 0; }
+  for (a = 0; a < 4096; ++a)
+  {
+    buflast[a] = buf[32768-4096 + a];
+    buf[32768-4096 + a] = 0;
+  }
 
   x = y = 0;
   while (x < cb)
