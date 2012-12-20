@@ -25,6 +25,9 @@ FORMS += harmonycartwindow.ui \
     aboutdialog.ui
 RESOURCES += resources.qrc
 windows { 
+#  Uncomment the following to create a commandline-compatible Windows build
+#    TARGET = HarmonyCart.com
+#    CONFIG += qt console
     DEFINES += _CRT_SECURE_NO_WARNINGS BSPF_WIN32
     INCLUDEPATH += win32
     SOURCES += win32/SerialPortWin32.cxx win32/OSystemWin32.cxx
