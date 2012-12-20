@@ -85,9 +85,6 @@ HarmonyCartWindow::HarmonyCartWindow(QWidget* parent)
   QCoreApplication::setOrganizationName("atariage.com");
 #endif
   readSettings();
-
-  // By default, start looking for ROMs in the users' home directory
-  myLastDir.setPath(QDir::home().absolutePath());
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -229,6 +226,12 @@ void HarmonyCartWindow::readSettings()
     if(!dir.exists())
       path = myOSystem.defaultARMPath();
     ui->armpathFileEdit->setText(path);
+
+    // Last directory used
+    path = s.value("lastpath", "").toString();
+    myLastDir.setPath(path);
+    if(!myLastDir.exists())
+      myLastDir.setPath(QDir::home().absolutePath());
   s.endGroup();
 }
 
@@ -264,6 +267,7 @@ void HarmonyCartWindow::closeEvent(QCloseEvent* event)
     s.setValue("hbiosfile", ui->hbiosFileEdit->text());
     s.setValue("sdmountpath", ui->sdcardFileEdit->text());
     s.setValue("armpath", ui->armpathFileEdit->text());
+    s.setValue("lastpath", myLastDir.absolutePath());
   s.endGroup();
 
   event->accept();
@@ -399,6 +403,7 @@ void HarmonyCartWindow::slotOpenROM()
   QString location = ui->romFileEdit->text() != "" ?
     QFileInfo(ui->romFileEdit->text()).absolutePath() :
     myLastDir.absolutePath();
+  myLastDir.setPath(location);
   QString file = getOpenROMName(location);
   if(!file.isNull())
     loadROM(file);
@@ -628,7 +633,7 @@ void HarmonyCartWindow::slotSelectEEPROM()
     QFileInfo(ui->eepromFileEdit->text()).absolutePath() :
     myOSystem.defaultARMPath();
   QString file = QFileDialog::getOpenFileName(this,
-    tr("Select EEPROM Loader Image"), location, tr("EEPROM Image (*.bin);;All Files (*.*)"));
+    tr("Select EEPROM Loader Image"), location, tr("EEPROM Image (*loader*.bin);;All Files (*.*)"));
 
   if(!file.isNull())
     ui->eepromFileEdit->setText(file);
@@ -641,7 +646,7 @@ void HarmonyCartWindow::slotSelectHBIOS()
     QFileInfo(ui->hbiosFileEdit->text()).absolutePath() :
     myOSystem.defaultARMPath();
   QString file = QFileDialog::getOpenFileName(this,
-    tr("Select HBIOS Image"), location, tr("BIOS Image (*.bin);;All Files (*.*)"));
+    tr("Select HBIOS Image"), location, tr("BIOS Image (*bios*.bin);;All Files (*.*)"));
 
   if(!file.isNull())
     ui->hbiosFileEdit->setText(file);
