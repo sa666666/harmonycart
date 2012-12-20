@@ -711,7 +711,24 @@ void HarmonyCartWindow::loadROM(const QString& filename)
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void HarmonyCartWindow::assignToQPButton(QPushButton* button, int id)
 {
-  QString file = getOpenROMName(myLastDir.absolutePath());
+  // Get the full path from the settings
+  QString key = "button" + QString::number(id);
+  QSettings s;
+  s.beginGroup("QPButtons");
+    QString path = s.value(key, "").toString();
+  s.endGroup();
+
+  // If the path exists to a file, use it
+  // Otherwise, use the last selected path
+  if(path.length() == 0)
+    path = myLastDir.absolutePath();
+  else
+  {
+    QDir dir(path);
+    path = dir.filePath(path);
+  }
+
+  QString file = getOpenROMName(path);
   if(!file.isNull())
   {
     assignToQPButton(button, id, file, true);
