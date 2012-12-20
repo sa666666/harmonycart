@@ -144,6 +144,7 @@ void HarmonyCartWindow::setupConnections()
   connect(ui->openRomButton, SIGNAL(clicked()), this, SLOT(slotOpenROM()));
   connect(ui->downloadButton, SIGNAL(clicked()), this, SLOT(slotDownloadROM()));
   connect(ui->openARMPathButton, SIGNAL(clicked()), this, SLOT(slotSelectARMPath()));
+  ui->openARMPathButton->installEventFilter(this);
 
   // Quick-select buttons
   myQPGroup = new QButtonGroup(this);
@@ -271,6 +272,8 @@ bool HarmonyCartWindow::eventFilter(QObject* object, QEvent* event)
   if(event->type() == QEvent::ContextMenu)
   {
     int id = 0;
+
+    // Quick-pick buttons
     if(object == ui->qp1Button)       id = 1;
     else if(object == ui->qp2Button)  id = 2;
     else if(object == ui->qp3Button)  id = 3;
@@ -287,6 +290,13 @@ bool HarmonyCartWindow::eventFilter(QObject* object, QEvent* event)
     else if(object == ui->qp14Button) id = 14;
     else if(object == ui->qp15Button) id = 15;
     else if(object == ui->qp16Button) id = 16;
+
+    // File select buttons
+    else if(object == ui->openARMPathButton)
+    {
+      ui->armpathFileEdit->setText(myOSystem.defaultARMPath());
+      return true;
+    }
     else return false;
 
     assignToQPButton(static_cast<QPushButton*>(object), id);
