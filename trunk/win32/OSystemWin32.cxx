@@ -14,12 +14,16 @@
 // $Id$
 //=========================================================================
 
+#include <QCoreApplication>
 #include "OSystemWin32.hxx"
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 OSystemWin32::OSystemWin32()
   : OSystem()
 {
+  QDir dir = QDir(QCoreApplication::applicationDirPath());
+  dir.cd("arm");
+  myARMPath = dir.absolutePath();
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
