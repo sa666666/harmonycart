@@ -228,10 +228,21 @@ void HarmonyCartWindow::readSettings()
     ui->armpathFileEdit->setText(path);
 
     // Last directory used
+    // Do some sanity checking
     path = s.value("lastpath", "").toString();
-    myLastDir.setPath(path);
-    if(path.length() == 0 || !myLastDir.exists())
+    if(path.length() == 0)
       myLastDir.setPath(QDir::home().absolutePath());
+    else
+    {
+      QDir dir(path);
+      // Attempt to move up one level, to bypass a file saved in the path
+      if(!dir.exists())
+        dir.cdUp();
+      if(dir.exists())
+        myLastDir.setPath(dir.absolutePath());
+      else
+        myLastDir.setPath(QDir::home().absolutePath());
+    }
   s.endGroup();
 }
 
