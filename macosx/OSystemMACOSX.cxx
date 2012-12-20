@@ -14,12 +14,18 @@
 // $Id$
 //=========================================================================
 
+#include <QCoreApplication>
 #include "OSystemMACOSX.hxx"
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 OSystemMACOSX::OSystemMACOSX()
   : OSystem()
 {
+  QDir dir = QDir(QCoreApplication::applicationDirPath());
+  dir.cdUp();
+  dir.cdUp();
+  dir.cd("arm");
+  myARMPath = dir.absolutePath();
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

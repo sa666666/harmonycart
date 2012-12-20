@@ -10,7 +10,7 @@
                              Release History
 ===========================================================================
 
-1.2: (Dec. 19, 2012)
+1.2: (Dec. 20, 2012)
 
   * Updated lpc21isp code to version 1.85 (supports latest LPCxxxx chips).
 
@@ -26,6 +26,10 @@
   * Fixed crash when an 'F4' ROM couldn't be compressed; an error message
     is now shown.  Also improved compression function; at least one ROM
     that couldn't be compressed previously now works fine.
+
+  * The location for 'ARM' files is now automatically determined based
+    on where you've installed the application; right-clicking on the
+    directory selection button will also set this location.
 
   * Fixed bugs in user interface (cut off text, progress bar not always
     appearing, etc).
