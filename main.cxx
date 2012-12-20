@@ -47,7 +47,7 @@ void usage()
        << endl;
 }
 
-void runCommandlineApp(int ac, char* av[])
+void runCommandlineApp(HarmonyCartWindow& win, int ac, char* av[])
 {
   string datafile = "";
   BSType bstype = BS_AUTO;
@@ -76,9 +76,6 @@ void runCommandlineApp(int ac, char* av[])
     else
       datafile = av[i];
   }
-
-  QApplication app(ac, av);
-  HarmonyCartWindow win;
 
   Cart cart;
   SerialPortManager& manager = win.portManager();
@@ -137,11 +134,14 @@ void runCommandlineApp(int ac, char* av[])
 
 int main(int ac, char* av[])
 {
+  // The application and window needs to be created even if we're using
+  // commandline mode, since the settings are controlled by a QSettings
+  // object which needs a Qt context.
+  QApplication app(ac, av);
+  HarmonyCartWindow win;
+
   if(ac == 1)  // Launch GUI
   {
-    QApplication app(ac, av);
-    HarmonyCartWindow win;
-
     // Only start a 'connect' thread if we're in UI mode
     win.connectHarmonyCart();
     win.show();
@@ -149,7 +149,7 @@ int main(int ac, char* av[])
   }
   else  // Assume we're working from the commandline
   {
-    runCommandlineApp(ac, av);
+    runCommandlineApp(win, ac, av);
   }
 
   return 0;
