@@ -222,8 +222,8 @@ void HarmonyCartWindow::readSettings()
   s.beginGroup("Paths");
     ui->eepromFileEdit->setText(s.value("eepromfile", "").toString());
     ui->hbiosFileEdit->setText(s.value("hbiosfile", "").toString());
-    ui->sdcardFileEdit->setText(s.value("sdmountdir", "").toString());
-    ui->armpathFileEdit->setText(s.value("armdir", "").toString());
+    ui->sdcardFileEdit->setText(s.value("sdmountpath", "").toString());
+    ui->armpathFileEdit->setText(s.value("armpath", myOSystem.defaultARMPath()).toString());
   s.endGroup();
 }
 
@@ -257,8 +257,8 @@ void HarmonyCartWindow::closeEvent(QCloseEvent* event)
   s.beginGroup("Paths");
     s.setValue("eepromfile", ui->eepromFileEdit->text());
     s.setValue("hbiosfile", ui->hbiosFileEdit->text());
-    s.setValue("sdmountdir", ui->sdcardFileEdit->text());
-    s.setValue("armdir", ui->armpathFileEdit->text());
+    s.setValue("sdmountpath", ui->sdcardFileEdit->text());
+    s.setValue("armpath", ui->armpathFileEdit->text());
   s.endGroup();
 
   event->accept();
@@ -290,7 +290,7 @@ bool HarmonyCartWindow::eventFilter(QObject* object, QEvent* event)
     else return false;
 
     assignToQPButton(static_cast<QPushButton*>(object), id);
-    return  true;
+    return true;
   }
   else
   {
@@ -609,9 +609,9 @@ void HarmonyCartWindow::slotSelectEEPROM()
 {
   QString location = ui->eepromFileEdit->text() != "" ?
     QFileInfo(ui->eepromFileEdit->text()).absolutePath() :
-    myLastDir.absolutePath();
+    myOSystem.defaultARMPath();
   QString file = QFileDialog::getOpenFileName(this,
-    tr("Select EEPROM Loader Image"), location, tr("BIOS Image (*.bin)"));
+    tr("Select EEPROM Loader Image"), location, tr("EEPROM Image (*.bin);;All Files (*.*)"));
 
   if(!file.isNull())
     ui->eepromFileEdit->setText(file);
@@ -622,9 +622,9 @@ void HarmonyCartWindow::slotSelectHBIOS()
 {
   QString location = ui->hbiosFileEdit->text() != "" ?
     QFileInfo(ui->hbiosFileEdit->text()).absolutePath() :
-    myLastDir.absolutePath();
+    myOSystem.defaultARMPath();
   QString file = QFileDialog::getOpenFileName(this,
-    tr("Select HBIOS Image"), location, tr("BIOS Image (*.bin)"));
+    tr("Select HBIOS Image"), location, tr("BIOS Image (*.bin);;All Files (*.*)"));
 
   if(!file.isNull())
     ui->hbiosFileEdit->setText(file);
@@ -723,7 +723,7 @@ void HarmonyCartWindow::assignToQPButton(QPushButton* button, int id,
 QString HarmonyCartWindow::getOpenROMName(const QString& path)
 {
   // What a whopper!
-  static QString filter = "Atari 2600 ROM Image (*.a26 *.bin *.rom *.2K *.4K *.F4 *.F4S *.F6 *.F6S *.F8 *.F8S *.FA *.FE *.3F *.3E *.E0 *.E7 *.CV *.UA *.AR *.DPC *.084 *.CU)";
+  static QString filter = "Atari 2600 ROM Image (*.a26 *.bin *.rom *.2K *.4K *.F4 *.F4S *.F6 *.F6S *.F8 *.F8S *.FA *.FE *.3F *.3E *.E0 *.E7 *.CV *.UA *.AR *.DPC *.084 *.CU);;All Files (*.*)";
 
   QString file = QFileDialog::getOpenFileName(this,
     tr("Select ROM Image"), path, tr(filter.toAscii()), 0,

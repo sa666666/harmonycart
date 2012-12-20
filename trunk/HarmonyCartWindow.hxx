@@ -30,6 +30,15 @@
 #include "FindHarmonyThread.hxx"
 #include "ui_harmonycartwindow.h"
 
+#include "OSystem.hxx"
+#if defined(BSPF_UNIX)
+  #include "OSystemUNIX.hxx"
+#elif defined(BSPF_WIN32)
+  #include "OSystemWin32.hxx"
+#elif defined(BSPF_MAC_OSX)
+  #include "OSystemMACOSX.hxx"
+#endif
+
 namespace Ui
 {
   class HarmonyCartWindow;
@@ -98,6 +107,16 @@ Q_OBJECT
 
     QString myHarmonyCartMessage;
     bool myDownloadInProgress;
+
+  #if defined(BSPF_UNIX)
+    OSystemUNIX myOSystem;
+  #elif defined(BSPF_WIN32)
+    OSystemWin32 myOSystem;
+  #elif defined(BSPF_MAC_OSX)
+    OSystemMACOSX myOSystem;
+  #else
+    OSystem myOSystem;
+  #endif
 };
 
 #endif
