@@ -223,14 +223,14 @@ void HarmonyCartWindow::readSettings()
     ui->sdcardFileEdit->setText(s.value("sdmountpath", "").toString());
     QString path = s.value("armpath", "").toString();
     QDir dir(path);
-    if(!dir.exists())
+    if(path.length() == 0 || !dir.exists())
       path = myOSystem.defaultARMPath();
     ui->armpathFileEdit->setText(path);
 
     // Last directory used
     path = s.value("lastpath", "").toString();
     myLastDir.setPath(path);
-    if(!myLastDir.exists())
+    if(path.length() == 0 || !myLastDir.exists())
       myLastDir.setPath(QDir::home().absolutePath());
   s.endGroup();
 }
