@@ -742,8 +742,9 @@ for single-load ROM images.</string>
               <item>
                <widget class="QPushButton" name="openARMPathButton">
                 <property name="toolTip">
-                 <string>Select location of the 'ARM' files
-for single-load ROM images.</string>
+                 <string>Select location of the 'ARM' files for single-load ROM images.
+Right-click to select default location.
+Left-click to select a specific location.</string>
                 </property>
                 <property name="text">
                  <string>...</string>
