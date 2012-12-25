@@ -34,13 +34,13 @@ The distributions currently available are:
       HarmonyCart-1.2-macosx.dmg
 
   * Binary distribution in 32-bit Ubuntu DEB format:
-      harmonycart_1.2-1_i386.deb)
+      harmonycart_1.2-1_i386.deb
 
   * Binary distribution in 64-bit Ubuntu DEB format:
-      harmonycart_1.2-1_amd64.deb)
+      harmonycart_1.2-1_amd64.deb
 
   * Source code distribution for all platforms:
-      harmonycart-1.2-src.tar.gz)
+      harmonycart-1.2-src.tar.gz
 
 
 Distribution Site
