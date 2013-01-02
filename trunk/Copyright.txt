@@ -10,7 +10,7 @@
                   License Information and Copyright Notice
 ===========================================================================
 
-Copyright (C) 2009-2012 Stephen Anthony <stephena@users.sf.net>
+Copyright (C) 2009-2013 Stephen Anthony <stephena@users.sf.net>
 
 This program is released under the GNU GPLv3.  See the file 'License.txt'
 for more information.  The program includes portions of the following
