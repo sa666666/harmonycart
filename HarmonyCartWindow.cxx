@@ -539,6 +539,17 @@ void HarmonyCartWindow::slotAbout()
         << "<li><a href=\"http://krokcom.sf.net\">KrokCom</a>: UI code, icons and other images</li>"
         << "<li><a href=\"http://stella.sf.net\">Stella</a>: bankswitch autodetection code</li>"
         << "</ul></p>"
+
+        << "<p>Version 1.3 (Aug. 13, 2013):</p>"
+        << "<ul>"
+        << "<li>Fixed bug when saving DPC+ and Custom ROMs in single-cart mode; the "
+        << "ROM data wasn't actually being written to the device.</li>"
+        << "<li>Added support for 29KB DPC+ ROMs in single-cart mode (ie, ones "
+        << "without any ARM code); these ROMs now have ARM code automatically "
+        << "added before being downloaded.</li>"
+        << "<li>Updated bankswitch autodetection code to latest from Stella 3.9.1.</li>"
+        << "</ul>"
+
         << "<p>Version 1.2 (Dec. 20, 2012):</p>"
         << "<ul>"
         << "<li>Updated lpc21isp code to version 1.85 (supports latest LPCxxxx chips).</li>"

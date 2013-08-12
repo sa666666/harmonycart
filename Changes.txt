@@ -10,11 +10,7 @@
                              Release History
 ===========================================================================
 
-1.3: (Aug. xx, 2013)
-
-  * Updated lpc21isp code to version 1.92 (supports latest LPCxxxx chips).
-
-  * Updated bankswitch autodetection code to latest from Stella 3.9.1.
+1.3: (Aug. 13, 2013)
 
   * Fixed bug when saving DPC+ and Custom ROMs in single-cart mode; the
     ROM data wasn't actually being written to the device.
@@ -22,6 +18,8 @@
   * Added support for 29KB DPC+ ROMs in single-cart mode (ie, ones
     without any ARM code); these ROMs now have ARM code automatically
     added before being downloaded.
+
+  * Updated bankswitch autodetection code to latest from Stella 3.9.1.
 
 -Have fun!
 
