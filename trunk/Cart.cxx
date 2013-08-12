@@ -144,7 +144,7 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
     case BS_FE:     armfile = "FE.arm";     break;
     case BS_AR:     armfile = "SC.arm";     break;
     case BS_UA:     armfile = "UA.arm";     break;
-    case BS_DPCP:   // ARM file not required
+    case BS_DPCP:   armfile = "DPC+.arm";   break;
     case BS_CUSTOM:                         break;
     default:
       result = "Bankswitch type \'" + Bankswitch::typeToName(type) + "\' not supported.";
@@ -301,9 +301,25 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
       romsize = numLoads * (6144+256);
     }
   }
-  else if(type == BS_DPCP || type == BS_CUSTOM)
+  else if(type == BS_DPCP)
   {
-    size = romsize;  // No further processing required
+    // There are two variants of DPC+; one with the ARM code
+    // already added (32KB), and the other without (29KB)
+
+    // The one with the ARM code will be processed here
+    // The one without the ARM code will be processed below
+    if(romsize == 32 * 1024)
+    {
+      // Copy ROM data; no further processing required
+      size = romsize;
+      memcpy(binary_ptr, rombuf, size);
+    }
+  }
+  else if(type == BS_CUSTOM)
+  {
+    // Copy ROM data; no further processing required
+    size = romsize;
+    memcpy(binary_ptr, rombuf, size);
   }
 
   // Do we need combine ARM and ROM data?
