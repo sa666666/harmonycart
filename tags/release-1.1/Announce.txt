@@ -1,0 +1,51 @@
+===========================================================================
+
+  H   H    A    RRRR   M   M   OOO   N   N  Y   Y
+  H   H   A A   R   R  MM MM  O   O  NN  N   Y Y
+  HHHHH  AAAAA  RRRR   M M M  O   O  N N N    Y    "Harmony Cart software"
+  H   H  A   A  R R    M   M  O   O  N  NN    Y
+  H   H  A   A  R  R   M   M   OOO   N   N    Y
+
+===========================================================================
+                 Release 1.1 for Linux, Mac OSX and Windows
+===========================================================================
+
+The Harmony cartridge is a programmable add-on for the Atari 2600 console
+that allows you to load an entire library of games into a single cartridge
+and then select which title you want to play from a friendly, on-screen
+menu interface.  It features an SD card interface, making it simple to
+access the large library of Atari 2600 software.  The Harmony cartridge
+supports almost all of the titles that have been produced for the Atari
+2600.  It can also be used to run your own Atari 2600 game creations on a
+real console.  The Harmony cartridge is flash-upgradeable, and will be
+updated to support future Atari 2600 developments.
+
+The Harmony Programming Tool is a cross-platform application used to
+program the Harmony Cartridge.  Both GUI and commandline usage is
+supported.
+
+This is the 1.1 release of HarmonyCart for Linux, Mac OSX and Windows.
+The distributions currently available are:
+
+  * Binary installer (exe) for Windows 32-bit:
+      HarmonyCart-1.1-win32.exe
+
+  * Binary distribution for Mac OSX:
+      HarmonyCartOSX1.1.dmg
+
+  * Binary distribution in 32-bit Ubuntu DEB format:
+      harmonycart_1.1-1_i386.deb)
+
+  * Binary distribution in 64-bit Ubuntu DEB format:
+      harmonycart_1.1-1_amd64.deb)
+
+  * Source code distribution for all platforms:
+      harmonycart-1.1-src.tar.gz)
+
+
+Distribution Site
+================= 
+
+The HarmonyCart distributions can be obtained from the AtariAge Website at:
+
+  http://harmony.atariage.com
