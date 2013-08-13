@@ -1,0 +1,104 @@
+===========================================================================
+
+  H   H    A    RRRR   M   M   OOO   N   N  Y   Y
+  H   H   A A   R   R  MM MM  O   O  NN  N   Y Y
+  HHHHH  AAAAA  RRRR   M M M  O   O  N N N    Y    "Harmony Cart software"
+  H   H  A   A  R R    M   M  O   O  N  NN    Y
+  H   H  A   A  R  R   M   M   OOO   N   N    Y
+
+===========================================================================
+                             Release History
+===========================================================================
+
+1.3: (Aug. 13, 2013)
+
+  * Fixed bug when saving DPC+ and Custom ROMs in single-cart mode; the
+    ROM data wasn't actually being written to the device.
+
+  * Added support for 29KB DPC+ ROMs in single-cart mode (ie, ones
+    without any ARM code); these ROMs now have ARM code automatically
+    added before being downloaded.
+
+  * Updated bankswitch autodetection code to latest from Stella 3.9.1.
+
+-Have fun!
+
+
+1.2: (Dec. 20, 2012)
+
+  * Updated lpc21isp code to version 1.85 (supports latest LPCxxxx chips).
+
+  * Updated HBIOS and ARM files to latest version (1.05).
+
+  * Added support for Custom ROMs (such as 32KB 'DPC+') with the ARM code
+    already embedded.
+
+  * The bankswitch autodetection now also uses the ROM filename
+    extensions as defined in the Harmony manual; when present, these
+    completely override the type of data in the ROM image.
+
+  * Fixed crash when an 'F4' ROM couldn't be compressed; an error message
+    is now shown.  Also improved compression function; at least one ROM
+    that couldn't be compressed previously now works fine.
+
+  * The location for 'ARM' files is now automatically determined based
+    on where you've installed the application; right-clicking on the
+    directory selection button will also set this location.
+
+  * The Windows release now includes a commandline-based version
+    which shows output on the commandline, and is meant to be run from
+    the commandline only.
+
+  * Fixed bugs in user interface (cut off text, progress bar not always
+    appearing, etc).
+
+  * The previously selected tab (BIOS or Development) is now used when the
+    app starts.
+
+  * Updated bankswitch autodetection code to latest from Stella 3.7.4.
+
+
+1.1: (Dec. 11, 2009)
+
+  * Added logging of download progress.  When activated, a dialog will
+    appear after the download has completed, outlining what operations
+    were performed.  This is useful for detecting errors in operation.
+
+  * The Harmony cart autodetection is now done in a separate thread, so
+    the UI won't lock up while autodetection is running.  This fixes
+    problems where the app seems to be frozen during startup.
+
+  * The various file request dialogs now remember the last location
+    selected, so you don't need to 'drill down' to the same location
+    multiple times.
+
+  * When clicking on a ROM in the QuickPick list, the app now checks to
+    see if the file exists.  If it doesn't, a dialog asks whether to
+    remove it from the list.
+
+  * Tooltips were added to all remaining UI items; this should make the
+    app much easier to use.
+
+  * Increased the time that messages are shown in the status bar from two
+    to four seconds, so you have a better chance of reading the results.
+
+  * Implemented 'Retry Count' menu setting, to configure how often a 
+    write should be attempted before considering it a failure.
+
+  * The download buttons are now disabled during an active download, to
+    indicate another download isn't possible at this time.
+
+  * Fixed several typos in the list of bankswitch types; some ROMs were
+    being mislabeled.
+
+  * Added support for OSX Snow Leopard.
+
+  * Updated HBIOS and ARM files to latest version (1.03c).
+
+  * Updated PAL50 version of eeloader.bin for better compatibility with
+    A7800 PAL systems.
+
+
+1.0: (Oct. 7, 2009)
+
+  * Initial release for Linux, Mac OSX and Windows.

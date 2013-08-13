@@ -1,0 +1,10 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=HarmonyCart
+Comment=A programming tool for the Atari 2600 Harmony Cartridge
+GenericName=Harmony Programming Tool
+Exec=harmonycart
+Icon=/usr/share/icons/harmonycart.png
+Terminal=false
+Type=Application
+Categories=Utility;
