@@ -6,7 +6,7 @@
 //  H   H  A   A  R R    M   M  O   O  N  NN    Y
 //  H   H  A   A  R  R   M   M   OOO   N   N    Y
 //
-// Copyright (c) 2009-2013 by Stephen Anthony <stephena@users.sf.net>
+// Copyright (c) 2009 by Stephen Anthony <stephena@users.sourceforge.net>
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -15,6 +15,7 @@
 //=========================================================================
 
 #include <QApplication>
+#include <QProgressDialog>
 #include <QPixmap>
 #include <QIcon>
 #include <QString>
@@ -39,8 +40,6 @@ Cart::Cart()
     myOscillator("10000"),
     myLog(&cout)
 {
-  myProgress.setWindowModality(Qt::WindowModal);
-  myProgress.setWindowIcon(QPixmap(":icons/pics/appicon.png"));
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -61,10 +60,10 @@ string Cart::autodetectHarmony(SerialPort& port)
   port.clearBuffers();
 
   // Get the version #, if any
-  string result = lpc_NxpChipVersion(port);
+  string result = lpc_PhilipsChipVersion(port);
   if (strncmp(result.c_str(), "ERROR:", 6) == 0)
   {
-    *myLog << result.c_str() << endl;
+    *myLog << result << endl;
     return result;
   }
 
@@ -81,7 +80,20 @@ string Cart::downloadBIOS(SerialPort& port, const string& filename,
   uInt32 size = 0;
   uInt8* bios = readFile(filename, size);
   if(size > 0)
-    result = lpc_NxpDownload(port, bios, size, verify, showprogress);
+  {
+    if(showprogress)
+    {
+      // Actually write the data to the cart/serial port, and
+      // use a progressbar to show progress
+      QProgressDialog progress;
+      progress.setWindowTitle("Updating BIOS");
+      progress.setWindowModality(Qt::WindowModal);
+      progress.setWindowIcon(QPixmap(":icons/pics/appicon.png"));
+      result = lpc_PhilipsDownload(port, bios, size, verify, &progress);
+    }
+    else
+      result = lpc_PhilipsDownload(port, bios, size, verify);
+  }
   else
     result = "Couldn't open BIOS file";
 
@@ -96,10 +108,12 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
 {
   string result = "";
   bool autodetect = type == BS_AUTO;
+
   uInt32 romsize = 0, armsize = 0, size = 0;
   uInt8 *rombuf = NULL, *armbuf = NULL;
   uInt8 binary[512*1024], *binary_ptr = binary;
   string armfile = "";
+  QProgressDialog progress;
 
   // Read the ROM file into a buffer
   rombuf = readFile(filename, romsize);
@@ -111,45 +125,80 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
 
   // Determine the bankswitch type
   if(autodetect)
-    type = CartDetector::autodetectType(filename, rombuf, romsize);
-  if(autodetect || type == CartDetector::autodetectType(filename, rombuf, romsize))
+    type = CartDetector::autodetectType(rombuf, romsize);
+  if(autodetect || type == CartDetector::autodetectType(rombuf, romsize))
   {
-    *myLog << "Bankswitch type: " << Bankswitch::typeToName(type).c_str()
+    *myLog << "Bankswitch type: " << Bankswitch::typeToName(type)
           << " (auto-detected)" << endl;
   }
   else
   {
-    *myLog << "Bankswitch type: " << Bankswitch::typeToName(type).c_str()
+    *myLog << "Bankswitch type: " << Bankswitch::typeToName(type)
           << " (WARNING: overriding auto-detection)" << endl;
   }
 
   // First determine the name of the bankswitch file to use
   switch(type)
   {
-    case BS_0840:   armfile = "0840.arm";   break;
-    case BS_4K:     armfile = "2K4K.arm";   break;
-    case BS_3E:     armfile = "3E.arm";     break;
-    case BS_3F:     armfile = "3F.arm";     break;
-    case BS_CV:     armfile = "CV.arm";     break;
-    case BS_DPC:    armfile = "DPC.arm";    break;
-    case BS_E0:     armfile = "E0.arm";     break;
-    case BS_E7:     armfile = "E7.arm";     break;
-    case BS_FA:     armfile = "FA.arm";     break;
-    case BS_F4:     armfile = "F4.arm";     break;
-    case BS_F6:     armfile = "F6.arm";     break;
-    case BS_F8:     armfile = "F8.arm";     break;
-    case BS_F4SC:   armfile = "F4SC.arm";   break;
-    case BS_F6SC:   armfile = "F6SC.arm";   break;
-    case BS_F8SC:   armfile = "F8SC.arm";   break;
-    case BS_FE:     armfile = "FE.arm";     break;
-    case BS_AR:     armfile = "SC.arm";     break;
-    case BS_UA:     armfile = "UA.arm";     break;
-    case BS_DPCP:   armfile = "DPC+.arm";   break;
-    case BS_CUSTOM:                         break;
+    case BS_0840:
+      armfile = "0840.arm";
+      break;
+    case BS_4K:
+      armfile = "2K4K.arm";
+      break;
+    case BS_3E:
+      armfile = "3E.arm";
+      break;
+    case BS_3F:
+      armfile = "3F.arm";
+      break;
+    case BS_CV:
+      armfile = "CV.arm";
+      break;
+    case BS_DPC:
+      armfile = "DPC.arm";
+      break;
+    case BS_E0:
+      armfile = "E0.arm";
+      break;
+    case BS_E7:
+      armfile = "E7.arm";
+      break;
+    case BS_FA:
+      armfile = "FA.arm";
+      break;
+    case BS_F4:
+      armfile = "F4.arm";
+      break;
+    case BS_F6:
+      armfile = "F6.arm";
+      break;
+    case BS_F8:
+      armfile = "F8.arm";
+      break;
+    case BS_F4SC:
+      armfile = "F4SC.arm";
+      break;
+    case BS_F6SC:
+      armfile = "F6SC.arm";
+      break;
+    case BS_F8SC:
+      armfile = "F8SC.arm";
+      break;
+    case BS_FE:
+      armfile = "FE.arm";
+      break;
+    case BS_AR:
+      armfile = "SC.arm";
+      break;
+    case BS_UA:
+      armfile = "UA.arm";
+      break;
     default:
       result = "Bankswitch type \'" + Bankswitch::typeToName(type) + "\' not supported.";
-      *myLog << "ERROR: " << result.c_str() << endl;
+      *myLog << "ERROR: " << result << endl;
       goto cleanup;
+      break;
   }
 
   // Now load the proper bankswitch file
@@ -157,24 +206,15 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
   // It seems that '/' is used even on Windows, but all separators must be converted
   // to '\' before passing it to C++ streams
   // Damn Windows for being the only OS that uses '\'
-  if(armfile != "")
+  armfile = QDir(QString(armpath.c_str()) + "/" + QString(armfile.c_str())).canonicalPath().toStdString();
+  armbuf = readFile(armfile, armsize);
+  if(armsize == 0)
   {
-    armfile = QDir(QString(armpath.c_str()) + "/" + QString(armfile.c_str())).canonicalPath().toStdString();
-    armbuf = readFile(armfile, armsize);
-    if(armsize == 0)
-    {
-      result = "Couldn't open bankswitch ARM file.";
-      goto cleanup;
-    }
+    result = "Couldn't open bankswitch ARM file.";
+    goto cleanup;
   }
 
-  // Now we have to combine the ROM and ARM code
-  //   Certain cases below will take care of combining the ARM and ROM data
-  //   in a specific fashion; in those cases, 'size' will be non-zero,
-  //   indicating that no further processing is required.
-  //
-  //   Otherwise, normal cases will have 'size' as zero, indicating that ARM
-  //   and ROM data is to be combined later in the method.
+  // Now we have to combine the rom and ARM code
 
   if(type == BS_F4SC)  // F4+SC
   {
@@ -188,154 +228,87 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
     if(armsize > 4096)
       memcpy(binary_ptr+4096, armbuf+4096, armsize-4096);
 
-    size = romsize;  // No further processing required
-  }
-  else if(type == BS_F4)  // F4
-  {
-    // Copy ARM data to determine remaining size
-    // Leave space for 8 bytes, to indicate the bank configuration
-    memcpy(binary_ptr, armbuf, armsize);
-    binary_ptr += armsize + 8;
-
-    // Reorganize bin for best compression
-    // Possible bank organizations:
-    //   12345670  02345671  01345672  01245673
-    //   01235674  01234675  01234576  01234567
-
-    uInt32 i;
-    for(i = 0; i < 8; ++i) // i = bank to go last
-    {
-      uInt8* ptr = binary_ptr;
-      for(uInt32 h = 0; h < 8; ++h)
-      {
-        if (h != i)
-        {
-          memcpy(ptr, rombuf+4096*h, 4096);
-          ptr += 4096;
-        }
-      }
-
-      memcpy(ptr, rombuf+4096*i, 4096);
-      ptr += 4096;
-
-      // Compress last bank
-      try
-      {
-        romsize = 28672 + compressLastBank(binary_ptr);
-      }
-      catch(const char* msg)
-      {
-        result = msg;
-        *myLog << "ERROR: " << result.c_str() << endl;
-        goto cleanup;
-      }
-      if(romsize+armsize < 32760)
-        break; // one of the banks fits
-    }
-
-    if(i == 8)
-    {
-      result = "Cannot compress F4 binary";
-      *myLog << "ERROR: " << result.c_str() << endl;
-      goto cleanup;
-    }
-
-    // Output bank index:
-    //   70123456  07123456  01723456  01273456
-    //   01237456  01234756  01234576  01234567
-    uInt32 f = 0;
-    uInt8* ptr = binary_ptr - 8;
-    for(uInt32 h = 0; h < 8; ++h)
-    {
-      if(h != i)  *ptr++ = f++;
-      else        *ptr++ = 7;
-    }
-
-    size = armsize + 8 + romsize;  // No further processing required
-  }
-  else if(type == BS_4K && romsize < 4096)  // 2K & 'Sub2K'
-  {
-    // All ROMs 2K or less should be mirrored into the 4K address space
-    uInt32 power2 = 1;
-    while(power2 < romsize)
-      power2 <<= 1;
-
-    // Create a 4K buffer and reassign to rombuf
-    uInt8* tmp = new uInt8[4096];
-    uInt8* tmp_ptr = tmp;
-    for(uInt32 i = 0; i < 4096/power2; ++i, tmp_ptr += power2)
-      memcpy(tmp_ptr, rombuf, romsize);
-
-    delete[] rombuf;
-    rombuf = tmp;
-    romsize = 4096;
-  }
-  else if(type == BS_AR)  // Supercharger
-  {
-    // Take care of special AR ROM which are only 6K
-    if(romsize == 6144)
-    {
-      // Minimum buffer size is 6K + 256 bytes
-      uInt8* tmp = new uInt8[6144+256];
-      memcpy(tmp, rombuf, 6144);          // copy ROM
-      memcpy(tmp+6144, ourARHeader, 256); // copy missing header
-
-      delete[] rombuf;
-      rombuf = tmp;
-      romsize = 6144 + 256;
-    }
-    else  // size is multiple of 8448
-    {
-      // To save space, we skip 2K in each Supercharger load
-      uInt32 numLoads = romsize / 8448;
-      uInt8* tmp = new uInt8[numLoads*(6144+256)];
-      uInt8 *tmp_ptr = tmp, *rom_ptr = rombuf;
-      for(uInt32 i = 0; i < numLoads; ++i, tmp_ptr += 6144+256, rom_ptr += 8448)
-      {
-        memcpy(tmp_ptr, rom_ptr, 6144);                // 6KB  @ pos 0K
-        memcpy(tmp_ptr+6144, rom_ptr+6144+2048, 256);  // 256b @ pos 8K
-      }
-
-      delete[] rombuf;
-      rombuf = tmp;
-      romsize = numLoads * (6144+256);
-    }
-  }
-  else if(type == BS_DPCP)
-  {
-    // There are two variants of DPC+; one with the ARM code
-    // already added (32KB), and the other without (29KB)
-
-    // The one with the ARM code will be processed here
-    // The one without the ARM code will be processed below
-    if(romsize == 32 * 1024)
-    {
-      // Copy ROM data; no further processing required
-      size = romsize;
-      memcpy(binary_ptr, rombuf, size);
-    }
-  }
-  else if(type == BS_CUSTOM)
-  {
-    // Copy ROM data; no further processing required
     size = romsize;
-    memcpy(binary_ptr, rombuf, size);
   }
-
-  // Do we need combine ARM and ROM data?
-  if(size == 0)
+  else
   {
-    // Copy ARM data
-    memcpy(binary_ptr, armbuf, armsize);
-    binary_ptr += armsize;
+    if(type == BS_F4)  // F4
+    {
+      // Compress last bank
+      romsize = 28672 + compressLastBank(rombuf);
+    }
+    else if(type == BS_4K && romsize < 4096)  // 2K & 'Sub2K'
+    {
+      // All ROMs 2K or less should be mirrored into the 4K address space
+      uInt32 power2 = 1;
+      while(power2 < romsize)
+        power2 <<= 1;
 
+      // Create a 4K buffer and reassign to rombuf
+      uInt8* tmp = new uInt8[4096];
+      uInt8* tmp_ptr = tmp;
+      for(uInt32 i = 0; i < 4096/power2; ++i, tmp_ptr += power2)
+        memcpy(tmp_ptr, rombuf, romsize);
+
+      delete[] rombuf;
+      rombuf = tmp;
+      romsize = 4096;
+    }
+    else if(type == BS_AR)  // Supercharger
+    {
+      // Take care of special AR ROM which are only 6K
+      if(romsize == 6144)
+      {
+        // Minimum buffer size is 6K + 256 bytes
+        uInt8* tmp = new uInt8[6144+256];
+        memcpy(tmp, rombuf, 6144);          // copy ROM
+        memcpy(tmp+6144, ourARHeader, 256); // copy missing header
+
+        delete[] rombuf;
+        rombuf = tmp;
+        romsize = 6144 + 256;
+      }
+      else  // size is multiple of 8448
+      {
+        // To save space, we skip 2K in each Supercharger load
+        uInt32 numLoads = romsize/8448;
+        uInt8* tmp = new uInt8[numLoads*(6144+256)];
+        uInt8 *tmp_ptr = tmp, *rom_ptr = rombuf;
+        for(uInt32 i = 0; i < numLoads; ++i, tmp_ptr += 6144+256, rom_ptr += 8448)
+        {
+          memcpy(tmp_ptr, rom_ptr, 6144);                // 6KB  @ pos 0K
+          memcpy(tmp_ptr+6144, rom_ptr+6144+2048, 256);  // 256b @ pos 8K
+        }
+
+        delete[] rombuf;
+        rombuf = tmp;
+        romsize = numLoads * (6144+256);
+      }
+    }
+
+    if ((type != BS_4K) || (romsize == 4096)) // this will fail if we upload a BIOS file
+    {
+      // Copy ARM data
+      memcpy(binary_ptr, armbuf, armsize);
+      binary_ptr += armsize;
+    }
     // Copy ROM data
     memcpy(binary_ptr, rombuf, romsize);
 
     size = romsize + armsize;
   }
 
-  result = lpc_NxpDownload(port, binary, size, verify, showprogress);
+  if(showprogress)
+  {
+    // Actually write the data to the cart/serial port, and
+    // use a progressbar to show progress
+    progress.setWindowTitle("Updating ROM");
+    progress.setWindowModality(Qt::WindowModal);
+    progress.setWindowIcon(QPixmap(":icons/pics/appicon.png"));
+    result = lpc_PhilipsDownload(port, binary, size, verify, &progress);
+  }
+  else
+    result = lpc_PhilipsDownload(port, binary, size, verify);
 
 cleanup:
   delete[] rombuf;
@@ -349,7 +322,7 @@ uInt8* Cart::readFile(const string& filename, uInt32& size)
   uInt8* buffer = (uInt8*) NULL;
   size = 0;
 
-  *myLog << "Reading from file: \'" << filename.c_str() << "\' ... ";
+  *myLog << "Reading from file: \'" << filename << "\' ... ";
 
   // Read file into buffer
   ifstream in(filename.c_str(), ios::binary);
@@ -443,16 +416,11 @@ uInt32 Cart::compressLastBank(uInt8* binary)
     if (k >= 4)
     {
       if (b)
-      {
-        bc[cb++] = b;
-        for(a = 0; a < b; ++a)
-          bc[cb++] = bufliteral[a];
-        b = 0;
-      }
+        {bc[cb++]=b;for(a=0;a<b;++a) bc[cb++]=bufliteral[a];b=0;}
 
-      bc[cb++] = k-4+128;
-      bc[cb++] = j/256;
-      bc[cb++] = j%256;
+      bc[cb++]=k-4+128;
+      bc[cb++]=j/256;
+      bc[cb++]=j%256;
       mode_count++;
     }
     else
@@ -461,50 +429,28 @@ uInt32 Cart::compressLastBank(uInt8* binary)
       if (!k)
       {
         k = 1;
-        // printf("y %X x %X\n",y,x);
+        printf("y %X x %X\n",y,x);
       } // byte not found in entire binary ???
 
       for (a = 0; a < k; ++a)
-        bufliteral[a+b] = buf[y+a];
+        bufliteral[a+b]=buf[y+a];
 
       b += k;
-      if (b > 127)
-      {
-        bc[cb++] = 127;
-        for(a = 0; a < 127; ++a)
-          bc[cb++] = bufliteral[a];
-        b = b-127;
-        if (b)
-          for (a = 0; a < b; ++a)
-            bufliteral[a] = bufliteral[a+127];
-      }
+      if (b>127)
+        {bc[cb++]=127;for(a=0;a<127;++a) bc[cb++]=bufliteral[a];b=b-127;if (b) for (a=0;a<b;++a) bufliteral[a]=bufliteral[a+127];}
     }
     y += k;
   }
 
   if (b)
-  {
-    bc[cb++] = b;
-    for (a = 0; a < b; ++a)
-      bc[cb++] = bufliteral[a];
-    b=0;
-  }
+    {bc[cb++]=b;for(a=0;a<b;++a) bc[cb++]=bufliteral[a];b=0;}
 
-#if 0
   if (cb>3424) // subject to change...
-  {
-    char buf[100];
-    sprintf(buf, "Unable to compress: file is %d bytes", cb+28672);
-    throw buf;
-  }
-#endif
+    {fprintf(stderr,"Unable to compress: file is %d bytes\n",cb+28672);exit(2);}
 
   // decompression test
-  for (a = 0; a < 4096; ++a)
-  {
-    buflast[a] = buf[32768-4096 + a];
-    buf[32768-4096 + a] = 0;
-  }
+  for (a=0;a<4096;++a)
+    { buflast[a] = buf[32768-4096 + a];  buf[32768-4096 + a] = 0; }
 
   x = y = 0;
   while (x < cb)
@@ -529,54 +475,20 @@ uInt32 Cart::compressLastBank(uInt8* binary)
     if(dec[a] != buflast[a])
       break;
 
-  if (a >= 4096)
-  {
+  if (a < 4096)
+    {fprintf(stderr,"Unknown compression error\n");exit(3);}
+  else
     for (a = 0; a < cb; ++a)
       binary[28672+a] = bc[a];
-  }
-  else
-  {
-    char buf[100];
-    sprintf(buf, "Unknown compression error");
-    throw buf;
-  }
 
   return cb;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void Cart::initializeProgress(const QString& title, int minimum, int maximum)
-{
-  myProgress.setWindowTitle(title);
-  myProgress.setRange(minimum, maximum);
-  myProgress.setMinimumDuration(0);
-  myProgress.setValue(0);
-}
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void Cart::updateProgressText(const QString& text)
-{
-  myProgress.setLabelText(text);
-}
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool Cart::updateProgressValue(int step)
-{
-  myProgress.setValue(step);
-  return !myProgress.wasCanceled();
-}
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void Cart::finalizeProgress()
-{
-  myProgress.setValue(myProgress.maximum());
-}
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-string Cart::lpc_NxpChipVersion(SerialPort& port)
+string Cart::lpc_PhilipsChipVersion(SerialPort& port)
 {
   int found, i;
-  int strippedsize;
+  int  strippedsize;
   char Answer[128], temp[128];
   char *strippedAnswer, *endPtr;
   const char* cmdstr;
@@ -598,6 +510,33 @@ string Cart::lpc_NxpChipVersion(SerialPort& port)
       strippedsize--;
     }
 
+#if 0
+    if (strcmp(strippedAnswer, "Bootloader\r\n") == 0)
+    {
+      long chars, xtal;
+      uInt32 ticks;
+      chars = (17 * 0/*BinaryLength*/ + 1) / 10;
+      int WatchDogSeconds = (10 * chars + 5) / port.getBaud() + 10;
+      xtal = atol(oscillator.c_str()) * 1000;
+      ticks = (uInt32)WatchDogSeconds * ((xtal + 15) / 16);
+//      DebugPrintf(2, "Entering ISP; re-synchronizing (watchdog = %ld seconds)\n", WatchDogSeconds);
+      sprintf(temp, "T %lu\r\n", ticks);
+      port.send(temp);
+      port.receive(Answer, sizeof(Answer)-1, &realsize, 1,100);
+      if (strcmp(Answer, "OK\r\n") != 0)
+      {
+        strcpy(version, "ERROR: No answer on \'watchdog timer set\'");
+        return version;
+      }
+      port.send("G 10356\r\n");
+      port.sleepMillis(200);
+      nQuestionMarks = 0;
+//      WaitForWatchDog = 1;
+      continue;
+    }
+#endif
+
+//    tStartUpload = time(NULL);
     if (strcmp(strippedAnswer, "Synchronized\r\n") == 0)
       found = 1;
     else
@@ -668,7 +607,7 @@ string Cart::lpc_NxpChipVersion(SerialPort& port)
   myDetectedDevice = i;
   if(myDetectedDevice != 0)
   {
-    sprintf(version, "LPC%s, %d kiB ROM / %d kiB SRAM",
+    sprintf(version, "LPC%d, %d kiB ROM / %d kiB SRAM",
             LPCtypes[myDetectedDevice].Product,
             LPCtypes[myDetectedDevice].FlashSize,
             LPCtypes[myDetectedDevice].RAMSize);
@@ -678,8 +617,8 @@ string Cart::lpc_NxpChipVersion(SerialPort& port)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
-                             bool verify, bool showprogress)
+string Cart::lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
+                                 bool verify, QProgressDialog* progress)
 {
   char Answer[128], ExpectedAnswer[128], temp[128];
   char *strippedAnswer, *endPtr;
@@ -700,6 +639,8 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
   uInt32 ivt_CRC;          // CRC over interrupt vector table
   uInt32 block_CRC;
   time_t tStartUpload=0, tDoneUpload=0;
+  long WatchDogSeconds = 0;
+  int WaitForWatchDog = 0;
   const char* cmdstr;
   uInt32 repeat = 0;
   ostringstream result;
@@ -734,9 +675,12 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
   }
   uInt8* binaryContent = new uInt8[BinaryLength];
   memcpy(binaryContent, data, size);
-  uInt32 progressStep = 0;
-  if(showprogress)
-    initializeProgress("Updating Flash", 0, BinaryLength/45 + 20);
+  uInt32 progressStep = 0, progressSize = BinaryLength/45 + 20;
+  if(progress)
+  {
+    progress->setMinimumDuration(0);
+    progress->setRange(0, progressSize);
+  }
 
   if(LPCtypes[myDetectedDevice].ChipVariant == CHIP_VARIANT_LPC2XXX)
   {
@@ -762,9 +706,7 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
     for (int i = 0; i < 4; i++)
       binaryContent[i + 0x14] = (unsigned char)(ivt_CRC >> (8 * i));
   }
-  else if(LPCtypes[myDetectedDevice].ChipVariant == CHIP_VARIANT_LPC17XX ||
-          LPCtypes[myDetectedDevice].ChipVariant == CHIP_VARIANT_LPC13XX ||
-          LPCtypes[myDetectedDevice].ChipVariant == CHIP_VARIANT_LPC11XX)
+  else if(LPCtypes[myDetectedDevice].ChipVariant == CHIP_VARIANT_LPC17XX)
   {
     // Patch 0x1C, otherwise it is not running and jumps to boot mode
     ivt_CRC = 0;
@@ -805,6 +747,30 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
     {
       strippedAnswer++;
       strippedsize--;
+    }
+
+    if (strcmp(strippedAnswer, "Bootloader\r\n") == 0)
+    {
+      int chars, xtal;
+      uInt32 ticks;
+      chars = (17 * 0/*BinaryLength*/ + 1) / 10;
+      int WatchDogSeconds = (10 * chars + 5) / port.getBaud() + 10;
+      xtal = atol(myOscillator.c_str()) * 1000;
+      ticks = (uInt32)WatchDogSeconds * ((xtal + 15) / 16);
+      *myLog << "Entering ISP; re-synchronizing (watchdog = " << WatchDogSeconds << " seconds)\n";
+      sprintf(temp, "T %u\r\n", ticks);
+      port.send(temp);
+      port.receive(Answer, sizeof(Answer)-1, 1, 100);
+      if (strcmp(Answer, "OK\r\n") != 0)
+      {
+        result << "ERROR: No answer on 'watchdog timer set'";
+        goto cleanup;
+      }
+      port.send("G 10356\r\n");
+      port.sleepMillis(200);
+      nQuestionMarks = 0;
+      WaitForWatchDog = 1;
+      continue;
     }
 
     tStartUpload = time(NULL);
@@ -895,7 +861,7 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
   else
   {
     char version[100];
-    sprintf(version, "LPC%s, %d kiB ROM / %d kiB SRAM",
+    sprintf(version, "LPC%d, %d kiB ROM / %d kiB SRAM",
             LPCtypes[myDetectedDevice].Product,
             LPCtypes[myDetectedDevice].FlashSize,
             LPCtypes[myDetectedDevice].RAMSize);
@@ -965,8 +931,8 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
     }
 
     *myLog << "Sector " << Sector << flush;
-    if(showprogress)
-      updateProgressText("Downloading sector " + QString::number(Sector) + " ...                  ");
+    if(progress)
+      progress->setLabelText("Downloading sector " + QString::number(Sector) + " ...                  ");
 
     if (BinaryOffset < lpc_ReturnValueLpcRamStart()) // Skip Erase when running from RAM
     {
@@ -1039,9 +1005,10 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
           *myLog << "." << flush;
 
           // Inform the calling application about having written another chuck of data
-          if(showprogress)
+          if(progress)
           {
-            if(!updateProgressValue(++progressStep))
+            progress->setValue(++progressStep);
+            if(progress->wasCanceled())
             {
               result << "Cancelled download";
               goto cleanup;
@@ -1180,9 +1147,9 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
 
         if (verify)
         {
-          // Avoid compare first 64 bytes.
-          // Because first 64 bytes are re-mapped to flash boot sector,
-          // and the compare result may not be correct.
+          //Avoid compare first 64 bytes.
+          //Because first 64 bytes are re-mapped to flash boot sector,
+          //and the compare result may not be correct.
           if (SectorStart + SectorOffset<64)
             sprintf(tmpString, "M %d %d %d\n", 64, lpc_ReturnValueLpcRamBase() + (64 - SectorStart - SectorOffset), CopyLength-(64 - SectorStart - SectorOffset));
           else
@@ -1221,15 +1188,17 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
   else
     result << "Download Finished... taking " << int(tDoneUpload - tStartUpload) << " seconds";
 
-  if (1 /* IspEnvironment->DoNotStart == 0*/)
+  if (WaitForWatchDog)
+  {
+    *myLog << "Wait for restart, in " << (WatchDogSeconds - (tDoneUpload - tStartUpload)) << " seconds from now\n";
+  }
+  else
   {
     *myLog << "Now launching the brand new code\n" << flush;
 
     if(LPCtypes[myDetectedDevice].ChipVariant == CHIP_VARIANT_LPC2XXX)
       sprintf(tmpString, "G %d A\n", StartAddress);
-    else if(LPCtypes[myDetectedDevice].ChipVariant == CHIP_VARIANT_LPC17XX ||
-            LPCtypes[myDetectedDevice].ChipVariant == CHIP_VARIANT_LPC13XX ||
-            LPCtypes[myDetectedDevice].ChipVariant == CHIP_VARIANT_LPC11XX)
+    else if(LPCtypes[myDetectedDevice].ChipVariant == CHIP_VARIANT_LPC17XX)
       sprintf(tmpString, "G %d T\n", StartAddress & ~1);
 
     port.send(tmpString);  //goto 0 : run this fresh new downloaded code code
@@ -1260,13 +1229,12 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
 
     *myLog << flush;
   }
-
 cleanup:
   delete[] binaryContent;  binaryContent = NULL;
-  if(showprogress)
-    finalizeProgress();
+  if(progress)
+    progress->setValue(progressSize);
 
-  *myLog << result.str().c_str() << endl;
+  *myLog << result.str() << endl;
   return result.str();
 }
 
@@ -1318,10 +1286,6 @@ uInt32 Cart::lpc_ReturnValueLpcRamStart()
     return LPC_RAMSTART_LPC2XXX;
   else if(LPCtypes[myDetectedDevice].ChipVariant == CHIP_VARIANT_LPC17XX)
     return LPC_RAMSTART_LPC17XX;
-  else if(LPCtypes[myDetectedDevice].ChipVariant == CHIP_VARIANT_LPC13XX)
-    return LPC_RAMSTART_LPC13XX;
-  else if(LPCtypes[myDetectedDevice].ChipVariant == CHIP_VARIANT_LPC11XX)
-    return LPC_RAMSTART_LPC11XX;
 
   return 0;  // TODO - more properly handle this
 }
@@ -1333,10 +1297,6 @@ uInt32 Cart::lpc_ReturnValueLpcRamBase()
     return LPC_RAMBASE_LPC2XXX;
   else if(LPCtypes[myDetectedDevice].ChipVariant == CHIP_VARIANT_LPC17XX)
     return LPC_RAMBASE_LPC17XX;
-  else if(LPCtypes[myDetectedDevice].ChipVariant == CHIP_VARIANT_LPC13XX)
-    return LPC_RAMBASE_LPC13XX;
-  else if(LPCtypes[myDetectedDevice].ChipVariant == CHIP_VARIANT_LPC11XX)
-    return LPC_RAMBASE_LPC11XX;
 
   return 0;  // TODO - more properly handle this
 }
@@ -1354,18 +1314,18 @@ const uInt32 Cart::SectorTable_2103[] = {
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const uInt32 Cart::SectorTable_2109[] = {
-  8192, 8192, 8192, 8192, 8192, 8192, 8192, 8192
+   8192, 8192, 8192, 8192, 8192, 8192, 8192, 8192
 };
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const uInt32 Cart::SectorTable_211x[] = {
   8192, 8192, 8192, 8192, 8192, 8192, 8192, 8192,
-  8192, 8192, 8192, 8192, 8192, 8192, 8192
+  8192, 8192, 8192, 8192, 8192, 8192, 8192,
 };
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const uInt32 Cart::SectorTable_212x[] = {
-   8192,  8192, 8192, 8192, 8192, 8192, 8192, 8192,
+  8192, 8192, 8192, 8192, 8192, 8192, 8192, 8192,
   65536, 65536, 8192, 8192, 8192, 8192, 8192, 8192, 8192
 };
 
@@ -1393,126 +1353,60 @@ uInt32 Cart::SectorTable_RAM[] = { 65000 };
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Cart::LPC_DEVICE_TYPE Cart::LPCtypes[] = {
-  { 0, 0, 0, 0, 0, 0, 0, CHIP_VARIANT_NONE },  /* unknown */
+  { 0, 0, 0, 0, 0, 0, 0, CHIP_VARIANT_UNKNOWN },  /* unknown */
 
-  // id, name of product, flash size, ram size, total number of sector, max copy size, sector table, chip variant
-
-  { 0x2500102B, "1102",         32,  8,  8, 4096, SectorTable_17xx, CHIP_VARIANT_LPC11XX },
-
-  { 0x0A07102B, "1110.../002",   4,  1,  1, 1024, SectorTable_17xx, CHIP_VARIANT_LPC11XX },
-  { 0x1A07102B, "1110.../002",   4,  1,  1, 1024, SectorTable_17xx, CHIP_VARIANT_LPC11XX },
-  { 0x0A16D02B, "1111.../002",   8,  2,  2, 1024, SectorTable_17xx, CHIP_VARIANT_LPC11XX },
-  { 0x1A16D02B, "1111.../002",   8,  2,  2, 1024, SectorTable_17xx, CHIP_VARIANT_LPC11XX },
-  { 0x041E502B, "1111.../101",   8,  2,  2, 1024, SectorTable_17xx, CHIP_VARIANT_LPC11XX },
-  { 0x2516D02B, "1111.../102",   8,  2,  2, 1024, SectorTable_17xx, CHIP_VARIANT_LPC11XX },
-  { 0x0416502B, "1111.../201",   8,  4,  2, 1024, SectorTable_17xx, CHIP_VARIANT_LPC11XX },
-  { 0x2516902B, "1111.../202",   8,  4,  2, 1024, SectorTable_17xx, CHIP_VARIANT_LPC11XX },
-  { 0x042D502B, "1112.../101",  16,  2,  4, 1024, SectorTable_17xx, CHIP_VARIANT_LPC11XX },
-  { 0x2524D02B, "1112.../102",  16,  2,  4, 1024, SectorTable_17xx, CHIP_VARIANT_LPC11XX },
-  { 0x0A24902B, "1112.../102",  16,  4,  4, 1024, SectorTable_17xx, CHIP_VARIANT_LPC11XX },
-  { 0x1A24902B, "1112.../102",  16,  4,  4, 1024, SectorTable_17xx, CHIP_VARIANT_LPC11XX },
-  { 0x0425502B, "1112.../201",  16,  4,  4, 1024, SectorTable_17xx, CHIP_VARIANT_LPC11XX },
-  { 0x2524902B, "1112.../202",  16,  4,  4, 1024, SectorTable_17xx, CHIP_VARIANT_LPC11XX },
-  { 0x0434502B, "1113.../201",  24,  4,  6, 1024, SectorTable_17xx, CHIP_VARIANT_LPC11XX },
-  { 0x2532902B, "1113.../202",  24,  4,  6, 1024, SectorTable_17xx, CHIP_VARIANT_LPC11XX },
-  { 0x0434102B, "1113.../301",  24,  8,  6, 4096, SectorTable_17xx, CHIP_VARIANT_LPC11XX },
-  { 0x2532102B, "1113.../302",  24,  8,  6, 4096, SectorTable_17xx, CHIP_VARIANT_LPC11XX },
-  { 0x0A40902B, "1114.../102",  32,  4,  8, 1024, SectorTable_17xx, CHIP_VARIANT_LPC11XX },
-  { 0x1A40902B, "1114.../102",  32,  4,  8, 1024, SectorTable_17xx, CHIP_VARIANT_LPC11XX },
-  { 0x0444502B, "1114.../201",  32,  4,  8, 1024, SectorTable_17xx, CHIP_VARIANT_LPC11XX },
-  { 0x2540902B, "1114.../202",  32,  4,  8, 1024, SectorTable_17xx, CHIP_VARIANT_LPC11XX },
-  { 0x0444102B, "1114.../301",  32,  8,  8, 4096, SectorTable_17xx, CHIP_VARIANT_LPC11XX },
-  { 0x2540102B, "1114.../302",  32,  8,  8, 4096, SectorTable_17xx, CHIP_VARIANT_LPC11XX },
-
-  { 0x1421102B, "11C12.../301",  16,  8,  4, 4096, SectorTable_17xx, CHIP_VARIANT_LPC11XX },
-  { 0x1440102B, "11C14.../301",  32,  8,  8, 4096, SectorTable_17xx, CHIP_VARIANT_LPC11XX },
-  { 0x1431102B, "11C22.../301",  16,  8,  4, 4096, SectorTable_17xx, CHIP_VARIANT_LPC11XX },
-  { 0x1430102B, "11C24.../301",  32,  8,  8, 4096, SectorTable_17xx, CHIP_VARIANT_LPC11XX },
-
-  { 0x0364002B, "1224.../101",  32,  8,  4, 2048, SectorTable_17xx, CHIP_VARIANT_LPC11XX },
-  { 0x0364202B, "1224.../121",  48, 12, 32, 4096, SectorTable_17xx, CHIP_VARIANT_LPC11XX },
-  { 0x0365002B, "1225.../301",  64, 16, 32, 4096, SectorTable_17xx, CHIP_VARIANT_LPC11XX },
-  { 0x0365202B, "1225.../321",  80, 20, 32, 4096, SectorTable_17xx, CHIP_VARIANT_LPC11XX },
-  { 0x0366002B, "1226",         96, 24, 32, 4096, SectorTable_17xx, CHIP_VARIANT_LPC11XX },
-  { 0x0367002B, "1227",        128, 32, 32, 4096, SectorTable_17xx, CHIP_VARIANT_LPC11XX },
-
-  { 0x2C42502B, "1311",          8,  4,  2, 1024, SectorTable_17xx, CHIP_VARIANT_LPC13XX },
-  { 0x1816902B, "1311/01",       8,  4,  2, 1024, SectorTable_17xx, CHIP_VARIANT_LPC13XX },
-  { 0x2C40102B, "1313",         32,  8,  8, 4096, SectorTable_17xx, CHIP_VARIANT_LPC13XX },
-  { 0x1830102B, "1313/01",      32,  8,  8, 4096, SectorTable_17xx, CHIP_VARIANT_LPC13XX },
-  { 0x3D01402B, "1342",         16,  4,  4, 1024, SectorTable_17xx, CHIP_VARIANT_LPC13XX },
-  { 0x3D00002B, "1343",         32,  8,  8, 4096, SectorTable_17xx, CHIP_VARIANT_LPC13XX },
-
-  { 0x25001118, "1751",         32,  8,  8, 4096, SectorTable_17xx, CHIP_VARIANT_LPC17XX },
-  { 0x25001121, "1752",         64, 16, 16, 4096, SectorTable_17xx, CHIP_VARIANT_LPC17XX },
-  { 0x25011722, "1754",        128, 32, 18, 4096, SectorTable_17xx, CHIP_VARIANT_LPC17XX },
-  { 0x25011723, "1756",        256, 32, 22, 4096, SectorTable_17xx, CHIP_VARIANT_LPC17XX },
-  { 0x25013F37, "1758",        512, 64, 30, 4096, SectorTable_17xx, CHIP_VARIANT_LPC17XX },
-  { 0x25113737, "1759",        512, 64, 30, 4096, SectorTable_17xx, CHIP_VARIANT_LPC17XX },
-  { 0x26011922, "1764",        128, 32, 18, 4096, SectorTable_17xx, CHIP_VARIANT_LPC17XX },
-  { 0x26013733, "1765",        256, 64, 22, 4096, SectorTable_17xx, CHIP_VARIANT_LPC17XX },
-  { 0x26013F33, "1766",        256, 64, 22, 4096, SectorTable_17xx, CHIP_VARIANT_LPC17XX },
-  { 0x26012837, "1767",        512, 64, 30, 4096, SectorTable_17xx, CHIP_VARIANT_LPC17XX },
-  { 0x26013F37, "1768",        512, 64, 30, 4096, SectorTable_17xx, CHIP_VARIANT_LPC17XX },
-  { 0x26113F37, "1769",        512, 64, 30, 4096, SectorTable_17xx, CHIP_VARIANT_LPC17XX },
-
-  { 0x27011132, "1774",        128, 40, 18, 4096, SectorTable_17xx, CHIP_VARIANT_LPC17XX },
-  { 0x27191F43, "1776",        256, 80, 22, 4096, SectorTable_17xx, CHIP_VARIANT_LPC17XX },
-  { 0x27193747, "1777",        512, 96, 30, 4096, SectorTable_17xx, CHIP_VARIANT_LPC17XX },
-  { 0x27193F47, "1778",        512, 96, 30, 4096, SectorTable_17xx, CHIP_VARIANT_LPC17XX },
-  { 0x281D1743, "1785",        256, 80, 22, 4096, SectorTable_17xx, CHIP_VARIANT_LPC17XX },
-  { 0x281D1F43, "1786",        256, 80, 22, 4096, SectorTable_17xx, CHIP_VARIANT_LPC17XX },
-  { 0x281D3747, "1787",        512, 96, 30, 4096, SectorTable_17xx, CHIP_VARIANT_LPC17XX },
-  { 0x281D3F47, "1788",        512, 96, 30, 4096, SectorTable_17xx, CHIP_VARIANT_LPC17XX },
-
-  { 0x0004FF11, "2103",         32,  8,  8, 4096, SectorTable_2103, CHIP_VARIANT_LPC2XXX },
-  { 0xFFF0FF12, "2104",        128, 16, 15, 8192, SectorTable_210x, CHIP_VARIANT_LPC2XXX },
-  { 0xFFF0FF22, "2105",        128, 32, 15, 8192, SectorTable_210x, CHIP_VARIANT_LPC2XXX },
-  { 0xFFF0FF32, "2106",        128, 64, 15, 8192, SectorTable_210x, CHIP_VARIANT_LPC2XXX },
-  { 0x0201FF01, "2109",         64,  8,  8, 4096, SectorTable_2109, CHIP_VARIANT_LPC2XXX },
-  { 0x0101FF12, "2114",        128, 16, 15, 8192, SectorTable_211x, CHIP_VARIANT_LPC2XXX },
-  { 0x0201FF12, "2119",        128, 16, 15, 8192, SectorTable_211x, CHIP_VARIANT_LPC2XXX },
-  { 0x0101FF13, "2124",        256, 16, 17, 8192, SectorTable_212x, CHIP_VARIANT_LPC2XXX },
-  { 0x0201FF13, "2129",        256, 16, 17, 8192, SectorTable_212x, CHIP_VARIANT_LPC2XXX },
-  { 0x0002FF01, "2131",         32,  8,  8, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
-  { 0x0002FF11, "2132",         64, 16,  9, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
-  { 0x0002FF12, "2134",        128, 16, 11, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
-  { 0x0002FF23, "2136",        256, 32, 15, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
-  { 0x0002FF25, "2138",        512, 32, 27, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
-  { 0x0402FF01, "2141",         32,  8,  8, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
-  { 0x0402FF11, "2142",         64, 16,  9, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
-  { 0x0402FF12, "2144",        128, 16, 11, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
-  { 0x0402FF23, "2146",        256, 40, 15, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
-  { 0x0402FF25, "2148",        512, 40, 27, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
-  { 0x0301FF13, "2194",        256, 16, 17, 8192, SectorTable_212x, CHIP_VARIANT_LPC2XXX },
-  { 0x0301FF12, "2210",          0, 16,  0, 8192, SectorTable_211x, CHIP_VARIANT_LPC2XXX }, /* table is a "don't care" */
-  { 0x0401FF12, "2212",        128, 16, 15, 8192, SectorTable_211x, CHIP_VARIANT_LPC2XXX },
-  { 0x0601FF13, "2214",        256, 16, 17, 8192, SectorTable_212x, CHIP_VARIANT_LPC2XXX },
-  /*            "2290"; same id as the LPC2210 */
-  { 0x0401FF13, "2292",        256, 16, 17, 8192, SectorTable_212x, CHIP_VARIANT_LPC2XXX },
-  { 0x0501FF13, "2294",        256, 16, 17, 8192, SectorTable_212x, CHIP_VARIANT_LPC2XXX },
-  { 0x00000000, "2361",        128, 34, 11, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
-  { 0x00000000, "2362",        128, 34, 11, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
-  { 0x0603FB02, "2364",        128, 34, 11, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX }, /* From UM10211 Rev. 01 -- 6 July 2007 */
-  { 0x1600F902, "2364",        128, 34, 11, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
-  { 0x1600E823, "2365",        256, 58, 15, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
-  { 0x0603FB23, "2366",        256, 58, 15, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX }, /* From UM10211 Rev. 01 -- 6 July 2007 */
-  { 0x1600F923, "2366",        256, 58, 15, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
-  { 0x1600E825, "2367",        512, 58, 15, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
-  { 0x0603FB25, "2368",        512, 58, 28, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX }, /* From UM10211 Rev. 01 -- 6 July 2007 */
-  { 0x1600F925, "2368",        512, 58, 28, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
-  { 0x1700E825, "2377",        512, 58, 28, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
-  { 0x0703FF25, "2378",        512, 58, 28, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX }, /* From UM10211 Rev. 01 -- 6 July 2007 */
-  { 0x1600FD25, "2378",        512, 58, 28, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX }, /* From UM10211 Rev. 01 -- 29 October 2007 */
-  { 0x1700FD25, "2378",        512, 58, 28, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
-  { 0x1700FF35, "2387",        512, 98, 28, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX }, /* From UM10211 Rev. 03 -- 25 August 2008 */
-  { 0x1800F935, "2387",        512, 98, 28, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
-  { 0x1800FF35, "2388",        512, 98, 28, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
-  { 0x1500FF35, "2458",        512, 98, 28, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
-  { 0x1600FF30, "2460",          0, 98,  0, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
-  { 0x1600FF35, "2468",        512, 98, 28, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
-  { 0x1701FF30, "2470",          0, 98,  0, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
-  { 0x1701FF35, "2478",        512, 98, 28, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX }
+  { 0x00001110, 1751,  32,  8,  8, 4096, SectorTable_17xx, CHIP_VARIANT_LPC17XX },
+  { 0x00001121, 1752,  64, 16, 16, 4096, SectorTable_17xx, CHIP_VARIANT_LPC17XX },
+  { 0x00011722, 1754, 128, 32, 18, 4096, SectorTable_17xx, CHIP_VARIANT_LPC17XX },
+  { 0x00011723, 1756, 256, 32, 22, 4096, SectorTable_17xx, CHIP_VARIANT_LPC17XX },
+  { 0x00013F34, 1758, 512, 64, 30, 4096, SectorTable_17xx, CHIP_VARIANT_LPC17XX },
+  { 0x00011922, 1764, 128, 32, 18, 4096, SectorTable_17xx, CHIP_VARIANT_LPC17XX },
+  { 0x00013733, 1765, 256, 64, 22, 4096, SectorTable_17xx, CHIP_VARIANT_LPC17XX },
+  { 0x00013F33, 1766, 256, 64, 22, 4096, SectorTable_17xx, CHIP_VARIANT_LPC17XX },
+  { 0x26013F33, 1766, 256, 64, 22, 4096, SectorTable_17xx, CHIP_VARIANT_LPC17XX },
+  { 0x00013F37, 1768, 512, 64, 30, 4096, SectorTable_17xx, CHIP_VARIANT_LPC17XX },
+  { 0x0004FF11, 2103,  32,  8,  8, 4096, SectorTable_2103, CHIP_VARIANT_LPC2XXX },
+  { 0xFFF0FF12, 2104, 128, 16, 15, 8192, SectorTable_210x, CHIP_VARIANT_LPC2XXX },
+  { 0xFFF0FF22, 2105, 128, 32, 15, 8192, SectorTable_210x, CHIP_VARIANT_LPC2XXX },
+  { 0xFFF0FF32, 2106, 128, 64, 15, 8192, SectorTable_210x, CHIP_VARIANT_LPC2XXX },
+  { 0x0201FF01, 2109,  64,  8,  8, 4096, SectorTable_2109, CHIP_VARIANT_LPC2XXX },
+  { 0x0101FF12, 2114, 128, 16, 15, 8192, SectorTable_211x, CHIP_VARIANT_LPC2XXX },
+  { 0x0201FF12, 2119, 128, 16, 15, 8192, SectorTable_211x, CHIP_VARIANT_LPC2XXX },
+  { 0x0101FF13, 2124, 256, 16, 17, 8192, SectorTable_212x, CHIP_VARIANT_LPC2XXX },
+  { 0x0201FF13, 2129, 256, 16, 17, 8192, SectorTable_212x, CHIP_VARIANT_LPC2XXX },
+  { 0x0002FF01, 2131,  32,  8,  8, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
+  { 0x0002FF11, 2132,  64, 16,  9, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
+  { 0x0002FF12, 2134, 128, 16, 11, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
+  { 0x0002FF23, 2136, 256, 32, 15, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
+  { 0x0002FF25, 2138, 512, 32, 27, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
+  { 0x0402FF01, 2141,  32,  8,  8, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
+  { 0x0402FF11, 2142,  64, 16,  9, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
+  { 0x0402FF12, 2144, 128, 16, 11, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
+  { 0x0402FF23, 2146, 256, 40, 15, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
+  { 0x0402FF25, 2148, 512, 40, 27, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
+  { 0x0301FF13, 2194, 256, 16, 17, 8192, SectorTable_212x, CHIP_VARIANT_LPC2XXX },
+  { 0x0301FF12, 2210,   0, 16,  0, 8192, SectorTable_211x, CHIP_VARIANT_LPC2XXX }, /* table is a "don't care" */
+  { 0x0401FF12, 2212, 128, 16, 15, 8192, SectorTable_211x, CHIP_VARIANT_LPC2XXX },
+  { 0x0601FF13, 2214, 256, 16, 17, 8192, SectorTable_212x, CHIP_VARIANT_LPC2XXX },
+  /*            2290; same id as the LPC2210 */
+  { 0x0401FF13, 2292, 256, 16, 17, 8192, SectorTable_212x, CHIP_VARIANT_LPC2XXX },
+  { 0x0501FF13, 2294, 256, 16, 17, 8192, SectorTable_212x, CHIP_VARIANT_LPC2XXX },
+  { 0x00000000, 2361, 128, 34, 11, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
+  { 0x00000000, 2362, 128, 34, 11, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
+  { 0x1600F902, 2364, 128, 34, 11, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
+  { 0x1600E823, 2365, 256, 58, 15, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
+  { 0x1600F923, 2366, 256, 58, 15, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
+  { 0x1600E825, 2367, 512, 58, 15, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
+  { 0x1600F925, 2368, 512, 58, 28, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
+  { 0x1700E825, 2377, 512, 58, 28, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
+  { 0x1700FD25, 2378, 512, 58, 28, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
+  { 0x1800F935, 2387, 512, 98, 28, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
+  { 0x1800FF35, 2388, 512, 98, 28, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
+  { 0x1500FF35, 2458, 512, 98, 28, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
+  { 0x1600FF30, 2460,   0, 98,  0, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
+  { 0x1600FF35, 2468, 512, 98, 28, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
+  { 0x1701FF30, 2470,   0, 98,  0, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
+  { 0x1701FF35, 2478, 512, 98, 28, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX }
 };
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -8,10 +8,9 @@
 //  BB  BB  SS  SS  PP      FF
 //  BBBBB    SSSS   PP      FF
 //
-// Copyright (c) 1995-2013 by Bradford W. Mott, Stephen Anthony
-// and the Stella Team
+// Copyright (c) 1995-2009 by Bradford W. Mott and the Stella Team
 //
-// See the file "License.txt" for information on usage and redistribution of
+// See the file "license" for information on usage and redistribution of
 // this file, and for a DISCLAIMER OF ALL WARRANTIES.
 //
 // $Id$
@@ -57,29 +56,44 @@
   typedef __int64 Int64;
   typedef unsigned __int64 uInt64;
 #else
-  #error Update src/common/bspf.hxx for datatypes
+  #error Update BSPF.hxx for datatypes
 #endif
 
 
 // The following code should provide access to the standard C++ objects and
 // types: cout, cerr, string, ostream, istream, etc.
-#include <algorithm>
 #include <iostream>
 #include <iomanip>
 #include <string>
-#include <sstream>
-#include <cstring>
-#include <cctype>
-#include <cstdio>
 using namespace std;
 
+#include <algorithm>
+
 // Defines to help with path handling
-#if (defined(BSPF_UNIX) || defined(BSPF_MAC_OSX))
+#if defined BSPF_UNIX
   #define BSPF_PATH_SEPARATOR  "/"
 #elif (defined(BSPF_DOS) || defined(BSPF_WIN32) || defined(BSPF_OS2))
   #define BSPF_PATH_SEPARATOR  "\\"
+#elif defined BSPF_MAC_OSX
+  #define BSPF_PATH_SEPARATOR  "/"
+#elif defined BSPF_GP2X
+    #define BSPF_PATH_SEPARATOR  "/"
+#endif
+
+// I wish Windows had a complete POSIX layer
+#if defined BSPF_WIN32 && !defined __GNUG__
+  #define BSPF_strcasecmp stricmp
+  #define BSPF_strncasecmp strnicmp
+  #define BSPF_isblank(c) ((c == ' ') || (c == '\t'))
+  #define BSPF_snprintf _snprintf
+  #define BSPF_vsnprintf _vsnprintf
 #else
-  #error Update src/common/bspf.hxx for path separator
+  #include <strings.h>
+  #define BSPF_strcasecmp strcasecmp
+  #define BSPF_strncasecmp strncasecmp
+  #define BSPF_isblank(c) isblank(c)
+  #define BSPF_snprintf snprintf
+  #define BSPF_vsnprintf vsnprintf
 #endif
 
 // CPU architecture type
@@ -94,84 +108,22 @@ using namespace std;
   #define BSPF_ARCH "NOARCH"
 #endif
 
-// I wish Windows had a complete POSIX layer
-#if defined BSPF_WIN32 && !defined __GNUG__
-  #define BSPF_snprintf _snprintf
-  #define BSPF_vsnprintf _vsnprintf
-#else
-  #define HAVE_UNISTD_H   // needed for building zlib
-  #include <strings.h>
-  #define BSPF_snprintf snprintf
-  #define BSPF_vsnprintf vsnprintf
-#endif
-
-static const string EmptyString("");
-
-//////////////////////////////////////////////////////////////////////
 // Some convenience functions
-
-template<typename T> inline void BSPF_swap(T& a, T& b) { T tmp = a; a = b; b = tmp; }
+template<typename T> inline void BSPF_swap(T &a, T &b) { T tmp = a; a = b; b = tmp; }
 template<typename T> inline T BSPF_abs (T x) { return (x>=0) ? x : -x; }
 template<typename T> inline T BSPF_min (T a, T b) { return (a<b) ? a : b; }
 template<typename T> inline T BSPF_max (T a, T b) { return (a>b) ? a : b; }
-template<typename T> inline T BSPF_clamp (T a, T l, T u) { return (a<l) ? l : (a>u) ? u : a; }
-
-// Test whether two characters are equal (case insensitive)
-static bool BSPF_equalsIgnoreCaseChar(char ch1, char ch2)
+inline string BSPF_tolower(const string& s)
 {
-  return toupper((unsigned char)ch1) == toupper((unsigned char)ch2);
+  string t = s;
+  transform(t.begin(), t.end(), t.begin(), (int(*)(int)) tolower);
+  return t;
 }
 
-// Compare two strings, ignoring case
-inline int BSPF_compareIgnoreCase(const string& s1, const string& s2)
-{
-#if defined WIN32 && !defined __GNUG__
-  return _stricmp(s1.c_str(), s2.c_str());
-#else
-  return strcasecmp(s1.c_str(), s2.c_str());
+static const string EmptyString("");
+
+#ifdef _WIN32_WCE
+  #include "missing.h"
 #endif
-}
-
-// Test whether the first string starts with the second one (case insensitive)
-inline bool BSPF_startsWithIgnoreCase(const string& s1, const string& s2)
-{
-#if defined WIN32 && !defined __GNUG__
-  return _strnicmp(s1.c_str(), s2.c_str(), s2.length()) == 0;
-#else
-  return strncasecmp(s1.c_str(), s2.c_str(), s2.length()) == 0;
-#endif
-}
-
-// Test whether two strings are equal (case insensitive)
-inline bool BSPF_equalsIgnoreCase(const string& s1, const string& s2)
-{
-  return BSPF_compareIgnoreCase(s1, s2) == 0;
-}
-
-// Find location (if any) of the second string within the first,
-// starting from 'startpos' in the first string
-inline size_t BSPF_findIgnoreCase(const string& s1, const string& s2, int startpos = 0)
-{
-  string::const_iterator pos = std::search(s1.begin()+startpos, s1.end(),
-    s2.begin(), s2.end(), BSPF_equalsIgnoreCaseChar);
-  return pos == s1.end() ? string::npos : pos - (s1.begin()+startpos);
-}
-
-// Test whether the first string ends with the second one (case insensitive)
-inline bool BSPF_endsWithIgnoreCase(const string& s1, const string& s2)
-{
-  if(s1.length() >= s2.length())
-  {
-    const char* end = s1.c_str() + s1.length() - s2.length();
-    return BSPF_equalsIgnoreCase(end, s2.c_str());
-  }
-  return false;
-}
-
-// Test whether the first string contains the second one (case insensitive)
-inline bool BSPF_containsIgnoreCase(const string& s1, const string& s2)
-{
-  return BSPF_findIgnoreCase(s1, s2) != string::npos;
-}
 
 #endif

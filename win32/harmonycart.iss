@@ -3,14 +3,14 @@
 
 [Setup]
 AppName=HarmonyCart
-AppVerName=HarmonyCart 1.3
+AppVerName=HarmonyCart 1.1
 AppPublisher=Stephen Anthony
 AppPublisherURL=http://harmony.atariage.com
 AppSupportURL=http://harmony.atariage.com
 AppUpdatesURL=http://harmony.atariage.com
 DefaultDirName={pf}\HarmonyCart
 DefaultGroupName=HarmonyCart
-OutputBaseFilename="HarmonyCart-1.3-win32"
+OutputBaseFilename="HarmonyCart-1.1-win32"
 Compression=lzma
 SolidCompression=yes
 
@@ -18,12 +18,11 @@ SolidCompression=yes
 Name: "eng"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
-Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}";
+Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
 Source: "..\Release\HarmonyCart.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\Release\HarmonyCart.com"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\Release\*.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "*.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\arm\*"; DestDir: "{app}\arm"; Flags: ignoreversion
 Source: "..\*.txt"; DestDir: "{app}\docs"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
@@ -33,3 +32,4 @@ Name: "{group}\HarmonyCart"; Filename: "{app}\HarmonyCart.exe"; WorkingDir: "{ap
 Name: "{userdesktop}\HarmonyCart"; Filename: "{app}\HarmonyCart.exe"; WorkingDir: "{app}"; Tasks: desktopicon
 ;Name: "{group}\Documentation"; Filename: "{app}\docs\index.html"
 Name: "{group}\Uninstall HarmonyCart"; Filename: "{uninstallexe}"
+

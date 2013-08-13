@@ -14,7 +14,6 @@ HEADERS += HarmonyCartWindow.hxx \
     BSType.hxx \
     Cart.hxx \
     CartDetector.hxx \
-    OSystem.hxx \
     SerialPortManager.hxx \
     SerialPort.hxx \
     Version.hxx \
@@ -25,20 +24,16 @@ FORMS += harmonycartwindow.ui \
     aboutdialog.ui
 RESOURCES += resources.qrc
 windows { 
-#  Uncomment the following to create a commandline-compatible Windows build
-#    TARGET = HarmonyCart.com
-#    CONFIG += qt console
-    DEFINES += _CRT_SECURE_NO_WARNINGS BSPF_WIN32
     INCLUDEPATH += win32
-    SOURCES += win32/SerialPortWin32.cxx win32/OSystemWin32.cxx
-    HEADERS += win32/SerialPortWin32.hxx win32/OSystemWin32.hxx
+    SOURCES += win32/SerialPortWin32.cxx
+    HEADERS += win32/SerialPortWin32.hxx
     RC_FILE = win32/HarmonyCartWin32.rc
 }
 unix:!macx { 
-    DEFINES += HAVE_INTTYPES BSPF_UNIX
+    DEFINES += HAVE_INTTYPES
     INCLUDEPATH += unix
-    SOURCES += unix/SerialPortUNIX.cxx unix/OSystemUNIX.cxx
-    HEADERS += unix/SerialPortUNIX.hxx unix/OSystemUNIX.hxx
+    SOURCES += unix/SerialPortUNIX.cxx
+    HEADERS += unix/SerialPortUNIX.hxx
     TARGET = harmonycart
     target.path = /usr/bin
     docs.path = /usr/share/doc/harmonycart
@@ -61,10 +56,16 @@ unix:!macx {
         desktop
 }
 macx { 
-    DEFINES += HAVE_INTTYPES BSPF_MAC_OSX
+    DEFINES += HAVE_INTTYPES
     INCLUDEPATH += macosx
-    SOURCES += macosx/SerialPortMACOSX.cxx macosx/OSystemMACOSX.cxx
-    HEADERS += macosx/SerialPortMACOSX.hxx macosx/OSystemMACOSX.hxx
-    LIBS += -framework CoreFoundation -framework IOKit
+    SOURCES += macosx/SerialPortMACOSX.cxx
+    HEADERS += macosx/SerialPortMACOSX.hxx
+    LIBS += -framework \
+        CoreFoundation \
+        -framework \
+        IOKit
     ICON = macosx/Harmony_icon.icns
+    QMAKE_MAC_SDK = /Developer/SDKs/MacOSX10.5.sdk
+    CONFIG += x86 \
+        ppc
 }

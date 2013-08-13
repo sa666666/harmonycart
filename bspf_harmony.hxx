@@ -6,7 +6,7 @@
 //  H   H  A   A  R R    M   M  O   O  N  NN    Y
 //  H   H  A   A  R  R   M   M   OOO   N   N    Y
 //
-// Copyright (c) 2009-2013 by Stephen Anthony <stephena@users.sf.net>
+// Copyright (c) 2009 by Stephen Anthony <stephena@users.sourceforge.net>
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -29,6 +29,15 @@
 #define BSPF_HARMONY_HXX
 
 #include <vector>
+
+/** What system are we using? */
+#if defined(WIN32) || defined(_WIN32)
+  #define BSPF_WIN32
+#elif defined(__APPLE__) || defined(MAC_OS_X)
+  #define BSPF_MAC_OSX
+#else
+  #define BSPF_UNIX
+#endif
 #include "bspf.hxx"
 
 typedef vector<string> StringList;

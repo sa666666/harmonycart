@@ -6,7 +6,7 @@
 //  H   H  A   A  R R    M   M  O   O  N  NN    Y
 //  H   H  A   A  R  R   M   M   OOO   N   N    Y
 //
-// Copyright (c) 2009-2013 by Stephen Anthony <stephena@users.sf.net>
+// Copyright (c) 2009 by Stephen Anthony <stephena@users.sourceforge.net>
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -19,7 +19,7 @@
 
 #define MAXCARTSIZE 32*1024
 
-#include <QProgressDialog>
+class QProgressDialog;
 
 #include <vector>
 
@@ -74,9 +74,9 @@ class Cart
     void setRetry(int retry) { myRetry = retry + 1; }
 
   private:
-    enum TARGET           { NXP_ARM, ANALOG_DEVICES_ARM };
-    enum TARGET_MODE      { PROGRAM_MODE, RUN_MODE      };
-    enum FILE_FORMAT_TYPE { FORMAT_BINARY, FORMAT_HEX   };
+    enum TARGET           { PHILIPS_ARM, ANALOG_DEVICES_ARM };
+    enum TARGET_MODE      { PROGRAM_MODE, RUN_MODE          };
+    enum FILE_FORMAT_TYPE { FORMAT_BINARY, FORMAT_HEX       };
 
     /**
       Read data from given file and return it in a buffer, along
@@ -102,30 +102,14 @@ class Cart
     uInt32 compressLastBank(uInt8* binary);
 
     /**
-      Various methods to wrap a QProgressDialog, so that the underlying
-      NXP code doesn't have to know how the progress bar is implemented.
-      assumes a ROM size of 32K.
-
-      @param title    The title of the progress dialog window
-      @param minimum  The smallest value the progress bar will contain
-      @param maximum  The largest value the progress bar will contain
-      @param text     The prompt to print in the progress dialog window
-      @param step     The current value of the progress bar
-    */
-    void initializeProgress(const QString& title, int minimum, int maximum);
-    void updateProgressText(const QString& text);
-    bool updateProgressValue(int step);
-    void finalizeProgress();
-
-    /**
       The following functions originally come from the lpc21isp utilties,
       specifically lpc21isp.c and lpcprog.c.  See the functions themselves
       for more detailed commments.  All such functions are named starting
       with 'lpc_'.
     */
-    string lpc_NxpChipVersion(SerialPort& port);
-    string lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
-                           bool verify = false, bool showprogress = false);
+    string lpc_PhilipsChipVersion(SerialPort& port);
+    string lpc_PhilipsDownload(SerialPort& port, uInt8* data, uInt32 size,
+                               bool verify = false, QProgressDialog* progress = 0);
     uInt32 lpc_ReturnValueLpcRamStart();
     uInt32 lpc_ReturnValueLpcRamBase();
 
@@ -154,8 +138,6 @@ class Cart
     string   myOscillator;
     ostream* myLog;
 
-    QProgressDialog myProgress;
-
     /* LPC_RAMSTART, LPC_RAMBASE
      *
      * Used in PhilipsDownload() to decide whether to Flash code or just place in in RAM
@@ -170,17 +152,10 @@ class Cart
      *                by the startup code.
      */
     enum {
-      LPC_RAMSTART_LPC2XXX = 0x40000000L,
-      LPC_RAMBASE_LPC2XXX  = 0x40000200L,
-
-      LPC_RAMSTART_LPC17XX = 0x10000000L,
-      LPC_RAMBASE_LPC17XX  = 0x10000200L,
-
-      LPC_RAMSTART_LPC13XX = 0x10000000L,
-      LPC_RAMBASE_LPC13XX  = 0x10000300L,
-
-      LPC_RAMSTART_LPC11XX = 0x10000000L,
-      LPC_RAMBASE_LPC11XX  = 0x10000300L
+      LPC_RAMSTART_LPC2XXX = 0x40000000,
+      LPC_RAMBASE_LPC2XXX  = 0x40000200,
+      LPC_RAMSTART_LPC17XX = 0x10000000,
+      LPC_RAMBASE_LPC17XX  = 0x10000200
     };
 
     /* Return values used by PhilipsDownload(): reserving all values from 0x1000 to 0x1FFF */
@@ -199,13 +174,13 @@ class Cart
 
     enum {
       USER_ABORT_SYNC    = 0x100A,   /* User aborted synchronisation process */
-      UNLOCK_ERROR       = 0x1100,   /* return value is 0x1100 + NXP ISP returned value (0 to 255) */
-      WRONG_ANSWER_PREP  = 0x1200,   /* return value is 0x1200 + NXP ISP returned value (0 to 255) */
-      WRONG_ANSWER_ERAS  = 0x1300,   /* return value is 0x1300 + NXP ISP returned value (0 to 255) */
-      WRONG_ANSWER_WRIT  = 0x1400,   /* return value is 0x1400 + NXP ISP returned value (0 to 255) */
-      WRONG_ANSWER_PREP2 = 0x1500,   /* return value is 0x1500 + NXP ISP returned value (0 to 255) */
-      WRONG_ANSWER_COPY  = 0x1600,   /* return value is 0x1600 + NXP ISP returned value (0 to 255) */
-      FAILED_RUN         = 0x1700    /* return value is 0x1700 + NXP ISP returned value (0 to 255) */
+      UNLOCK_ERROR       = 0x1100,   /* return value is 0x1100 + philips ISP returned value (0 to 255) */
+      WRONG_ANSWER_PREP  = 0x1200,   /* return value is 0x1200 + philips ISP returned value (0 to 255) */
+      WRONG_ANSWER_ERAS  = 0x1300,   /* return value is 0x1300 + philips ISP returned value (0 to 255) */
+      WRONG_ANSWER_WRIT  = 0x1400,   /* return value is 0x1400 + philips ISP returned value (0 to 255) */
+      WRONG_ANSWER_PREP2 = 0x1500,   /* return value is 0x1500 + philips ISP returned value (0 to 255) */
+      WRONG_ANSWER_COPY  = 0x1600,   /* return value is 0x1600 + philips ISP returned value (0 to 255) */
+      FAILED_RUN         = 0x1700    /* return value is 0x1700 + philips ISP returned value (0 to 255) */
     };
 
     /* LPC_FLASHMASK
@@ -218,21 +193,17 @@ class Cart
      */
     enum { LPC_FLASHMASK =  0xFFC00000 /* 22 bits = 4 MB */ };
 
-    enum CHIP_VARIANT {
-      CHIP_VARIANT_NONE,
-      CHIP_VARIANT_LPC2XXX, CHIP_VARIANT_LPC17XX,
-      CHIP_VARIANT_LPC13XX, CHIP_VARIANT_LPC11XX
-    };
+    enum CHIP_VARIANT { CHIP_VARIANT_LPC2XXX, CHIP_VARIANT_LPC17XX, CHIP_VARIANT_UNKNOWN };
 
     struct LPC_DEVICE_TYPE {
-      const uInt32 id;
-      const char*  Product;
-      const uInt32 FlashSize;      /* in kiB, for informational purposes only */
-      const uInt32 RAMSize;        /* in kiB, for informational purposes only */
-            uInt32 FlashSectors;   /* total number of sectors */
-            uInt32 MaxCopySize;    /* maximum size that can be copied to Flash in a single command */
-      const uInt32* SectorTable;   /* pointer to a sector table with constant the sector sizes */
-      const CHIP_VARIANT ChipVariant;
+      uInt32 id;
+      uInt32 Product;
+      uInt32 FlashSize;          /* in kiB, for informational purposes only */
+      uInt32 RAMSize;            /* in kiB, for informational purposes only */
+      uInt32 FlashSectors;       /* total number of sectors */
+      uInt32 MaxCopySize;        /* maximum size that can be copied to Flash in a single command */
+      const uInt32* SectorTable; /* pointer to a sector table with constant the sector sizes */
+      CHIP_VARIANT ChipVariant;
     };
 
     static const uInt32 SectorTable_210x[15];
@@ -246,7 +217,7 @@ class Cart
     // Used for LPC17xx devices
     static const uInt32 SectorTable_17xx[30];
     static uInt32 SectorTable_RAM[1];
-    static LPC_DEVICE_TYPE LPCtypes[109];
+    static LPC_DEVICE_TYPE LPCtypes[52];
 
     static uInt8 ourARHeader[256];
 };

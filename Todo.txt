@@ -7,15 +7,15 @@
   H   H  A   A  R  R   M   M   OOO   N   N    Y
 
 ===========================================================================
-                  License Information and Copyright Notice
+                                To Do List
 ===========================================================================
 
-Copyright (C) 2009 Stephen Anthony <stephena@users.sourceforge.net>
+If you would like to contribute to HarmonyCart development then send email
+to Stephen Anthony at stephena@users.sourceforge.net.
 
-This program is released under the GNU GPLv3.  See the file 'License.txt'
-for more information.  The program includes portions of the following
-programs:
+A bugtracker is also available on the AtariAge website:
 
-  lpc21isp - programming utilities for the Philips LPC21xxx chips
-  KrokCom  - icons and various other images
-  Stella   - bankswitch autodetection code
+  http://www.atariage.com/forums/tracker/project-15-harmony-cart
+
+If you use this tracker, make sure to indicate the bug is in the
+'Harmony Programming Tool' software.

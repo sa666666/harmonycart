@@ -6,7 +6,7 @@
 //  H   H  A   A  R R    M   M  O   O  N  NN    Y
 //  H   H  A   A  R  R   M   M   OOO   N   N    Y
 //
-// Copyright (c) 2009-2013 by Stephen Anthony <stephena@users.sf.net>
+// Copyright (c) 2009 by Stephen Anthony <stephena@users.sourceforge.net>
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -29,15 +29,6 @@
 #include "SerialPortManager.hxx"
 #include "FindHarmonyThread.hxx"
 #include "ui_harmonycartwindow.h"
-
-#include "OSystem.hxx"
-#if defined(BSPF_UNIX)
-  #include "OSystemUNIX.hxx"
-#elif defined(BSPF_WIN32)
-  #include "OSystemWin32.hxx"
-#elif defined(BSPF_MAC_OSX)
-  #include "OSystemMACOSX.hxx"
-#endif
 
 namespace Ui
 {
@@ -67,7 +58,6 @@ Q_OBJECT
     void loadROM(const QString& file);
     void assignToQPButton(QPushButton* button, int id);
     void assignToQPButton(QPushButton* button, int id, const QString& file, bool save);
-    QString getOpenROMName(const QString& path);
 
     void statusMessage(const QString& msg);
 
@@ -107,16 +97,6 @@ Q_OBJECT
 
     QString myHarmonyCartMessage;
     bool myDownloadInProgress;
-
-  #if defined(BSPF_UNIX)
-    OSystemUNIX myOSystem;
-  #elif defined(BSPF_WIN32)
-    OSystemWin32 myOSystem;
-  #elif defined(BSPF_MAC_OSX)
-    OSystemMACOSX myOSystem;
-  #else
-    OSystem myOSystem;
-  #endif
 };
 
 #endif

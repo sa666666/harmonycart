@@ -6,7 +6,7 @@
 //  H   H  A   A  R R    M   M  O   O  N  NN    Y
 //  H   H  A   A  R  R   M   M   OOO   N   N    Y
 //
-// Copyright (c) 2009-2013 by Stephen Anthony <stephena@users.sf.net>
+// Copyright (c) 2009 by Stephen Anthony <stephena@users.sourceforge.net>
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -51,12 +51,6 @@ HarmonyCartWindow::HarmonyCartWindow(QWidget* parent)
   // Create GUI
   ui->setupUi(this);
 
-  // Fix BIOS and HBIOS buttons; make sure they're the same size
-  int w = BSPF_max(ui->updateBIOSButton->width(), ui->copyHBIOSButton->width());
-  int h = BSPF_max(ui->updateBIOSButton->height(), ui->copyHBIOSButton->height());
-  ui->updateBIOSButton->setFixedSize(w, h);
-  ui->copyHBIOSButton->setFixedSize(w, h);
-
   // Create thread to find Harmony cart
   // We use a thread so the UI isn't blocked
   myFindHarmonyThread = new FindHarmonyThread(myManager, myCart);
@@ -78,13 +72,12 @@ HarmonyCartWindow::HarmonyCartWindow(QWidget* parent)
   ui->downloadButton->setDisabled(true);  ui->actDownloadROM->setDisabled(true);
 
   // Initialize settings
-  QCoreApplication::setApplicationName("HarmonyCart");
-#ifdef BSPF_MAC_OSX
-  QCoreApplication::setOrganizationName("atariage");
-#else
-  QCoreApplication::setOrganizationName("atariage.com");
-#endif
+  QCoreApplication::setOrganizationName("HarmonyCart");
+  QCoreApplication::setApplicationName("Harmony Programming Tool");
   readSettings();
+
+  // By default, start looking for ROMs in the users' home directory
+  myLastDir.setPath(QDir::home().absolutePath());
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -141,7 +134,6 @@ void HarmonyCartWindow::setupConnections()
   connect(ui->openRomButton, SIGNAL(clicked()), this, SLOT(slotOpenROM()));
   connect(ui->downloadButton, SIGNAL(clicked()), this, SLOT(slotDownloadROM()));
   connect(ui->openARMPathButton, SIGNAL(clicked()), this, SLOT(slotSelectARMPath()));
-  ui->openARMPathButton->installEventFilter(this);
 
   // Quick-select buttons
   myQPGroup = new QButtonGroup(this);
@@ -179,20 +171,14 @@ void HarmonyCartWindow::readSettings()
   s.beginGroup("MainWindow");
     myManager.setDefaultPort(s.value("harmonyport", "").toString().toStdString());
     int retrycount = s.value("retrycount", 0).toInt();
-    switch(retrycount)
-    {
-      case 1:  ui->actRetry1->setChecked(true);  break;
-      case 2:  ui->actRetry2->setChecked(true);  break;
-      case 3:  ui->actRetry3->setChecked(true);  break;
-      case 0:
-      default: ui->actRetry0->setChecked(true);  break;
-    }
+    if(retrycount < 0 || retrycount > 3)  retrycount = 0;
+    if(retrycount == 0)       ui->actRetry0->setChecked(true);
+    else if(retrycount == 1)  ui->actRetry1->setChecked(true);
+    else if(retrycount == 2)  ui->actRetry2->setChecked(true);
+    else if(retrycount == 3)  ui->actRetry3->setChecked(true);
     ui->actShowLogAfterDownload->setChecked(s.value("showlog", false).toBool());
     ui->actAutoDownFileSelect->setChecked(s.value("autodownload", false).toBool());
     ui->actAutoVerifyDownload->setChecked(s.value("autoverify", false).toBool());
-    int activetab = s.value("activetab", 0).toInt();
-    if(activetab < 0 || activetab > 1)  activetab = 0;
-    ui->tabWidget->setCurrentIndex(activetab);
   s.endGroup();
 
   slotShowLog(ui->actShowLogAfterDownload->isChecked());
@@ -220,29 +206,8 @@ void HarmonyCartWindow::readSettings()
   s.beginGroup("Paths");
     ui->eepromFileEdit->setText(s.value("eepromfile", "").toString());
     ui->hbiosFileEdit->setText(s.value("hbiosfile", "").toString());
-    ui->sdcardFileEdit->setText(s.value("sdmountpath", "").toString());
-    QString path = s.value("armpath", "").toString();
-    QDir dir(path);
-    if(path.length() == 0 || !dir.exists())
-      path = myOSystem.defaultARMPath();
-    ui->armpathFileEdit->setText(path);
-
-    // Last directory used
-    // Do some sanity checking
-    path = s.value("lastpath", "").toString();
-    if(path.length() == 0)
-      myLastDir.setPath(QDir::home().absolutePath());
-    else
-    {
-      QDir dir(path);
-      // Attempt to move up one level, to bypass a file saved in the path
-      if(!dir.exists())
-        dir.cdUp();
-      if(dir.exists())
-        myLastDir.setPath(dir.absolutePath());
-      else
-        myLastDir.setPath(QDir::home().absolutePath());
-    }
+    ui->sdcardFileEdit->setText(s.value("sdmountdir", "").toString());
+    ui->armpathFileEdit->setText(s.value("armdir", "").toString());
   s.endGroup();
 }
 
@@ -270,15 +235,13 @@ void HarmonyCartWindow::closeEvent(QCloseEvent* event)
     s.setValue("autodownload", ui->actAutoDownFileSelect->isChecked());
     s.setValue("autoverify", ui->actAutoVerifyDownload->isChecked());
     s.setValue("showlog", ui->actShowLogAfterDownload->isChecked());
-    s.setValue("activetab", ui->tabWidget->currentIndex());
   s.endGroup();
 
   s.beginGroup("Paths");
     s.setValue("eepromfile", ui->eepromFileEdit->text());
     s.setValue("hbiosfile", ui->hbiosFileEdit->text());
-    s.setValue("sdmountpath", ui->sdcardFileEdit->text());
-    s.setValue("armpath", ui->armpathFileEdit->text());
-    s.setValue("lastpath", myLastDir.absolutePath());
+    s.setValue("sdmountdir", ui->sdcardFileEdit->text());
+    s.setValue("armdir", ui->armpathFileEdit->text());
   s.endGroup();
 
   event->accept();
@@ -291,8 +254,6 @@ bool HarmonyCartWindow::eventFilter(QObject* object, QEvent* event)
   if(event->type() == QEvent::ContextMenu)
   {
     int id = 0;
-
-    // Quick-pick buttons
     if(object == ui->qp1Button)       id = 1;
     else if(object == ui->qp2Button)  id = 2;
     else if(object == ui->qp3Button)  id = 3;
@@ -309,17 +270,10 @@ bool HarmonyCartWindow::eventFilter(QObject* object, QEvent* event)
     else if(object == ui->qp14Button) id = 14;
     else if(object == ui->qp15Button) id = 15;
     else if(object == ui->qp16Button) id = 16;
-
-    // File select buttons
-    else if(object == ui->openARMPathButton)
-    {
-      ui->armpathFileEdit->setText(myOSystem.defaultARMPath());
-      return true;
-    }
     else return false;
 
     assignToQPButton(static_cast<QPushButton*>(object), id);
-    return true;
+    return  true;
   }
   else
   {
@@ -414,8 +368,9 @@ void HarmonyCartWindow::slotOpenROM()
   QString location = ui->romFileEdit->text() != "" ?
     QFileInfo(ui->romFileEdit->text()).absolutePath() :
     myLastDir.absolutePath();
-  myLastDir.setPath(location);
-  QString file = getOpenROMName(location);
+  QString file = QFileDialog::getOpenFileName(this,
+    tr("Select ROM Image"), location, tr("Atari 2600 ROM Image (*.a26 *.bin *.rom)"));
+
   if(!file.isNull())
     loadROM(file);
 }
@@ -458,7 +413,7 @@ void HarmonyCartWindow::slotDownloadROM()
 
   if(myManager.openCartPort())
   {
-    QRegExp regex("([a-zA-Z0-9+]*)");
+    QRegExp regex("([a-zA-Z0-9]*)");
     regex.indexIn(ui->romBSType->currentText());
     QString t = regex.cap();
     BSType type = Bankswitch::nameToType(regex.cap().toStdString());
@@ -530,47 +485,16 @@ void HarmonyCartWindow::slotAbout()
   ostringstream about;
   about << "<center>"
         << "<p><b>Harmony Programming Tool v" << HARMONY_VERSION << "</b></p>"
-        << "<p>Copyright &copy; 2009-2013 <a href=\"mailto:stephena@users.sf.net\">Stephen Anthony</a><br>"
+        << "<p>Copyright &copy; 2009 <a href=\"mailto:stephena@users.sf.net\">Stephen Anthony</a><br>"
         << "Check for updates at <a href=\"http://harmony.atariage.com\">http://harmony.atariage.com</a><p>"
         << "</center>"
         << "<p>This software is released under the GNU GPLv3, and includes items from the following projects:</p>"
         << "<p><ul>"
-        << "<li><a href=\"http://sourceforge.net/projects/lpc21isp\">lpc21isp</a>: Philips&nbsp;LPCxxxx programming code</li>"
-        << "<li><a href=\"http://krokcom.sf.net\">KrokCom</a>: UI code, icons and other images</li>"
-        << "<li><a href=\"http://stella.sf.net\">Stella</a>: bankswitch autodetection code</li>"
+        << "<li>lpc21isp: Philips&nbsp;LPCxxxx programming code</li>"
+        << "<li>KrokCom: UI code, icons and other images</li>"
+        << "<li>Stella: bankswitch autodetection code</li>"
         << "</ul></p>"
-
-        << "<p>Version 1.3 (Aug. 13, 2013):</p>"
-        << "<ul>"
-        << "<li>Fixed bug when saving DPC+ and Custom ROMs in single-cart mode; the "
-        << "ROM data wasn't actually being written to the device.</li>"
-        << "<li>Added support for 29KB DPC+ ROMs in single-cart mode (ie, ones "
-        << "without any ARM code); these ROMs now have ARM code automatically "
-        << "added before being downloaded.</li>"
-        << "<li>Updated bankswitch autodetection code to latest from Stella 3.9.1.</li>"
-        << "</ul>"
-
-        << "<p>Version 1.2 (Dec. 20, 2012):</p>"
-        << "<ul>"
-        << "<li>Updated lpc21isp code to version 1.85 (supports latest LPCxxxx chips).</li>"
-        << "<li>Updated HBIOS and ARM files to latest version (1.05).</li>"
-        << "<li>Added support for Custom ROMs (such as 32KB 'DPC+') with the ARM code already embedded.</li>"
-        << "<li>The bankswitch autodetection now also uses the ROM filename extensions as defined in the "
-        << "Harmony manual; when present, these completely override the type of data in the ROM image.</li>"
-        << "<li>Fixed crash when an 'F4' ROM couldn't be compressed; an error message is now shown. "
-        << "Also improved compression function; at least one ROM that couldn't be compressed previously "
-        << "now works fine.</li>"
-        << "<li>The location for 'ARM' files is now automatically determined based "
-        << "on where you've installed the application; right-clicking on the "
-        << "directory selection button will also set this location.</li>"
-        << "<li>The Windows release now includes a commandline-based version "
-        << "which shows output on the commandline, and is meant to be run from "
-        << "the commandline only.</li>"
-        << "<li>Fixed bugs in user interface (cut off text, progress bar not always appearing, etc).</li>"
-        << "<li>The previously selected tab (BIOS or Development) is now used when the app starts.</li>"
-        << "<li>Updated bankswitch autodetection code to latest from Stella 3.7.4.</li>"
-        << "</ul>"
-        << "<p>Version 1.1 (Dec. 11, 2009):</p>"
+        << "<p>Changes in this version include:</p>"
         << "<ul>"
         << "<li>Added logging of download progress.  When activated, a dialog will "
         << "appear after the download has completed, outlining what operations "
@@ -597,12 +521,7 @@ void HarmonyCartWindow::slotAbout()
         << "<li>Added support for OSX Snow Leopard.</li>"
         << "<li>Updated HBIOS and ARM files to latest version (1.03c).</li>"
         << "<li>Updated PAL50 version of eeloader.bin for better compatibility with A7800 PAL systems.</li>"
-        << "</ul>"
-        << "<p>Version 1.0 (Oct. 7, 2009):</p>"
-        << "<ul>"
-        << "<li>Initial release for Linux, Mac OSX and Windows."
-        << "</ul>"
-        ;
+          ;
 
   AboutDialog aboutdlg(this, "Info about Harmony Programming Tool", about.str().c_str());
   aboutdlg.exec();
@@ -656,9 +575,9 @@ void HarmonyCartWindow::slotSelectEEPROM()
 {
   QString location = ui->eepromFileEdit->text() != "" ?
     QFileInfo(ui->eepromFileEdit->text()).absolutePath() :
-    myOSystem.defaultARMPath();
+    myLastDir.absolutePath();
   QString file = QFileDialog::getOpenFileName(this,
-    tr("Select EEPROM Loader Image"), location, tr("EEPROM Image (*loader*.bin);;All Files (*.*)"));
+    tr("Select EEPROM Loader Image"), location, tr("BIOS Image (*.bin)"));
 
   if(!file.isNull())
     ui->eepromFileEdit->setText(file);
@@ -669,9 +588,9 @@ void HarmonyCartWindow::slotSelectHBIOS()
 {
   QString location = ui->hbiosFileEdit->text() != "" ?
     QFileInfo(ui->hbiosFileEdit->text()).absolutePath() :
-    myOSystem.defaultARMPath();
+    myLastDir.absolutePath();
   QString file = QFileDialog::getOpenFileName(this,
-    tr("Select HBIOS Image"), location, tr("BIOS Image (*bios*.bin);;All Files (*.*)"));
+    tr("Select HBIOS Image"), location, tr("BIOS Image (*.bin)"));
 
   if(!file.isNull())
     ui->hbiosFileEdit->setText(file);
@@ -733,24 +652,9 @@ void HarmonyCartWindow::loadROM(const QString& filename)
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void HarmonyCartWindow::assignToQPButton(QPushButton* button, int id)
 {
-  // Get the full path from the settings
-  QString key = "button" + QString::number(id);
-  QSettings s;
-  s.beginGroup("QPButtons");
-    QString path = s.value(key, "").toString();
-  s.endGroup();
+  QString file = QFileDialog::getOpenFileName(this,
+    tr("Select ROM Image"), myLastDir.absolutePath(), tr("Atari 2600 ROM Image (*.a26 *.bin *.rom)"));
 
-  // If the path exists to a file, use it
-  // Otherwise, use the last selected path
-  if(path.length() == 0)
-    path = myLastDir.absolutePath();
-  else
-  {
-    QDir dir(path);
-    path = dir.filePath(path);
-  }
-
-  QString file = getOpenROMName(path);
   if(!file.isNull())
   {
     assignToQPButton(button, id, file, true);
@@ -781,19 +685,6 @@ void HarmonyCartWindow::assignToQPButton(QPushButton* button, int id,
       s.setValue(key, info.canonicalFilePath());
     s.endGroup();
   }
-}
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-QString HarmonyCartWindow::getOpenROMName(const QString& path)
-{
-  // What a whopper!
-  static QString filter = "Atari 2600 ROM Image (*.a26 *.bin *.rom *.2K *.4K *.F4 *.F4S *.F6 *.F6S *.F8 *.F8S *.FA *.FE *.3F *.3E *.E0 *.E7 *.CV *.UA *.AR *.DPC *.084 *.CU);;All Files (*.*)";
-
-  QString file = QFileDialog::getOpenFileName(this,
-    tr("Select ROM Image"), path, tr(filter.toAscii()), 0,
-    QFileDialog::HideNameFilterDetails);
-
-  return file;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

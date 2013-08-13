@@ -6,7 +6,7 @@
 //  H   H  A   A  R R    M   M  O   O  N  NN    Y
 //  H   H  A   A  R  R   M   M   OOO   N   N    Y
 //
-// Copyright (c) 2009-2013 by Stephen Anthony <stephena@users.sf.net>
+// Copyright (c) 2009 by Stephen Anthony <stephena@users.sourceforge.net>
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -16,6 +16,7 @@
 
 #include <QApplication>
 #include <QFile>
+#include <cstring>
 #include "ui_harmonycartwindow.h"
 
 #include "bspf_harmony.hxx"
@@ -26,27 +27,6 @@
 #include "HarmonyCartWindow.hxx"
 #include "Version.hxx"
 
-void usage()
-{
-  cout << "Harmony Programming Tool version " << HARMONY_VERSION << endl
-       << endl
-       << "Usage: harmonycart [options ...] datafile" << endl
-       << "       Run without any options or datafile to use the graphical frontend" << endl
-       << "       Consult the manual for more in-depth information" << endl
-       << endl
-       << "Valid options are:" << endl
-       << endl
-       << "  -bios       Treat the specified datafile as an EEPROM loader BIOS image" << endl
-       << "              Otherwise, the datafile is treated as a ROM image instead" << endl
-       << "  -bs=[type]  Specify the bankswitching scheme for a ROM image" << endl
-       << "              (default is 'auto')" << endl
-       << "  -help       Displays the message you're now reading" << endl
-       << endl
-       << "This software is Copyright (c) 2009-2013 Stephen Anthony, and is released" << endl
-       << "under the GNU GPL version 3." << endl
-       << endl;
-}
-
 void runCommandlineApp(HarmonyCartWindow& win, int ac, char* av[])
 {
   string datafile = "";
@@ -56,22 +36,10 @@ void runCommandlineApp(HarmonyCartWindow& win, int ac, char* av[])
   // Parse commandline args
   for(int i = 1; i < ac; ++i)
   {
-    if(BSPF_startsWithIgnoreCase(av[i], "-bs="))
+    if(strstr(av[i], "-bs=") == av[i])
       bstype = Bankswitch::nameToType(av[i]+4);
-    else if(BSPF_equalsIgnoreCase(av[i], "-bios"))
+    else if(strcmp(av[i], "-bios") == 0)
       biosupdate = true;
-    else if(BSPF_equalsIgnoreCase(av[i], "-help"))
-    {
-      usage();
-      return;
-    }
-    else if(BSPF_startsWithIgnoreCase(av[i], "-"))
-    {
-      // Unknown argument
-      cout << "Unknown argument \'" << av[i] << "\'" << endl << endl;
-      usage();
-      return;
-    }
 //    else if(...)         // add more options here
     else
       datafile = av[i];
@@ -83,7 +51,7 @@ void runCommandlineApp(HarmonyCartWindow& win, int ac, char* av[])
   manager.connectHarmonyCart(cart);
   if(manager.harmonyCartAvailable())
   {
-    cout << "Harmony \'" << manager.versionID().c_str() << "\' @ \'" << manager.portName().c_str() << "\'" << endl;
+    cout << "Harmony \'" << manager.versionID() << "\' @ \'" << manager.portName() << "\'" << endl;
   }
   else
   {
@@ -97,7 +65,7 @@ void runCommandlineApp(HarmonyCartWindow& win, int ac, char* av[])
     cout << "Downloading BIOS file..." << endl;
     if(datafile == "" || !QFile::exists(QString(datafile.c_str())))
     {
-      cout << "Couldn't find BIOS file \'" << datafile.c_str() << "\'" << endl;
+      cout << "Couldn't find BIOS file \'" << datafile << "\'" << endl;
       return;
     }
 
@@ -115,7 +83,7 @@ void runCommandlineApp(HarmonyCartWindow& win, int ac, char* av[])
     cout << "Downloading single-load ROM file..." << endl;
     if(datafile == "" || !QFile::exists(QString(datafile.c_str())))
     {
-      cout << "Couldn't find ROM file \'" << datafile.c_str() << "\'" << endl;
+      cout << "Couldn't find ROM file \'" << datafile << "\'" << endl;
       return;
     }
 
@@ -134,6 +102,27 @@ void runCommandlineApp(HarmonyCartWindow& win, int ac, char* av[])
 
 int main(int ac, char* av[])
 {
+  if(ac == 2 && !strcmp(av[1], "-help"))
+  {
+    cout << "Harmony Programming Tool version " << HARMONY_VERSION << endl
+         << endl
+         << "Usage: harmonycart [options ...] datafile" << endl
+         << "       Run without any options or datafile to use the graphical frontend" << endl
+         << "       Consult the manual for more in-depth information" << endl
+         << endl
+         << "Valid options are:" << endl
+         << endl
+         << "  -bios       Treat the specified datafile as an EEPROM loader BIOS image" << endl
+         << "              Otherwise, the datafile is treated as a ROM image instead" << endl
+         << "  -bs=[type]  Specify the bankswitching scheme for a ROM image (default is 'auto')" << endl
+         << "  -help       Displays the message you're now reading" << endl
+         << endl
+         << "This software is Copyright (c) 2009 Stephen Anthony, and is released" << endl
+         << "under the GNU GPL version 3." << endl
+         << endl;
+    return 0;
+  }
+
   // The application and window needs to be created even if we're using
   // commandline mode, since the settings are controlled by a QSettings
   // object which needs a Qt context.
