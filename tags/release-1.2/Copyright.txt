@@ -1,0 +1,21 @@
+===========================================================================
+
+  H   H    A    RRRR   M   M   OOO   N   N  Y   Y
+  H   H   A A   R   R  MM MM  O   O  NN  N   Y Y
+  HHHHH  AAAAA  RRRR   M M M  O   O  N N N    Y    "Harmony Cart software"
+  H   H  A   A  R R    M   M  O   O  N  NN    Y
+  H   H  A   A  R  R   M   M   OOO   N   N    Y
+
+===========================================================================
+                  License Information and Copyright Notice
+===========================================================================
+
+Copyright (C) 2009-2012 Stephen Anthony <stephena@users.sf.net>
+
+This program is released under the GNU GPLv3.  See the file 'License.txt'
+for more information.  The program includes portions of the following
+programs:
+
+  lpc21isp - programming utilities for the Philips LPC21xxx chips
+  KrokCom  - icons and various other images
+  Stella   - bankswitch autodetection code
