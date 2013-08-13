@@ -6,7 +6,7 @@
 //  H   H  A   A  R R    M   M  O   O  N  NN    Y
 //  H   H  A   A  R  R   M   M   OOO   N   N    Y
 //
-// Copyright (c) 2009-2013 by Stephen Anthony <stephena@users.sf.net>
+// Copyright (c) 2009-2012 by Stephen Anthony <stephena@users.sf.net>
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -81,8 +81,7 @@ BSType CartDetector::autodetectTypeByExtension(const string& rom)
     BS_AR, BS_DPC, BS_0840, BS_CUSTOM
    };
 
-  string::size_type idx = rom.rfind('.');
-  const string& ext = idx != string::npos ? rom.substr(idx+1) : EmptyString;
+  const string& ext = BSPF_extension(rom);
   for(int i = 0; i < 20; ++i)
     if(BSPF_equalsIgnoreCase(exts[i], ext))
       return types[i];
@@ -160,16 +159,9 @@ BSType CartDetector::autodetectTypeByContent(const uInt8* image, uInt32 size)
     else
       type = BS_F6;
   }
-  else if(size == 24*1024 || size == 28*1024)  // 24K & 28K
-  {
-    type = BS_FA2;
-  }
   else if(size == 29*1024)  // 29K
   {
-    if(isProbablyARM(image, size))
-      type = BS_FA2;
-    else /*if(isProbablyDPCplus(image, size))*/
-      type = BS_DPCP;
+    type = BS_DPCP;
   }
   else if(size == 32*1024)  // 32K
   {
@@ -181,10 +173,6 @@ BSType CartDetector::autodetectTypeByContent(const uInt8* image, uInt32 size)
       type = BS_3F;
     else if(isProbablyDPCplus(image, size))
       type = BS_DPCP;
-    else if(isProbablyCTY(image, size))
-      type = BS_CTY;
-    else if(isProbablyFA2(image, size))
-      type = BS_FA2;
     else
       type = BS_F4;
   }
@@ -196,8 +184,12 @@ BSType CartDetector::autodetectTypeByContent(const uInt8* image, uInt32 size)
       type = BS_3F;
     else if(isProbably4A50(image, size))
       type = BS_4A50;
-    else if(isProbablyEF(image, size, type))
-      ; // type has been set directly in the function
+    else if(isProbablyEF(image, size))
+    {
+      type = BS_EF;
+      if(isProbablySC(image, size))
+        type = BS_EFSC;
+    }
     else if(isProbablyX07(image, size))
       type = BS_X07;
     else
@@ -284,32 +276,16 @@ bool CartDetector::isProbablySC(const uInt8* image, uInt32 size)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool CartDetector::isProbablyARM(const uInt8* image, uInt32)
-{
-  // ARM code contains the following 'loader' patterns in the first 1K
-  // Thanks to Thomas Jentzsch of AtariAge for this advice
-  uInt8 signature[2][4] = {
-    { 0xA0, 0xC1, 0x1F, 0xE0 },
-    { 0x00, 0x80, 0x02, 0xE0 }
-  };
-  if(searchForBytes(image, 1024, signature[0], 4, 1))
-    return true;
-  else
-    return searchForBytes(image, 1024, signature[1], 4, 1);
-}
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 bool CartDetector::isProbably0840(const uInt8* image, uInt32 size)
 {
   // 0840 cart bankswitching is triggered by accessing addresses 0x0800
-  // or 0x0840 at least twice
-  uInt8 signature1[3][3] = {
+  // or 0x0840
+  uInt8 signature1[2][3] = {
     { 0xAD, 0x00, 0x08 },  // LDA $0800
-    { 0xAD, 0x40, 0x08 },  // LDA $0840
-    { 0x2C, 0x00, 0x08 }   // BIT $0800
+    { 0xAD, 0x40, 0x08 }   // LDA $0840
   };
-  for(uInt32 i = 0; i < 3; ++i)
-    if(searchForBytes(image, size, signature1[i], 3, 2))
+  for(uInt32 i = 0; i < 2; ++i)
+    if(searchForBytes(image, size, signature1[i], 3, 1))
       return true;
 
   uInt8 signature2[2][4] = {
@@ -317,7 +293,7 @@ bool CartDetector::isProbably0840(const uInt8* image, uInt32 size)
     { 0x0C, 0xFF, 0x0F, 0x4C }   // NOP $0FFF; JMP ...
   };
   for(uInt32 i = 0; i < 2; ++i)
-    if(searchForBytes(image, size, signature2[i], 4, 2))
+    if(searchForBytes(image, size, signature2[i], 4, 1))
       return true;
 
   return false;
@@ -378,16 +354,10 @@ bool CartDetector::isProbablyCV(const uInt8* image, uInt32 size)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool CartDetector::isProbablyCTY(const uInt8*, uInt32)
-{
-  return false;  // TODO - add autodetection
-}
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 bool CartDetector::isProbablyDPCplus(const uInt8* image, uInt32 size)
 {
   // DPC+ ARM code has 2 occurrences of the string DPC+
-  uInt8 signature[] = { 'D', 'P', 'C', '+' };
+  uInt8 signature[] = { 0x44, 0x50, 0x43, 0x2B };  // DPC+
   return searchForBytes(image, size, signature, 4, 2);
 }
 
@@ -443,27 +413,11 @@ bool CartDetector::isProbablyE7(const uInt8* image, uInt32 size)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool CartDetector::isProbablyEF(const uInt8* image, uInt32 size, BSType& type)
+bool CartDetector::isProbablyEF(const uInt8* image, uInt32 size)
 {
-  // Newer EF carts store strings 'EFEF' and 'EFSC' starting at address $FFF8
-  // This signature is attributed to "RevEng" of AtariAge
-  uInt8 efef[] = { 'E', 'F', 'E', 'F' };
-  uInt8 efsc[] = { 'E', 'F', 'S', 'C' };
-  if(searchForBytes(image+size-8, 8, efef, 4, 1))
-  {
-    type = BS_EF;
-    return true;
-  }
-  else if(searchForBytes(image+size-8, 8, efsc, 4, 1))
-  {
-    type = BS_EFSC;
-    return true;
-  }
-
-  // Otherwise, EF cart bankswitching switches banks by accessing addresses
-  // 0xFE0 to 0xFEF, usually with either a NOP or LDA
+  // EF cart bankswitching switches banks by accessing addresses 0xFE0
+  // to 0xFEF, usually with either a NOP or LDA
   // It's likely that the code will switch to bank 0, so that's what is tested
-  bool isEF = false;
   uInt8 signature[4][3] = {
     { 0x0C, 0xE0, 0xFF },  // NOP $FFE0
     { 0xAD, 0xE0, 0xFF },  // LDA $FFE0
@@ -471,38 +425,10 @@ bool CartDetector::isProbablyEF(const uInt8* image, uInt32 size, BSType& type)
     { 0xAD, 0xE0, 0x1F }   // LDA $1FE0
   };
   for(uInt32 i = 0; i < 4; ++i)
-  {
     if(searchForBytes(image, size, signature[i], 3, 1))
-    {
-      isEF = true;
-      break;
-    }
-  }
-
-  // Now that we know that the ROM is EF, we need to check if it's
-  // the SC variant
-  if(isEF)
-  {
-    type = isProbablySC(image, size) ? BS_EFSC : BS_EF;
-    return true;
-  }
+      return true;
 
   return false;
-}
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool CartDetector::isProbablyFA2(const uInt8* image, uInt32)
-{
-  // This currently tests only the 32K version of FA2; the 24 and 28K
-  // versions are easy, in that they're the only possibility with those
-  // file sizes
-
-  // 32K version has all zeros in 29K-32K area
-  for(uInt32 i = 29*1024; i < 32*1024; ++i)
-    if(image[i] != 0)
-      return false;
-
-  return true;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -559,15 +485,12 @@ bool CartDetector::isProbablyUA(const uInt8* image, uInt32 size)
 bool CartDetector::isProbablyX07(const uInt8* image, uInt32 size)
 {
   // X07 bankswitching switches to bank 0, 1, 2, etc by accessing address 0x08xd
-  uInt8 signature[6][3] = {
+  uInt8 signature[3][3] = {
     { 0xAD, 0x0D, 0x08 },  // LDA $080D
     { 0xAD, 0x1D, 0x08 },  // LDA $081D
-    { 0xAD, 0x2D, 0x08 },  // LDA $082D
-    { 0x0C, 0x0D, 0x08 },  // NOP $080D
-    { 0x0C, 0x1D, 0x08 },  // NOP $081D
-    { 0x0C, 0x2D, 0x08 }   // NOP $082D
+    { 0xAD, 0x2D, 0x08 }   // LDA $082D
   };
-  for(uInt32 i = 0; i < 6; ++i)
+  for(uInt32 i = 0; i < 3; ++i)
     if(searchForBytes(image, size, signature[i], 3, 1))
       return true;
 

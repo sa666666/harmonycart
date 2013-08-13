@@ -6,7 +6,7 @@
 //  H   H  A   A  R R    M   M  O   O  N  NN    Y
 //  H   H  A   A  R  R   M   M   OOO   N   N    Y
 //
-// Copyright (c) 2009-2013 by Stephen Anthony <stephena@users.sf.net>
+// Copyright (c) 2009-2012 by Stephen Anthony <stephena@users.sf.net>
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -30,7 +30,7 @@ enum BSType {
   BS_3E,   BS_3F,   BS_4A50, BS_4K,   BS_AR,    BS_CV,    BS_DPC,
   BS_DPCP, BS_E0,   BS_E7,   BS_EF,   BS_EFSC,  BS_F0,    BS_F4,
   BS_F4SC, BS_F6,   BS_F6SC, BS_F8,   BS_F8SC,  BS_FA,    BS_FE,
-  BS_MC,   BS_SB,   BS_UA,   BS_X07,  BS_CTY,   BS_FA2,   BS_CUSTOM,
+  BS_MC,   BS_SB,   BS_UA,   BS_X07,  BS_CUSTOM,
 
   BS_AUTO
 };
@@ -55,7 +55,6 @@ class Bankswitch
         case BS_4A50:  return "4A50";
         case BS_AR:    return "AR";
         case BS_CV:    return "CV";
-        case BS_CTY:   return "CTY";
         case BS_DPC:   return "DPC";
         case BS_DPCP:  return "DPC+";
         case BS_E0:    return "E0";
@@ -70,7 +69,6 @@ class Bankswitch
         case BS_F8:    return "F8";
         case BS_F8SC:  return "F8SC";
         case BS_FA:    return "FA";
-        case BS_FA2:   return "FA2";
         case BS_FE:    return "FE";
         case BS_MC:    return "MC";
         case BS_SB:    return "SB";
@@ -98,7 +96,6 @@ class Bankswitch
       else if(BSPF_equalsIgnoreCase(name, "4A50"))    return BS_4A50;
       else if(BSPF_equalsIgnoreCase(name, "AR"))      return BS_AR;
       else if(BSPF_equalsIgnoreCase(name, "CV"))      return BS_CV;
-      else if(BSPF_equalsIgnoreCase(name, "CTY"))     return BS_CTY;
       else if(BSPF_equalsIgnoreCase(name, "DPC"))     return BS_DPC;
       else if(BSPF_equalsIgnoreCase(name, "DPC+"))    return BS_DPCP;
       else if(BSPF_equalsIgnoreCase(name, "E0"))      return BS_E0;
@@ -116,7 +113,6 @@ class Bankswitch
       else if(BSPF_equalsIgnoreCase(name, "F8S") ||
               BSPF_equalsIgnoreCase(name, "F8SC"))    return BS_F8SC;
       else if(BSPF_equalsIgnoreCase(name, "FA"))      return BS_FA;
-      else if(BSPF_equalsIgnoreCase(name, "FA2"))     return BS_FA2;
       else if(BSPF_equalsIgnoreCase(name, "FE"))      return BS_FE;
       else if(BSPF_equalsIgnoreCase(name, "MC"))      return BS_MC;
       else if(BSPF_equalsIgnoreCase(name, "SB"))      return BS_SB;

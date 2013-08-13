@@ -6,7 +6,7 @@
 //  H   H  A   A  R R    M   M  O   O  N  NN    Y
 //  H   H  A   A  R  R   M   M   OOO   N   N    Y
 //
-// Copyright (c) 2009-2013 by Stephen Anthony <stephena@users.sf.net>
+// Copyright (c) 2009-2012 by Stephen Anthony <stephena@users.sf.net>
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -530,7 +530,7 @@ void HarmonyCartWindow::slotAbout()
   ostringstream about;
   about << "<center>"
         << "<p><b>Harmony Programming Tool v" << HARMONY_VERSION << "</b></p>"
-        << "<p>Copyright &copy; 2009-2013 <a href=\"mailto:stephena@users.sf.net\">Stephen Anthony</a><br>"
+        << "<p>Copyright &copy; 2009-2012 <a href=\"mailto:stephena@users.sf.net\">Stephen Anthony</a><br>"
         << "Check for updates at <a href=\"http://harmony.atariage.com\">http://harmony.atariage.com</a><p>"
         << "</center>"
         << "<p>This software is released under the GNU GPLv3, and includes items from the following projects:</p>"
@@ -539,17 +539,6 @@ void HarmonyCartWindow::slotAbout()
         << "<li><a href=\"http://krokcom.sf.net\">KrokCom</a>: UI code, icons and other images</li>"
         << "<li><a href=\"http://stella.sf.net\">Stella</a>: bankswitch autodetection code</li>"
         << "</ul></p>"
-
-        << "<p>Version 1.3 (Aug. 13, 2013):</p>"
-        << "<ul>"
-        << "<li>Fixed bug when saving DPC+ and Custom ROMs in single-cart mode; the "
-        << "ROM data wasn't actually being written to the device.</li>"
-        << "<li>Added support for 29KB DPC+ ROMs in single-cart mode (ie, ones "
-        << "without any ARM code); these ROMs now have ARM code automatically "
-        << "added before being downloaded.</li>"
-        << "<li>Updated bankswitch autodetection code to latest from Stella 3.9.1.</li>"
-        << "</ul>"
-
         << "<p>Version 1.2 (Dec. 20, 2012):</p>"
         << "<ul>"
         << "<li>Updated lpc21isp code to version 1.85 (supports latest LPCxxxx chips).</li>"

@@ -609,11 +609,6 @@ supported by the Harmony Cart.</string>
                 </item>
                 <item>
                  <property name="text">
-                  <string>CTY* (Chetiry)</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
                   <string>CV (Commvid + RAM)</string>
                  </property>
                 </item>
@@ -685,11 +680,6 @@ supported by the Harmony Cart.</string>
                 <item>
                  <property name="text">
                   <string>FA (CBS RAM Plus)</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>FA2 (CBS RAM Plus extended)</string>
                  </property>
                 </item>
                 <item>

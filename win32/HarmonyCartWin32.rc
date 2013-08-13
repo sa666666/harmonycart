@@ -55,8 +55,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,3,0,0
- PRODUCTVERSION 1,3,0,0
+ FILEVERSION 1,2,0,0
+ PRODUCTVERSION 1,2,0,0
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -74,12 +74,12 @@ BEGIN
             VALUE "Comments", "The cross-platform Harmony programming tool. HarmonyCart is released under the GPLv3."
             VALUE "CompanyName", "AtariAge (http://harmony.atariage.com)"
             VALUE "FileDescription", "HarmonyCart"
-            VALUE "FileVersion", "1.3"
+            VALUE "FileVersion", "1.2"
             VALUE "InternalName", "HarmonyCart"
-            VALUE "LegalCopyright", "Copyright (C) 2009-2013 Stephen Anthony"
+            VALUE "LegalCopyright", "Copyright (C) 2009-2012 Stephen Anthony"
             VALUE "OriginalFilename", "HarmonyCart.exe"
             VALUE "ProductName", "HarmonyCart"
-            VALUE "ProductVersion", "1.3"
+            VALUE "ProductVersion", "1.2"
         END
     END
     BLOCK "VarFileInfo"

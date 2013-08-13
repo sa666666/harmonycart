@@ -3,14 +3,14 @@
 
 [Setup]
 AppName=HarmonyCart
-AppVerName=HarmonyCart 1.3
+AppVerName=HarmonyCart 1.2
 AppPublisher=Stephen Anthony
 AppPublisherURL=http://harmony.atariage.com
 AppSupportURL=http://harmony.atariage.com
 AppUpdatesURL=http://harmony.atariage.com
 DefaultDirName={pf}\HarmonyCart
 DefaultGroupName=HarmonyCart
-OutputBaseFilename="HarmonyCart-1.3-win32"
+OutputBaseFilename="HarmonyCart-1.2-win32"
 Compression=lzma
 SolidCompression=yes
 

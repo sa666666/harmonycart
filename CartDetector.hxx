@@ -6,7 +6,7 @@
 //  H   H  A   A  R R    M   M  O   O  N  NN    Y
 //  H   H  A   A  R  R   M   M   OOO   N   N    Y
 //
-// Copyright (c) 2009-2013 by Stephen Anthony <stephena@users.sf.net>
+// Copyright (c) 2009-2012 by Stephen Anthony <stephena@users.sf.net>
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -81,11 +81,6 @@ class CartDetector
     static bool isProbablySC(const uInt8* image, uInt32 size);
 
     /**
-      Returns true if the image probably contains ARM code in the first 1K
-    */
-    static bool isProbablyARM(const uInt8* image, uInt32 size);
-
-    /**
       Returns true if the image is probably a 0840 bankswitching cartridge
     */
     static bool isProbably0840(const uInt8* image, uInt32 size);
@@ -104,11 +99,6 @@ class CartDetector
       Returns true if the image is probably a 4A50 bankswitching cartridge
     */
     static bool isProbably4A50(const uInt8* image, uInt32 size);
-
-    /**
-      Returns true if the image is probably a CTY bankswitching cartridge
-    */
-    static bool isProbablyCTY(const uInt8* image, uInt32 size);
 
     /**
       Returns true if the image is probably a CV bankswitching cartridge
@@ -131,19 +121,14 @@ class CartDetector
     static bool isProbablyE7(const uInt8* image, uInt32 size);
 
     /**
-      Returns true if the image is probably an EF/EFSC bankswitching cartridge
+      Returns true if the image is probably a EF bankswitching cartridge
     */
-    static bool isProbablyEF(const uInt8* image, uInt32 size, BSType& type);
+    static bool isProbablyEF(const uInt8* image, uInt32 size);
 
     /**
       Returns true if the image is probably an F6 bankswitching cartridge
     */
     static bool isProbablyF6(const uInt8* image, uInt32 size);
-
-    /**
-      Returns true if the image is probably an FA2 bankswitching cartridge
-    */
-    static bool isProbablyFA2(const uInt8* image, uInt32 size);
 
     /**
       Returns true if the image is probably an FE bankswitching cartridge
