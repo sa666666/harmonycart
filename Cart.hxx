@@ -20,11 +20,9 @@
 #define MAXCARTSIZE 32*1024
 
 #include <QProgressDialog>
-
 #include <vector>
 
 #include "bspf_harmony.hxx"
-
 #include "BSType.hxx"
 #include "SerialPort.hxx"
 
@@ -170,8 +168,14 @@ class Cart
      *                by the startup code.
      */
     enum {
+      LPC_RAMSTART_LPC43XX = 0x10000000L,
+      LPC_RAMBASE_LPC43XX  = 0x10000200L,
+
       LPC_RAMSTART_LPC2XXX = 0x40000000L,
       LPC_RAMBASE_LPC2XXX  = 0x40000200L,
+
+      LPC_RAMSTART_LPC18XX = 0x10000000L,
+      LPC_RAMBASE_LPC18XX  = 0x10000200L,
 
       LPC_RAMSTART_LPC17XX = 0x10000000L,
       LPC_RAMBASE_LPC17XX  = 0x10000200L,
@@ -180,7 +184,10 @@ class Cart
       LPC_RAMBASE_LPC13XX  = 0x10000300L,
 
       LPC_RAMSTART_LPC11XX = 0x10000000L,
-      LPC_RAMBASE_LPC11XX  = 0x10000300L
+      LPC_RAMBASE_LPC11XX  = 0x10000300L,
+
+      LPC_RAMSTART_LPC8XX  = 0x10000000L,
+      LPC_RAMBASE_LPC8XX   = 0x10000270L
     };
 
     /* Return values used by PhilipsDownload(): reserving all values from 0x1000 to 0x1FFF */
@@ -199,13 +206,15 @@ class Cart
 
     enum {
       USER_ABORT_SYNC    = 0x100A,   /* User aborted synchronisation process */
+      UNKNOWN_LPC        = 0x100B,   /* Unknown LPC detected */
       UNLOCK_ERROR       = 0x1100,   /* return value is 0x1100 + NXP ISP returned value (0 to 255) */
       WRONG_ANSWER_PREP  = 0x1200,   /* return value is 0x1200 + NXP ISP returned value (0 to 255) */
       WRONG_ANSWER_ERAS  = 0x1300,   /* return value is 0x1300 + NXP ISP returned value (0 to 255) */
       WRONG_ANSWER_WRIT  = 0x1400,   /* return value is 0x1400 + NXP ISP returned value (0 to 255) */
       WRONG_ANSWER_PREP2 = 0x1500,   /* return value is 0x1500 + NXP ISP returned value (0 to 255) */
       WRONG_ANSWER_COPY  = 0x1600,   /* return value is 0x1600 + NXP ISP returned value (0 to 255) */
-      FAILED_RUN         = 0x1700    /* return value is 0x1700 + NXP ISP returned value (0 to 255) */
+      FAILED_RUN         = 0x1700,   /* return value is 0x1700 + NXP ISP returned value (0 to 255) */
+      WRONG_ANSWER_BTBNK = 0x1800    /* return value is 0x1800 + NXP ISP returned value (0 to 255) */
     };
 
     /* LPC_FLASHMASK
@@ -220,12 +229,19 @@ class Cart
 
     enum CHIP_VARIANT {
       CHIP_VARIANT_NONE,
-      CHIP_VARIANT_LPC2XXX, CHIP_VARIANT_LPC17XX,
-      CHIP_VARIANT_LPC13XX, CHIP_VARIANT_LPC11XX
+      CHIP_VARIANT_LPC43XX,
+      CHIP_VARIANT_LPC2XXX,
+      CHIP_VARIANT_LPC18XX,
+      CHIP_VARIANT_LPC17XX,
+      CHIP_VARIANT_LPC13XX,
+      CHIP_VARIANT_LPC11XX,
+      CHIP_VARIANT_LPC8XX
     };
 
     struct LPC_DEVICE_TYPE {
       const uInt32 id;
+      const uInt32 id2;
+      const uInt32 EvalId2;
       const char*  Product;
       const uInt32 FlashSize;      /* in kiB, for informational purposes only */
       const uInt32 RAMSize;        /* in kiB, for informational purposes only */
@@ -243,11 +259,20 @@ class Cart
     // Used for devices with 500K (LPC2138 and LPC2148) and
     // for devices with 504K (1 extra 4k block at the end)
     static const uInt32 SectorTable_213x[28];
+    // Used for LPC11xx devices
+    static const uInt32 SectorTable_11xx[32];
     // Used for LPC17xx devices
     static const uInt32 SectorTable_17xx[30];
+    // Used for LPC18xx devices
+    static const uInt32 SectorTable_18xx[15];
+    // Used for LPC43xx devices
+    static const uInt32 SectorTable_43xx[15];
+    // Used for LPC8xx devices
+    static const uInt32 SectorTable_8xx[16];
     static uInt32 SectorTable_RAM[1];
-    static LPC_DEVICE_TYPE LPCtypes[109];
+    static LPC_DEVICE_TYPE LPCtypes[190];
 
+    // Supercharger/Arcadia ROM header
     static uInt8 ourARHeader[256];
 };
 
