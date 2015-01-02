@@ -76,7 +76,7 @@ BEGIN
             VALUE "FileDescription", "HarmonyCart"
             VALUE "FileVersion", "1.3"
             VALUE "InternalName", "HarmonyCart"
-            VALUE "LegalCopyright", "Copyright (C) 2009-2013 Stephen Anthony"
+            VALUE "LegalCopyright", "Copyright (C) 2009-2015 Stephen Anthony"
             VALUE "OriginalFilename", "HarmonyCart.exe"
             VALUE "ProductName", "HarmonyCart"
             VALUE "ProductVersion", "1.3"
