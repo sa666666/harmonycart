@@ -891,7 +891,7 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
   cmdstr = "U 23130\n";
   if (!lpc_SendAndVerify(port, cmdstr, Answer, sizeof Answer))
   {
-    result << "ERROR: Unlock-Command: " + lpc_GetAndReportErrorNumber(Answer);
+    result << "ERROR: Unlock-Command: " << lpc_GetAndReportErrorNumber(Answer);
     goto cleanup;
   }
 

@@ -790,7 +790,7 @@ QString HarmonyCartWindow::getOpenROMName(const QString& path)
   static QString filter = "Atari 2600 ROM Image (*.a26 *.bin *.rom *.2K *.4K *.F4 *.F4S *.F6 *.F6S *.F8 *.F8S *.FA *.FE *.3F *.3E *.E0 *.E7 *.CV *.UA *.AR *.DPC *.084 *.CU);;All Files (*.*)";
 
   QString file = QFileDialog::getOpenFileName(this,
-    tr("Select ROM Image"), path, tr(filter.toAscii()), 0,
+    tr("Select ROM Image"), path, tr(filter.toLatin1()), 0,
     QFileDialog::HideNameFilterDetails);
 
   return file;

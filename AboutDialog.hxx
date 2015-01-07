@@ -17,7 +17,7 @@
 #ifndef ABOUTDIALOG_HXX
 #define ABOUTDIALOG_HXX
 
-#include <QtGui/QDialog>
+#include <QtWidgets/QDialog>
 
 namespace Ui {
   class AboutDialog;
