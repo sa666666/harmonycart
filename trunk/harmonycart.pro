@@ -24,6 +24,7 @@ HEADERS += HarmonyCartWindow.hxx \
 FORMS += harmonycartwindow.ui \
     aboutdialog.ui
 RESOURCES += resources.qrc
+QT += widgets
 windows { 
 #  Uncomment the following to create a commandline-compatible Windows build
 #    TARGET = HarmonyCart.com
