@@ -92,7 +92,7 @@ class SerialPort
     */
     uInt32 send(const void* data, uInt32 size = 0)
     {
-      return sendBlock(data, size == 0 ? strlen((const char*)data) : size);
+      return sendBlock(data, size == 0 ? uInt32(strlen((const char*)data)) : size);
     }
 
     /**

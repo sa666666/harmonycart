@@ -1321,11 +1321,11 @@ cleanup:
 int Cart::lpc_SendAndVerify(SerialPort& port, const char* Command,
                             char* AnswerBuffer, int AnswerLength)
 {
-  int cmdlen;
+  uInt32 cmdlen;
 
   port.send(Command);
   port.receive(AnswerBuffer, AnswerLength - 1, 2, 5000);
-  cmdlen = strlen(Command);
+  cmdlen = uInt32(strlen(Command));
 
   return (strncmp(AnswerBuffer, Command, cmdlen) == 0 &&
           strcmp(AnswerBuffer + cmdlen, "0\r\n") == 0);
