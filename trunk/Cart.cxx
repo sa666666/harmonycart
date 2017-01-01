@@ -41,6 +41,7 @@ Cart::Cart()
 {
   myProgress.setWindowModality(Qt::WindowModal);
   myProgress.setWindowIcon(QPixmap(":icons/pics/appicon.png"));
+  myProgress.reset();
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
