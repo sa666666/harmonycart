@@ -143,8 +143,8 @@ int main(int ac, char* av[])
   if(ac == 1)  // Launch GUI
   {
     // Only start a 'connect' thread if we're in UI mode
-    win.connectHarmonyCart();
     win.show();
+    win.connectHarmonyCart();
     return app.exec();
   }
   else  // Assume we're working from the commandline
