@@ -3,16 +3,36 @@
 
 [Setup]
 AppName=HarmonyCart
-AppVerName=HarmonyCart 1.3
+AppVerName=HarmonyCart 1.4
 AppPublisher=Stephen Anthony
 AppPublisherURL=http://harmony.atariage.com
 AppSupportURL=http://harmony.atariage.com
 AppUpdatesURL=http://harmony.atariage.com
 DefaultDirName={pf}\HarmonyCart
 DefaultGroupName=HarmonyCart
-OutputBaseFilename="HarmonyCart-1.3-win32"
+OutputBaseFilename="HarmonyCart-1.4-x64"
 Compression=lzma
 SolidCompression=yes
+UninstallDisplayIcon={app}\HarmonyCart.exe
+ArchitecturesInstallIn64BitMode=x64
+ArchitecturesAllowed=x64
+
+[Code]
+const
+   LF = #10;
+   CR = #13;
+   CRLF = CR + LF;
+
+procedure ConvertLineEndings();
+  var
+     FilePath : String;
+     FileContents : String;
+begin
+   FilePath := ExpandConstant(CurrentFileName)
+   LoadStringFromFile(FilePath, FileContents);
+   StringChangeEx(FileContents, LF, CRLF, False);
+   SaveStringToFile(FilePath, FileContents, False);
+end;
 
 [Languages]
 Name: "eng"; MessagesFile: "compiler:Default.isl"
@@ -25,7 +45,7 @@ Source: "..\Release\HarmonyCart.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\Release\HarmonyCart.com"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\Release\*.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\arm\*"; DestDir: "{app}\arm"; Flags: ignoreversion
-Source: "..\*.txt"; DestDir: "{app}\docs"; Flags: ignoreversion
+Source: "..\*.txt"; DestDir: "{app}\docs"; Flags: ignoreversion;  AfterInstall: ConvertLineEndings
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
