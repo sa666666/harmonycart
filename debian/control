@@ -1,9 +1,9 @@
 Source: harmonycart
 Section: games
 Priority: optional
-Maintainer: Stephen Anthony <stephena@users.sourceforge.net>
+Maintainer: Stephen Anthony <sa666666@gmail.com>
 Standards-Version: 3.7.2
-Build-Depends: debhelper (>= 5.0.0), libqt4-dev
+Build-Depends: debhelper (>= 5.0.0), libqt5-dev
 
 Package: harmonycart
 Architecture: any
@@ -18,9 +18,9 @@ Description: Harmony Cartridge programming tool for Linux/OSX/Windows.
  2600.  It can also be used to run your own Atari 2600 game creations on a
  real console.  The Harmony cartridge is flash-upgradeable, and will be
  updated to support future Atari 2600 developments.
- .
+
  The Harmony Programming Tool is a cross-platform application used to
  program the Harmony Cartridge.  Both GUI and commandline usage is
  supported.
- .
+
   Homepage: http://harmony.atariage.com

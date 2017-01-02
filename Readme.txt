@@ -9,4 +9,4 @@ visit the HarmonyCart Website at:
 
 Enjoy,
 
-Stephen Anthony (stephena@users.sf.net)
+Stephen Anthony (sa666666@gmail.com)
