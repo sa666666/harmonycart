@@ -6,7 +6,7 @@
 //  H   H  A   A  R R    M   M  O   O  N  NN    Y
 //  H   H  A   A  R  R   M   M   OOO   N   N    Y
 //
-// Copyright (c) 2009-2015 by Stephen Anthony <stephena@users.sf.net>
+// Copyright (c) 2009-2017 by Stephen Anthony <sa666666@gmail.com>
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -16,7 +16,7 @@
 
 /**
   Auto-detect cart type.
-  Based on auto-detection code from Stella (http://stella.sf.net)
+  Based on auto-detection code from Stella (https://stella-emu.github.io)
 
   @author  Stephen Anthony
 */
