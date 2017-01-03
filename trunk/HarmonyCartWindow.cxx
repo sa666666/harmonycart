@@ -540,6 +540,14 @@ void HarmonyCartWindow::slotAbout()
         << "<li><a href=\"http://stella-emu.github.io\">Stella</a>: bankswitch autodetection code</li>"
         << "</ul></p>"
 
+        << "<p>Version 1.4 (Jan. xx, 2017):</p>"
+        << "<ul>"
+        << "<li>Included NTSC HBIOS 1.06.</li>"
+        << "<li>Fixed annoying bug where dialog box would appear when first starting "
+        << "the app, and would have to be manually closed.</li>"
+        << "<li>Codebase ported to (and now requires) Qt 5.7.</li>"
+        << "</ul>"
+
         << "<p>Version 1.3 (Aug. 13, 2013):</p>"
         << "<ul>"
         << "<li>Fixed bug when saving DPC+ and Custom ROMs in single-cart mode; the "
@@ -570,6 +578,7 @@ void HarmonyCartWindow::slotAbout()
         << "<li>The previously selected tab (BIOS or Development) is now used when the app starts.</li>"
         << "<li>Updated bankswitch autodetection code to latest from Stella 3.7.4.</li>"
         << "</ul>"
+
         << "<p>Version 1.1 (Dec. 11, 2009):</p>"
         << "<ul>"
         << "<li>Added logging of download progress.  When activated, a dialog will "
@@ -598,6 +607,7 @@ void HarmonyCartWindow::slotAbout()
         << "<li>Updated HBIOS and ARM files to latest version (1.03c).</li>"
         << "<li>Updated PAL50 version of eeloader.bin for better compatibility with A7800 PAL systems.</li>"
         << "</ul>"
+
         << "<p>Version 1.0 (Oct. 7, 2009):</p>"
         << "<ul>"
         << "<li>Initial release for Linux, Mac OSX and Windows."
