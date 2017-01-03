@@ -10,6 +10,18 @@
                              Release History
 ===========================================================================
 
+1.4: (Jan. xx, 2017)
+
+  * Included NTSC HBIOS 1.06.
+
+  * Fixed annoying bug where dialog box would appear when first starting
+    the app, and would have to be manually closed.
+
+  * Codebase ported to (and now requires) Qt 5.7.
+
+-Have fun!
+
+
 1.3: (Aug. 13, 2013)
 
   * Fixed bug when saving DPC+ and Custom ROMs in single-cart mode; the
@@ -20,8 +32,6 @@
     added before being downloaded.
 
   * Updated bankswitch autodetection code to latest from Stella 3.9.1.
-
--Have fun!
 
 
 1.2: (Dec. 20, 2012)
@@ -82,7 +92,7 @@
   * Increased the time that messages are shown in the status bar from two
     to four seconds, so you have a better chance of reading the results.
 
-  * Implemented 'Retry Count' menu setting, to configure how often a 
+  * Implemented 'Retry Count' menu setting, to configure how often a
     write should be attempted before considering it a failure.
 
   * The download buttons are now disabled during an active download, to
