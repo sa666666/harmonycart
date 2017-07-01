@@ -10,8 +10,6 @@
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-//
-// $Id$
 //=========================================================================
 
 #ifndef __OSYSTEM_UNIX_HXX
@@ -36,7 +34,7 @@ class OSystemUNIX : public OSystem
     /**
       Destructor
     */
-    virtual ~OSystemUNIX();
+    virtual ~OSystemUNIX() = default;
 };
 
 #endif

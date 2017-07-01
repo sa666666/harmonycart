@@ -10,15 +10,13 @@
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-//
-// $Id$
 //=========================================================================
 
 #include <QApplication>
 #include <QFile>
 #include "ui_harmonycartwindow.h"
 
-#include "bspf_harmony.hxx"
+#include "bspf.hxx"
 #include "BSType.hxx"
 #include "Cart.hxx"
 #include "SerialPort.hxx"
@@ -56,16 +54,16 @@ void runCommandlineApp(HarmonyCartWindow& win, int ac, char* av[])
   // Parse commandline args
   for(int i = 1; i < ac; ++i)
   {
-    if(BSPF_startsWithIgnoreCase(av[i], "-bs="))
+    if(BSPF::startsWithIgnoreCase(av[i], "-bs="))
       bstype = Bankswitch::nameToType(av[i]+4);
-    else if(BSPF_equalsIgnoreCase(av[i], "-bios"))
+    else if(BSPF::equalsIgnoreCase(av[i], "-bios"))
       biosupdate = true;
-    else if(BSPF_equalsIgnoreCase(av[i], "-help"))
+    else if(BSPF::equalsIgnoreCase(av[i], "-help"))
     {
       usage();
       return;
     }
-    else if(BSPF_startsWithIgnoreCase(av[i], "-"))
+    else if(BSPF::startsWithIgnoreCase(av[i], "-"))
     {
       // Unknown argument
       cout << "Unknown argument \'" << av[i] << "\'" << endl << endl;

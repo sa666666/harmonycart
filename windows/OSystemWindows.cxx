@@ -10,33 +10,16 @@
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-//
-// $Id$
 //=========================================================================
 
-#ifndef __OSYSTEM_WIN32_HXX
-#define __OSYSTEM_WIN32_HXX
+#include <QCoreApplication>
+#include "OSystemWindows.hxx"
 
-#include "OSystem.hxx"
-#include "bspf_harmony.hxx"
-
-/**
-  This class defines Windows system specific settings.
-
-  @author  Stephen Anthony
-*/
-class OSystemWin32 : public OSystem
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+OSystemWindows::OSystemWindows()
+  : OSystem()
 {
-  public:
-    /**
-      Create a new Win32 operating system object
-    */
-    OSystemWin32();
-
-    /**
-      Destructor
-    */
-    virtual ~OSystemWin32();
-};
-
-#endif
+  QDir dir = QDir(QCoreApplication::applicationDirPath());
+  dir.cd("arm");
+  myARMPath = dir.absolutePath();
+}

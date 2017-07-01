@@ -10,8 +10,6 @@
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-//
-// $Id$
 //=========================================================================
 
 #include <QFileDialog>
@@ -33,7 +31,6 @@
 #include <iostream>
 #include <sstream>
 #include <sstream>
-using namespace std;
 
 #include "AboutDialog.hxx"
 #include "CartDetector.hxx"
@@ -52,8 +49,8 @@ HarmonyCartWindow::HarmonyCartWindow(QWidget* parent)
   ui->setupUi(this);
 
   // Fix BIOS and HBIOS buttons; make sure they're the same size
-  int w = BSPF_max(ui->updateBIOSButton->width(), ui->copyHBIOSButton->width());
-  int h = BSPF_max(ui->updateBIOSButton->height(), ui->copyHBIOSButton->height());
+  int w = max(ui->updateBIOSButton->width(), ui->copyHBIOSButton->width());
+  int h = max(ui->updateBIOSButton->height(), ui->copyHBIOSButton->height());
   ui->updateBIOSButton->setFixedSize(w, h);
   ui->copyHBIOSButton->setFixedSize(w, h);
 

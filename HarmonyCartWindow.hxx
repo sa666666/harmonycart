@@ -10,8 +10,6 @@
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-//
-// $Id$
 //=========================================================================
 
 #ifndef __HARMONYCART_WINDOW_HXX
@@ -33,8 +31,8 @@
 #include "OSystem.hxx"
 #if defined(BSPF_UNIX)
   #include "OSystemUNIX.hxx"
-#elif defined(BSPF_WIN32)
-  #include "OSystemWin32.hxx"
+#elif defined(BSPF_WINDOWS)
+  #include "OSystemWindows.hxx"
 #elif defined(BSPF_MAC_OSX)
   #include "OSystemMACOSX.hxx"
 #endif
@@ -110,8 +108,8 @@ Q_OBJECT
 
   #if defined(BSPF_UNIX)
     OSystemUNIX myOSystem;
-  #elif defined(BSPF_WIN32)
-    OSystemWin32 myOSystem;
+  #elif defined(BSPF_WINDOWS)
+    OSystemWindows myOSystem;
   #elif defined(BSPF_MAC_OSX)
     OSystemMACOSX myOSystem;
   #else

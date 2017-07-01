@@ -10,8 +10,6 @@
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-//
-// $Id$
 //=========================================================================
 
 #include "OSystemUNIX.hxx"
@@ -24,9 +22,4 @@ OSystemUNIX::OSystemUNIX()
   // At some point, it would be better to query the OS directly
 
   myARMPath = "/usr/share/harmonycart/";
-}
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-OSystemUNIX::~OSystemUNIX()
-{
 }

@@ -10,14 +10,12 @@
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-//
-// $Id$
 //=========================================================================
 
 #ifndef __CART_DETECTOR_HXX
 #define __CART_DETECTOR_HXX
 
-#include "bspf_harmony.hxx"
+#include "bspf.hxx"
 #include "BSType.hxx"
 
 /**

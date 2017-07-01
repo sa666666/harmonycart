@@ -10,14 +10,12 @@
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-//
-// $Id$
 //=========================================================================
 
 #ifndef __SERIALPORT_HXX
 #define __SERIALPORT_HXX
 
-#include "bspf_harmony.hxx"
+#include "bspf.hxx"
 
 /**
   This class provides an interface for a standard serial port.
@@ -33,7 +31,7 @@ class SerialPort
       myBaud(9600),
       mySerialTimeoutCount(0),
       myControlLinesSwapped(false) { }
-    virtual ~SerialPort() { }
+    virtual ~SerialPort() = default;
 
     /**
       Open the given serial port with the specified attributes.

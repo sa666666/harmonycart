@@ -10,8 +10,6 @@
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-//
-// $Id$
 //=========================================================================
 
 #ifndef __OSYSTEM_HXX
@@ -19,7 +17,7 @@
 
 #include <QDir>
 #include <QString>
-#include "bspf_harmony.hxx"
+#include "bspf.hxx"
 
 /**
   This class provides an interface for accessing operating system specific
@@ -31,7 +29,7 @@ class OSystem
 {
   public:
     OSystem() : myARMPath("") { }
-    virtual ~OSystem() { }
+    virtual ~OSystem() = default;
 
   public:
     /**

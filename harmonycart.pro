@@ -19,7 +19,6 @@ HEADERS += HarmonyCartWindow.hxx \
     SerialPort.hxx \
     Version.hxx \
     FindHarmonyThread.hxx \
-    bspf_harmony.hxx \
     AboutDialog.hxx
 FORMS += harmonycartwindow.ui \
     aboutdialog.ui
@@ -29,11 +28,11 @@ windows {
 #  Uncomment the following to create a commandline-compatible Windows build
 #    TARGET = HarmonyCart.com
 #    CONFIG += qt console
-    DEFINES += _CRT_SECURE_NO_WARNINGS BSPF_WIN32
-    INCLUDEPATH += win32
-    SOURCES += win32/SerialPortWin32.cxx win32/OSystemWin32.cxx
-    HEADERS += win32/SerialPortWin32.hxx win32/OSystemWin32.hxx
-    RC_FILE = win32/HarmonyCartWin32.rc
+    DEFINES += _CRT_SECURE_NO_WARNINGS BSPF_WINDOWS
+    INCLUDEPATH += windows
+    SOURCES += windows/SerialPortWindows.cxx windows/OSystemWindows.cxx
+    HEADERS += windows/SerialPortWindows.hxx windows/OSystemWindows.hxx
+    RC_FILE = windows/HarmonyCart.rc
 }
 unix:!macx { 
     DEFINES += HAVE_INTTYPES BSPF_UNIX
@@ -69,3 +68,8 @@ macx {
     LIBS += -framework CoreFoundation -framework IOKit
     ICON = macosx/Harmony_icon.icns
 }
+
+DISTFILES += \
+    windows/HarmonyCart.ico \
+    windows/harmonycart.iss
+

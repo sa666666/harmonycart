@@ -10,8 +10,6 @@
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-//
-// $Id$
 //=========================================================================
 
 /**
@@ -24,7 +22,6 @@
 #include <cstring>
 #include <fstream>
 
-#include "bspf_harmony.hxx"
 #include "CartDetector.hxx"
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -40,13 +37,13 @@ BSType CartDetector::autodetectType(const string& rom,
   if(!image || size == 0)
   {
     // Read file into buffer
-    ifstream in(rom.c_str(), ios::binary);
+    ifstream in(rom, std::ios::binary);
     if(in)
     {
       // Figure out how much data we should read
-      in.seekg(0, ios::end);
-      uInt32 length = (uInt32)in.tellg();
-      in.seekg(0, ios::beg);
+      in.seekg(0, std::ios::end);
+      uInt32 length = uInt32(in.tellg());
+      in.seekg(0, std::ios::beg);
       if(length > 0)
       {
         uInt8* buffer = new uInt8[length];
@@ -84,7 +81,7 @@ BSType CartDetector::autodetectTypeByExtension(const string& rom)
   string::size_type idx = rom.rfind('.');
   const string& ext = idx != string::npos ? rom.substr(idx+1) : EmptyString;
   for(int i = 0; i < 20; ++i)
-    if(BSPF_equalsIgnoreCase(exts[i], ext))
+    if(BSPF::equalsIgnoreCase(exts[i], ext))
       return types[i];
 
   return BS_AUTO;

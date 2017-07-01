@@ -10,8 +10,6 @@
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-//
-// $Id$
 //=========================================================================
 
 #undef UNICODE
@@ -19,24 +17,23 @@
 #include <sstream>
 #include <cstdio>
 
-#include "bspf_harmony.hxx"
-#include "SerialPortWin32.hxx"
+#include "SerialPortWindows.hxx"
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-SerialPortWin32::SerialPortWin32()
+SerialPortWindows::SerialPortWindows()
   : SerialPort(),
     myHandle(INVALID_HANDLE_VALUE)
 {
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-SerialPortWin32::~SerialPortWin32()
+SerialPortWindows::~SerialPortWindows()
 {
   closePort();
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool SerialPortWin32::openPort(const string& device)
+bool SerialPortWindows::openPort(const string& device)
 {
   if(!myHandle)
     closePort();
@@ -100,7 +97,7 @@ bool SerialPortWin32::openPort(const string& device)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void SerialPortWin32::closePort()
+void SerialPortWindows::closePort()
 {
   if(myHandle != INVALID_HANDLE_VALUE)
   {
@@ -110,13 +107,13 @@ void SerialPortWin32::closePort()
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool SerialPortWin32::isOpen()
+bool SerialPortWindows::isOpen()
 {
   return myHandle != INVALID_HANDLE_VALUE;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-uInt32 SerialPortWin32::receiveBlock(void* answer, uInt32 max_size)
+uInt32 SerialPortWindows::receiveBlock(void* answer, uInt32 max_size)
 {
   DWORD result = 0;
   if(myHandle != INVALID_HANDLE_VALUE)
@@ -129,7 +126,7 @@ uInt32 SerialPortWin32::receiveBlock(void* answer, uInt32 max_size)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-uInt32 SerialPortWin32::sendBlock(const void* data, uInt32 size)
+uInt32 SerialPortWindows::sendBlock(const void* data, uInt32 size)
 {
   DWORD result = 0;
   if(myHandle != INVALID_HANDLE_VALUE)
@@ -139,19 +136,19 @@ uInt32 SerialPortWin32::sendBlock(const void* data, uInt32 size)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void SerialPortWin32::setTimeout(uInt32 timeout_milliseconds)
+void SerialPortWindows::setTimeout(uInt32 timeout_milliseconds)
 {
   mySerialTimeoutCount = timeout_milliseconds;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void SerialPortWin32::clearBuffers()
+void SerialPortWindows::clearBuffers()
 {
   PurgeComm(myHandle, PURGE_TXABORT | PURGE_RXABORT | PURGE_TXCLEAR | PURGE_RXCLEAR);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void SerialPortWin32::controlModemLines(bool DTR, bool RTS)
+void SerialPortWindows::controlModemLines(bool DTR, bool RTS)
 {
   // Handle whether to swap the control lines
   if(myControlLinesSwapped)
@@ -169,13 +166,13 @@ void SerialPortWin32::controlModemLines(bool DTR, bool RTS)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void SerialPortWin32::sleepMillis(uInt32 milliseconds)
+void SerialPortWindows::sleepMillis(uInt32 milliseconds)
 {
   Sleep(DWORD(milliseconds));
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const StringList& SerialPortWin32::getPortNames()
+const StringList& SerialPortWindows::getPortNames()
 {
   myPortNames.clear();
 

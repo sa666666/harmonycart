@@ -10,18 +10,15 @@
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-//
-// $Id$
 //=========================================================================
 
 #ifndef __SERIALPORTMANAGER_HXX
 #define __SERIALPORTMANAGER_HXX
 
-#include "bspf_harmony.hxx"
 #include "Cart.hxx"
 
-#if defined(BSPF_WIN32)
-  #include "SerialPortWin32.hxx"
+#if defined(BSPF_WINDOWS)
+  #include "SerialPortWindows.hxx"
 #elif defined(BSPF_MAC_OSX)
   #include "SerialPortMACOSX.hxx"
 #elif defined(BSPF_UNIX)
@@ -51,8 +48,8 @@ class SerialPortManager
     bool detect(const string& device, Cart& cart);
 
   private:
-  #if defined(BSPF_WIN32)
-    SerialPortWin32 myPort;
+  #if defined(BSPF_WINDOWS)
+    SerialPortWindows myPort;
   #elif defined(BSPF_MAC_OSX)
     SerialPortMACOSX myPort;
   #elif defined(BSPF_UNIX)

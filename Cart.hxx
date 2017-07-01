@@ -10,8 +10,6 @@
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-//
-// $Id$
 //=========================================================================
 
 #ifndef __CART_HXX
@@ -22,7 +20,7 @@
 #include <QProgressDialog>
 #include <vector>
 
-#include "bspf_harmony.hxx"
+#include "bspf.hxx"
 #include "BSType.hxx"
 #include "SerialPort.hxx"
 

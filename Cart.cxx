@@ -10,8 +10,6 @@
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-//
-// $Id$
 //=========================================================================
 
 #include <QApplication>
@@ -24,8 +22,6 @@
 #include <sstream>
 #include <ostream>
 #include <time.h>
-
-#include "bspf_harmony.hxx"
 
 #include "BSType.hxx"
 #include "Cart.hxx"
@@ -399,16 +395,16 @@ uInt8* Cart::readFile(const string& filename, uInt32& size)
   *myLog << "Reading from file: \'" << filename.c_str() << "\' ... ";
 
   // Read file into buffer
-  ifstream in(filename.c_str(), ios::binary);
+  ifstream in(filename, std::ios::binary);
   if(!in)
   {
     *myLog << "ERROR: file not found\n";
     return buffer;
   }
   // Figure out how much data we should read
-  in.seekg(0, ios::end);
-  streampos length = in.tellg();
-  in.seekg(0, ios::beg);
+  in.seekg(0, std::ios::end);
+  std::streampos length = in.tellg();
+  in.seekg(0, std::ios::beg);
   if(length <= 0)
     return buffer;
 
@@ -948,7 +944,7 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
             LPCtypes[myDetectedDevice].RAMSize);
     *myLog << version;
   }
-  *myLog << " (" << hex << Pos << dec << ")\n";
+  *myLog << " (" << std::hex << Pos << std::dec << ")\n";
 
   // Make sure the data can fit in the flash we have available
   if(size > LPCtypes[myDetectedDevice].FlashSize * 1024)
@@ -1011,7 +1007,7 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
       goto cleanup;
     }
 
-    *myLog << "Sector " << Sector << flush;
+    *myLog << "Sector " << Sector << std::flush;
     if(showprogress)
       updateProgressText("Downloading sector " + QString::number(Sector) + " ...                  ");
 
@@ -1025,7 +1021,7 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
         goto cleanup;
       }
 
-      *myLog << "." << flush;
+      *myLog << "." << std::flush;
 
       if (Sector != 0) // Sector 0 already erased
       {
@@ -1037,7 +1033,7 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
           goto cleanup;
         }
 
-        *myLog << "." << flush;
+        *myLog << "." << std::flush;
       }
     }
 
@@ -1048,7 +1044,7 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
     for (SectorOffset = 0; SectorOffset < SectorLength; SectorOffset += SectorChunk)
     {
       if (SectorOffset > 0)
-        *myLog << "|" << flush;
+        *myLog << "|" << std::flush;
 
       // If the Flash ROM sector size is bigger than the number of bytes
       // we can copy from RAM to Flash, we must "chop up" the sector and
@@ -1073,7 +1069,7 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
         goto cleanup;
       }
 
-      *myLog << "." << flush;
+      *myLog << "." << std::flush;
 
       block_CRC = 0;
       Line = 0;
@@ -1083,7 +1079,7 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
       {
         for (Block = 0; Block < 4; Block++)  // Each block 45 bytes
         {
-          *myLog << "." << flush;
+          *myLog << "." << std::flush;
 
           // Inform the calling application about having written another chuck of data
           if(showprogress)
@@ -1244,7 +1240,7 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
       }
     }
 
-    *myLog << "\n" << flush;
+    *myLog << "\n" << std::flush;
 
     if ((SectorStart + SectorLength) >= BinaryLength && Sector!=0)
     {
@@ -1270,7 +1266,7 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
 
   if (1 /* IspEnvironment->DoNotStart == 0*/)
   {
-    *myLog << "Now launching the brand new code\n" << flush;
+    *myLog << "Now launching the brand new code\n" << std::flush;
 
     if(LPCtypes[myDetectedDevice].ChipVariant == CHIP_VARIANT_LPC2XXX)
       sprintf(tmpString, "G %d A\n", StartAddress);
@@ -1305,7 +1301,7 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
       }
     }
 
-    *myLog << flush;
+    *myLog << std::flush;
   }
 
 cleanup:

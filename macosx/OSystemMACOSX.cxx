@@ -27,8 +27,3 @@ OSystemMACOSX::OSystemMACOSX()
   dir.cd("arm");
   myARMPath = dir.absolutePath();
 }
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-OSystemMACOSX::~OSystemMACOSX()
-{
-}

@@ -10,14 +10,10 @@
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-//
-// $Id$
 //=========================================================================
 
-#include "bspf_harmony.hxx"
-
-#ifndef __SERIALPORT_WIN32_HXX
-#define __SERIALPORT_WIN32_HXX
+#ifndef __SERIALPORT_WINDOWS_HXX
+#define __SERIALPORT_WINDOWS_HXX
 
 #include <windows.h>
 #include "SerialPort.hxx"
@@ -26,13 +22,12 @@
   Implement reading and writing from a serial port under Windows systems.
 
   @author  Stephen Anthony
-  @version $Id$
 */
-class SerialPortWin32 : public SerialPort
+class SerialPortWindows : public SerialPort
 {
   public:
-    SerialPortWin32();
-    virtual ~SerialPortWin32();
+    SerialPortWindows();
+    virtual ~SerialPortWindows();
 
     /**
       Open the given serial port with the specified attributes.
