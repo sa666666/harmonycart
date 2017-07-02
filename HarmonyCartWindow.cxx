@@ -49,8 +49,8 @@ HarmonyCartWindow::HarmonyCartWindow(QWidget* parent)
   ui->setupUi(this);
 
   // Fix BIOS and HBIOS buttons; make sure they're the same size
-  int w = max(ui->updateBIOSButton->width(), ui->copyHBIOSButton->width());
-  int h = max(ui->updateBIOSButton->height(), ui->copyHBIOSButton->height());
+  int w = std::max(ui->updateBIOSButton->width(), ui->copyHBIOSButton->width());
+  int h = std::max(ui->updateBIOSButton->height(), ui->copyHBIOSButton->height());
   ui->updateBIOSButton->setFixedSize(w, h);
   ui->copyHBIOSButton->setFixedSize(w, h);
 

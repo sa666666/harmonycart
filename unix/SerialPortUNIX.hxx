@@ -12,8 +12,6 @@
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 //=========================================================================
 
-#include "bspf_harmony.hxx"
-
 #ifndef __SERIALPORT_UNIX_HXX
 #define __SERIALPORT_UNIX_HXX
 

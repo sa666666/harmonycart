@@ -16,7 +16,6 @@
 #define __OSYSTEM_UNIX_HXX
 
 #include "OSystem.hxx"
-#include "bspf_harmony.hxx"
 
 /**
   This class defines UNIX-like OS's (Linux) system specific settings.

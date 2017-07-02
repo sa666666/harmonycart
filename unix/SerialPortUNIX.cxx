@@ -12,8 +12,6 @@
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 //=========================================================================
 
-#include "bspf_harmony.hxx"
-
 #if defined(__OpenBSD__)
   #include <errno.h>
 #else

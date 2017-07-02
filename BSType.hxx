@@ -21,7 +21,7 @@
 #ifndef BSTYPE_HXX
 #define BSTYPE_HXX
 
-#include "BSPF.hxx"
+#include "bspf.hxx"
 
 enum BSType {
   BS_0840, BS_2IN1, BS_4IN1, BS_8IN1, BS_16IN1, BS_32IN1, BS_2K,
