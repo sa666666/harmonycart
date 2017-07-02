@@ -41,11 +41,6 @@ Cart::Cart()
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Cart::~Cart()
-{
-}
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void Cart::setLogger(ostream* out)
 {
   myLog = out;
@@ -76,13 +71,12 @@ string Cart::downloadBIOS(SerialPort& port, const string& filename,
 
   // Read the file into a buffer
   uInt32 size = 0;
-  uInt8* bios = readFile(filename, size);
+  BytePtr bios = readFile(filename, size);
   if(size > 0)
-    result = lpc_NxpDownload(port, bios, size, verify, showprogress);
+    result = lpc_NxpDownload(port, bios.get(), size, verify, showprogress);
   else
     result = "Couldn't open BIOS file";
 
-  delete[] bios;
   return result;
 }
 
@@ -94,12 +88,12 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
   string result = "";
   bool autodetect = type == BS_AUTO;
   uInt32 romsize = 0, armsize = 0, size = 0;
-  uInt8 *rombuf = NULL, *armbuf = NULL;
+  BytePtr armbuf;
   uInt8 binary[512*1024], *binary_ptr = binary;
   string armfile = "";
 
   // Read the ROM file into a buffer
-  rombuf = readFile(filename, romsize);
+  BytePtr rombuf = readFile(filename, romsize);
   if(romsize == 0)
   {
     result = "Couldn't open ROM file.";
@@ -180,14 +174,14 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
     case BS_F4SC:
     {
       // Copy ROM data
-      memcpy(binary_ptr, rombuf, romsize);
+      memcpy(binary_ptr, rombuf.get(), romsize);
 
       // ARM code in first "RAM" area
-      memcpy(binary_ptr, armbuf, 256);
+      memcpy(binary_ptr, armbuf.get(), 256);
 
       // ARM code in second "RAM" area
       if(armsize > 4096)
-        memcpy(binary_ptr+4096, armbuf+4096, armsize-4096);
+        memcpy(binary_ptr+4096, armbuf.get()+4096, armsize-4096);
 
       size = romsize;  // No further processing required
       break;
@@ -197,7 +191,7 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
     {
       // Copy ARM data to determine remaining size
       // Leave space for 8 bytes, to indicate the bank configuration
-      memcpy(binary_ptr, armbuf, armsize);
+      memcpy(binary_ptr, armbuf.get(), armsize);
       binary_ptr += armsize + 8;
 
       // Reorganize bin for best compression
@@ -213,12 +207,12 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
         {
           if (h != i)
           {
-            memcpy(ptr, rombuf+4096*h, 4096);
+            memcpy(ptr, rombuf.get()+4096*h, 4096);
             ptr += 4096;
           }
         }
 
-        memcpy(ptr, rombuf+4096*i, 4096);
+        memcpy(ptr, rombuf.get()+4096*i, 4096);
         ptr += 4096;
 
         // Compress last bank
@@ -268,13 +262,12 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
           power2 <<= 1;
 
         // Create a 4K buffer and reassign to rombuf
-        uInt8* tmp = new uInt8[4096];
-        uInt8* tmp_ptr = tmp;
+        BytePtr tmp = make_ptr<uInt8[]>(4096);
+        uInt8* tmp_ptr = tmp.get();
         for(uInt32 i = 0; i < 4096/power2; ++i, tmp_ptr += power2)
-          memcpy(tmp_ptr, rombuf, romsize);
+          memcpy(tmp_ptr, rombuf.get(), romsize);
 
-        delete[] rombuf;
-        rombuf = tmp;
+        rombuf = std::move(tmp);
         romsize = 4096;
       }
       break;
@@ -286,28 +279,26 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
       if(romsize == 6144)
       {
         // Minimum buffer size is 6K + 256 bytes
-        uInt8* tmp = new uInt8[6144+256];
-        memcpy(tmp, rombuf, 6144);          // copy ROM
-        memcpy(tmp+6144, ourARHeader, 256); // copy missing header
+        BytePtr tmp = make_ptr<uInt8[]>(6144+256);
+        memcpy(tmp.get(), rombuf.get(), 6144);          // copy ROM
+        memcpy(tmp.get()+6144, ourARHeader, 256); // copy missing header
 
-        delete[] rombuf;
-        rombuf = tmp;
+        rombuf = std::move(tmp);
         romsize = 6144 + 256;
       }
       else  // size is multiple of 8448
       {
         // To save space, we skip 2K in each Supercharger load
         uInt32 numLoads = romsize / 8448;
-        uInt8* tmp = new uInt8[numLoads*(6144+256)];
-        uInt8 *tmp_ptr = tmp, *rom_ptr = rombuf;
+        BytePtr tmp = make_ptr<uInt8[]>(numLoads*(6144+256));
+        uInt8 *tmp_ptr = tmp.get(), *rom_ptr = rombuf.get();
         for(uInt32 i = 0; i < numLoads; ++i, tmp_ptr += 6144+256, rom_ptr += 8448)
         {
           memcpy(tmp_ptr, rom_ptr, 6144);                // 6KB  @ pos 0K
           memcpy(tmp_ptr+6144, rom_ptr+6144+2048, 256);  // 256b @ pos 8K
         }
 
-        delete[] rombuf;
-        rombuf = tmp;
+        rombuf = std::move(tmp);
         romsize = numLoads * (6144+256);
       }
       break;
@@ -324,7 +315,7 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
       {
         // Copy ROM data; no further processing required
         size = romsize;
-        memcpy(binary_ptr, rombuf, size);
+        memcpy(binary_ptr, rombuf.get(), size);
       }
       break;
     }
@@ -338,16 +329,16 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
       {
         // Copy ROM data; no further processing required
         size = romsize;
-        memcpy(binary_ptr, rombuf, size);
+        memcpy(binary_ptr, rombuf.get(), size);
       }
       else if(romsize == 28 * 1024)
       {
         // Copy ARM data
-        memcpy(binary_ptr, armbuf, armsize);
+        memcpy(binary_ptr, armbuf.get(), armsize);
         binary_ptr += 1024;
 
         // Copy ROM data
-        memcpy(binary_ptr, rombuf, romsize);
+        memcpy(binary_ptr, rombuf.get(), romsize);
 
         size = 32 * 1024;
       }
@@ -358,7 +349,7 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
     {
       // Copy ROM data; no further processing required
       size = romsize;
-      memcpy(binary_ptr, rombuf, size);
+      memcpy(binary_ptr, rombuf.get(), size);
       break;
     }
 
@@ -369,11 +360,11 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
   if(size == 0)
   {
     // Copy ARM data
-    memcpy(binary_ptr, armbuf, armsize);
+    memcpy(binary_ptr, armbuf.get(), armsize);
     binary_ptr += armsize;
 
     // Copy ROM data
-    memcpy(binary_ptr, rombuf, romsize);
+    memcpy(binary_ptr, rombuf.get(), romsize);
 
     size = romsize + armsize;
   }
@@ -381,15 +372,13 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
   result = lpc_NxpDownload(port, binary, size, verify, showprogress);
 
 cleanup:
-  delete[] rombuf;
-  delete[] armbuf;
   return result;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-uInt8* Cart::readFile(const string& filename, uInt32& size)
+BytePtr Cart::readFile(const string& filename, uInt32& size)
 {
-  uInt8* buffer = (uInt8*) NULL;
+  BytePtr buffer;
   size = 0;
 
   *myLog << "Reading from file: \'" << filename.c_str() << "\' ... ";
@@ -408,8 +397,8 @@ uInt8* Cart::readFile(const string& filename, uInt32& size)
   if(length <= 0)
     return buffer;
 
-  buffer = new uInt8[length];
-  in.read((char*)buffer, length);
+  buffer = make_ptr<uInt8[]>(length);
+  in.read((char*)buffer.get(), length);
   *myLog << "read in " << length << " bytes" << endl;
   in.close();
 
@@ -775,8 +764,8 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
           << BinaryLength << ", now " << newBinaryLength << ")\n";
     BinaryLength = newBinaryLength;
   }
-  uInt8* binaryContent = new uInt8[BinaryLength];
-  memcpy(binaryContent, data, size);
+  BytePtr binaryContent = make_ptr<uInt8[]>(BinaryLength);
+  memcpy(binaryContent.get(), data, size);
   uInt32 progressStep = 0;
   if(showprogress)
     initializeProgress("Updating Flash", 0, BinaryLength/45 + 20);
@@ -1305,7 +1294,6 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
   }
 
 cleanup:
-  delete[] binaryContent;  binaryContent = NULL;
   if(showprogress)
     finalizeProgress();
 
@@ -1328,10 +1316,10 @@ int Cart::lpc_SendAndVerify(SerialPort& port, const char* Command,
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-unsigned char Cart::lpc_GetAndReportErrorNumber(const char* Answer)
+uInt8 Cart::lpc_GetAndReportErrorNumber(const char* Answer)
 {
-  unsigned char Result = 0xFF;    // Error !!!
-  unsigned int i = 0;
+  uInt8 Result = 0xFF;    // Error !!!
+  uInt32 i = 0;
 
   while (1)
   {

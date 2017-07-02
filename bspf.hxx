@@ -49,6 +49,7 @@ using uInt64 = uint64_t;
 #include <cstdio>
 #include <utility>
 #include <vector>
+#include "UniquePtr.hxx"  // only until C++14 compilers are more common
 
 using std::cin;
 using std::cout;
@@ -66,6 +67,7 @@ using std::istringstream;
 using std::stringstream;
 using std::unique_ptr;
 using std::shared_ptr;
+using std::make_ptr;
 using std::make_shared;
 using std::array;
 using std::vector;

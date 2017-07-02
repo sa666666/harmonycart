@@ -26,38 +26,42 @@
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 BSType CartDetector::autodetectType(const string& rom,
-                                    const uInt8* image, uInt32 size)
+                                    const BytePtr& image, uInt32 size)
 {
   // First attempt to detect by filename extension
   BSType type = autodetectTypeByExtension(rom);
   if(type != BS_AUTO)
     return type;
 
-  // Then attempt to detect by actual ROM contents
-  if(!image || size == 0)
+  return autodetectTypeByContent(image, size);
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+BSType CartDetector::autodetectType(const string& rom)
+{
+  // First attempt to detect by filename extension
+  BSType type = autodetectTypeByExtension(rom);
+  if(type != BS_AUTO)
+    return type;
+
+  // Read file into buffer
+  ifstream in(rom, std::ios::binary);
+  if(in)
   {
-    // Read file into buffer
-    ifstream in(rom, std::ios::binary);
-    if(in)
+    // Figure out how much data we should read
+    in.seekg(0, std::ios::end);
+    uInt32 length = uInt32(in.tellg());
+    in.seekg(0, std::ios::beg);
+    if(length > 0)
     {
-      // Figure out how much data we should read
-      in.seekg(0, std::ios::end);
-      uInt32 length = uInt32(in.tellg());
-      in.seekg(0, std::ios::beg);
-      if(length > 0)
-      {
-        uInt8* buffer = new uInt8[length];
-        in.read((char*)buffer, length);
-        in.close();
-        type = autodetectTypeByContent(buffer, length);
-        delete[] buffer;
-      }
-      else
-        type = BS_CUSTOM;
+      BytePtr buffer = make_ptr<uInt8[]>(length);
+      in.read((char*)buffer.get(), length);
+      in.close();
+      type = autodetectTypeByContent(buffer, length);
     }
+    else
+      type = BS_CUSTOM;
   }
-  else
-    type = autodetectTypeByContent(image, size);
 
   return type;
 }
@@ -88,7 +92,7 @@ BSType CartDetector::autodetectTypeByExtension(const string& rom)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-BSType CartDetector::autodetectTypeByContent(const uInt8* image, uInt32 size)
+BSType CartDetector::autodetectTypeByContent(const BytePtr &image, uInt32 size)
 {
   BSType type = BS_CUSTOM;
 
@@ -101,7 +105,7 @@ BSType CartDetector::autodetectTypeByContent(const uInt8* image, uInt32 size)
     type = BS_4K;     // 2K is automatically converted to 4K
   }
   else if((size == 2048) ||
-          (size == 4096 && memcmp(image, image + 2048, 2048) == 0))
+          (size == 4096 && memcmp(image.get(), image.get() + 2048, 2048) == 0))
   {
     if(isProbablyCV(image, size))
       type = BS_CV;
@@ -119,7 +123,7 @@ BSType CartDetector::autodetectTypeByContent(const uInt8* image, uInt32 size)
   {
     if(isProbablySC(image, size))
       type = BS_F8SC;
-    else if(memcmp(image, image + 4096, 4096) == 0)
+    else if(memcmp(image.get(), image.get() + 4096, 4096) == 0)
       type = BS_4K;
     else if(isProbablyE0(image, size))
       type = BS_E0;
@@ -234,7 +238,7 @@ BSType CartDetector::autodetectTypeByContent(const uInt8* image, uInt32 size)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool CartDetector::searchForBytes(const uInt8* image, uInt32 imagesize,
+bool CartDetector::searchForBytes(const uInt8 *image, uInt32 imagesize,
                                   const uInt8* signature, uInt32 sigsize,
                                   uInt32 minhits)
 {
@@ -262,7 +266,7 @@ bool CartDetector::searchForBytes(const uInt8* image, uInt32 imagesize,
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool CartDetector::isProbablySC(const uInt8* image, uInt32 size)
+bool CartDetector::isProbablySC(const BytePtr &image, uInt32 size)
 {
   // We assume a Superchip cart contains the same bytes for its entire
   // RAM area; obviously this test will fail if it doesn't
@@ -281,7 +285,7 @@ bool CartDetector::isProbablySC(const uInt8* image, uInt32 size)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool CartDetector::isProbablyARM(const uInt8* image, uInt32)
+bool CartDetector::isProbablyARM(const BytePtr &image, uInt32)
 {
   // ARM code contains the following 'loader' patterns in the first 1K
   // Thanks to Thomas Jentzsch of AtariAge for this advice
@@ -289,14 +293,14 @@ bool CartDetector::isProbablyARM(const uInt8* image, uInt32)
     { 0xA0, 0xC1, 0x1F, 0xE0 },
     { 0x00, 0x80, 0x02, 0xE0 }
   };
-  if(searchForBytes(image, 1024, signature[0], 4, 1))
+  if(searchForBytes(image.get(), 1024, signature[0], 4, 1))
     return true;
   else
-    return searchForBytes(image, 1024, signature[1], 4, 1);
+    return searchForBytes(image.get(), 1024, signature[1], 4, 1);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool CartDetector::isProbably0840(const uInt8* image, uInt32 size)
+bool CartDetector::isProbably0840(const BytePtr &image, uInt32 size)
 {
   // 0840 cart bankswitching is triggered by accessing addresses 0x0800
   // or 0x0840 at least twice
@@ -306,7 +310,7 @@ bool CartDetector::isProbably0840(const uInt8* image, uInt32 size)
     { 0x2C, 0x00, 0x08 }   // BIT $0800
   };
   for(uInt32 i = 0; i < 3; ++i)
-    if(searchForBytes(image, size, signature1[i], 3, 2))
+    if(searchForBytes(image.get(), size, signature1[i], 3, 2))
       return true;
 
   uInt8 signature2[2][4] = {
@@ -314,35 +318,35 @@ bool CartDetector::isProbably0840(const uInt8* image, uInt32 size)
     { 0x0C, 0xFF, 0x0F, 0x4C }   // NOP $0FFF; JMP ...
   };
   for(uInt32 i = 0; i < 2; ++i)
-    if(searchForBytes(image, size, signature2[i], 4, 2))
+    if(searchForBytes(image.get(), size, signature2[i], 4, 2))
       return true;
 
   return false;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool CartDetector::isProbably3E(const uInt8* image, uInt32 size)
+bool CartDetector::isProbably3E(const BytePtr &image, uInt32 size)
 {
   // 3E cart bankswitching is triggered by storing the bank number
   // in address 3E using 'STA $3E', commonly followed by an
   // immediate mode LDA
   uInt8 signature[] = { 0x85, 0x3E, 0xA9, 0x00 };  // STA $3E; LDA #$00
-  return searchForBytes(image, size, signature, 4, 1);
+  return searchForBytes(image.get(), size, signature, 4, 1);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool CartDetector::isProbably3F(const uInt8* image, uInt32 size)
+bool CartDetector::isProbably3F(const BytePtr &image, uInt32 size)
 {
   // 3F cart bankswitching is triggered by storing the bank number
   // in address 3F using 'STA $3F'
   // We expect it will be present at least 2 times, since there are
   // at least two banks
   uInt8 signature[] = { 0x85, 0x3F };  // STA $3F
-  return searchForBytes(image, size, signature, 2, 2);
+  return searchForBytes(image.get(), size, signature, 2, 2);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool CartDetector::isProbably4A50(const uInt8* image, uInt32 size)
+bool CartDetector::isProbably4A50(const BytePtr &image, uInt32 size)
 {
   // 4A50 carts store address $4A50 at the NMI vector, which
   // in this scheme is always in the last page of ROM at
@@ -360,7 +364,7 @@ bool CartDetector::isProbably4A50(const uInt8* image, uInt32 size)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool CartDetector::isProbablyCV(const uInt8* image, uInt32 size)
+bool CartDetector::isProbablyCV(const BytePtr &image, uInt32 size)
 {
   // CV RAM access occurs at addresses $f3ff and $f400
   // These signatures are attributed to the MESS project
@@ -368,28 +372,28 @@ bool CartDetector::isProbablyCV(const uInt8* image, uInt32 size)
     { 0x9D, 0xFF, 0xF3 },  // STA $F3FF.X
     { 0x99, 0x00, 0xF4 }   // STA $F400.Y
   };
-  if(searchForBytes(image, size, signature[0], 3, 1))
+  if(searchForBytes(image.get(), size, signature[0], 3, 1))
     return true;
   else
-    return searchForBytes(image, size, signature[1], 3, 1);
+    return searchForBytes(image.get(), size, signature[1], 3, 1);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool CartDetector::isProbablyCTY(const uInt8*, uInt32)
+bool CartDetector::isProbablyCTY(const BytePtr &, uInt32)
 {
   return false;  // TODO - add autodetection
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool CartDetector::isProbablyDPCplus(const uInt8* image, uInt32 size)
+bool CartDetector::isProbablyDPCplus(const BytePtr &image, uInt32 size)
 {
   // DPC+ ARM code has 2 occurrences of the string DPC+
   uInt8 signature[] = { 'D', 'P', 'C', '+' };
-  return searchForBytes(image, size, signature, 4, 2);
+  return searchForBytes(image.get(), size, signature, 4, 2);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool CartDetector::isProbablyE0(const uInt8* image, uInt32 size)
+bool CartDetector::isProbablyE0(const BytePtr &image, uInt32 size)
 {
   // E0 cart bankswitching is triggered by accessing addresses
   // $FE0 to $FF9 using absolute non-indexed addressing
@@ -408,14 +412,14 @@ bool CartDetector::isProbablyE0(const uInt8* image, uInt32 size)
    { 0xAD, 0xF3, 0xBF }   // LDA $BFF3
   };
   for(uInt32 i = 0; i < 8; ++i)
-    if(searchForBytes(image, size, signature[i], 3, 1))
+    if(searchForBytes(image.get(), size, signature[i], 3, 1))
       return true;
 
   return false;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool CartDetector::isProbablyE7(const uInt8* image, uInt32 size)
+bool CartDetector::isProbablyE7(const BytePtr &image, uInt32 size)
 {
   // E7 cart bankswitching is triggered by accessing addresses
   // $FE0 to $FE6 using absolute non-indexed addressing
@@ -433,25 +437,25 @@ bool CartDetector::isProbablyE7(const uInt8* image, uInt32 size)
    { 0x8D, 0xE7, 0x1F }   // STA $1FE7
   };
   for(uInt32 i = 0; i < 7; ++i)
-    if(searchForBytes(image, size, signature[i], 3, 1))
+    if(searchForBytes(image.get(), size, signature[i], 3, 1))
       return true;
 
   return false;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool CartDetector::isProbablyEF(const uInt8* image, uInt32 size, BSType& type)
+bool CartDetector::isProbablyEF(const BytePtr &image, uInt32 size, BSType& type)
 {
   // Newer EF carts store strings 'EFEF' and 'EFSC' starting at address $FFF8
   // This signature is attributed to "RevEng" of AtariAge
   uInt8 efef[] = { 'E', 'F', 'E', 'F' };
   uInt8 efsc[] = { 'E', 'F', 'S', 'C' };
-  if(searchForBytes(image+size-8, 8, efef, 4, 1))
+  if(searchForBytes(image.get()+size-8, 8, efef, 4, 1))
   {
     type = BS_EF;
     return true;
   }
-  else if(searchForBytes(image+size-8, 8, efsc, 4, 1))
+  else if(searchForBytes(image.get()+size-8, 8, efsc, 4, 1))
   {
     type = BS_EFSC;
     return true;
@@ -469,7 +473,7 @@ bool CartDetector::isProbablyEF(const uInt8* image, uInt32 size, BSType& type)
   };
   for(uInt32 i = 0; i < 4; ++i)
   {
-    if(searchForBytes(image, size, signature[i], 3, 1))
+    if(searchForBytes(image.get(), size, signature[i], 3, 1))
     {
       isEF = true;
       break;
@@ -488,7 +492,7 @@ bool CartDetector::isProbablyEF(const uInt8* image, uInt32 size, BSType& type)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool CartDetector::isProbablyFA2(const uInt8* image, uInt32)
+bool CartDetector::isProbablyFA2(const BytePtr &image, uInt32)
 {
   // This currently tests only the 32K version of FA2; the 24 and 28K
   // versions are easy, in that they're the only possibility with those
@@ -503,7 +507,7 @@ bool CartDetector::isProbablyFA2(const uInt8* image, uInt32)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool CartDetector::isProbablyFE(const uInt8* image, uInt32 size)
+bool CartDetector::isProbablyFE(const BytePtr &image, uInt32 size)
 {
   // FE bankswitching is very weird, but always seems to include a
   // 'JSR $xxxx'
@@ -515,28 +519,28 @@ bool CartDetector::isProbablyFE(const uInt8* image, uInt32 size)
     { 0x20, 0x00, 0xF0, 0x84, 0xD6 }   // JSR $F000; STY $D6
   };
   for(uInt32 i = 0; i < 4; ++i)
-    if(searchForBytes(image, size, signature[i], 5, 1))
+    if(searchForBytes(image.get(), size, signature[i], 5, 1))
       return true;
 
   return false;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool CartDetector::isProbablySB(const uInt8* image, uInt32 size)
+bool CartDetector::isProbablySB(const BytePtr &image, uInt32 size)
 {
   // SB cart bankswitching switches banks by accessing address 0x0800
   uInt8 signature[2][3] = {
     { 0xBD, 0x00, 0x08 },  // LDA $0800,x
     { 0xAD, 0x00, 0x08 }   // LDA $0800
   };
-  if(searchForBytes(image, size, signature[0], 3, 1))
+  if(searchForBytes(image.get(), size, signature[0], 3, 1))
     return true;
   else
-    return searchForBytes(image, size, signature[1], 3, 1);
+    return searchForBytes(image.get(), size, signature[1], 3, 1);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool CartDetector::isProbablyUA(const uInt8* image, uInt32 size)
+bool CartDetector::isProbablyUA(const BytePtr &image, uInt32 size)
 {
   // UA cart bankswitching switches to bank 1 by accessing address 0x240
   // using 'STA $240' or 'LDA $240'
@@ -546,14 +550,14 @@ bool CartDetector::isProbablyUA(const uInt8* image, uInt32 size)
     { 0xBD, 0x1F, 0x02 }   // LDA $21F,X
   };
   for(uInt32 i = 0; i < 3; ++i)
-    if(searchForBytes(image, size, signature[i], 3, 1))
+    if(searchForBytes(image.get(), size, signature[i], 3, 1))
       return true;
 
   return false;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool CartDetector::isProbablyX07(const uInt8* image, uInt32 size)
+bool CartDetector::isProbablyX07(const BytePtr &image, uInt32 size)
 {
   // X07 bankswitching switches to bank 0, 1, 2, etc by accessing address 0x08xd
   uInt8 signature[6][3] = {
@@ -565,7 +569,7 @@ bool CartDetector::isProbablyX07(const uInt8* image, uInt32 size)
     { 0x0C, 0x2D, 0x08 }   // NOP $082D
   };
   for(uInt32 i = 0; i < 6; ++i)
-    if(searchForBytes(image, size, signature[i], 3, 1))
+    if(searchForBytes(image.get(), size, signature[i], 3, 1))
       return true;
 
   return false;

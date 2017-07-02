@@ -19,7 +19,8 @@ HEADERS += HarmonyCartWindow.hxx \
     SerialPort.hxx \
     Version.hxx \
     FindHarmonyThread.hxx \
-    AboutDialog.hxx
+    AboutDialog.hxx \
+    UniquePtr.hxx
 FORMS += harmonycartwindow.ui \
     aboutdialog.ui
 RESOURCES += resources.qrc

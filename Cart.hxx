@@ -36,7 +36,7 @@ class Cart
       cartridges to upload BIOS files.
     */
     Cart();
-    ~Cart();
+    ~Cart() = default;
 
     /**
       Log all output to the given stream.
@@ -78,7 +78,7 @@ class Cart
       Read data from given file and return it in a buffer, along
       with the allocated size.
     */
-    uInt8* readFile(const string& filename, uInt32& size);
+    BytePtr readFile(const string& filename, uInt32& size);
 
     /**
       Resets the target leaving it in either download (program) mode or
@@ -142,7 +142,7 @@ class Cart
                 non-numeric value is found then it is printed to stdout and
                 an error value of 255 is returned.
     */
-    unsigned char lpc_GetAndReportErrorNumber(const char* Answer);
+    uInt8 lpc_GetAndReportErrorNumber(const char* Answer);
 
   private:
     uInt32   myDetectedDevice;

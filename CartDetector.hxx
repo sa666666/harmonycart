@@ -36,7 +36,8 @@ class CartDetector
       @param size   The size of the ROM image (may be 0)
       @return  The "best guess" for the cartridge type
     */
-    static BSType autodetectType(const string& rom, const uInt8* image = 0, uInt32 size = 0);
+    static BSType autodetectType(const string& rom, const BytePtr& image, uInt32 size);
+    static BSType autodetectType(const string& rom);
 
   private:
     /**
@@ -56,7 +57,7 @@ class CartDetector
       @param rom  The file containing the ROM image
       @return  The "best guess" for the cartridge type
     */
-    static BSType autodetectTypeByContent(const uInt8* image, uInt32 size);
+    static BSType autodetectTypeByContent(const BytePtr& image, uInt32 size);
 
     /**
       Search the image for the specified byte signature
@@ -76,92 +77,92 @@ class CartDetector
     /**
       Returns true if the image is probably a SuperChip (256 bytes RAM)
     */
-    static bool isProbablySC(const uInt8* image, uInt32 size);
+    static bool isProbablySC(const BytePtr& image, uInt32 size);
 
     /**
       Returns true if the image probably contains ARM code in the first 1K
     */
-    static bool isProbablyARM(const uInt8* image, uInt32 size);
+    static bool isProbablyARM(const BytePtr& image, uInt32 size);
 
     /**
       Returns true if the image is probably a 0840 bankswitching cartridge
     */
-    static bool isProbably0840(const uInt8* image, uInt32 size);
+    static bool isProbably0840(const BytePtr& image, uInt32 size);
 
     /**
       Returns true if the image is probably a 3E bankswitching cartridge
     */
-    static bool isProbably3E(const uInt8* image, uInt32 size);
+    static bool isProbably3E(const BytePtr& image, uInt32 size);
 
     /**
       Returns true if the image is probably a 3F bankswitching cartridge
     */
-    static bool isProbably3F(const uInt8* image, uInt32 size);
+    static bool isProbably3F(const BytePtr& image, uInt32 size);
 
     /**
       Returns true if the image is probably a 4A50 bankswitching cartridge
     */
-    static bool isProbably4A50(const uInt8* image, uInt32 size);
+    static bool isProbably4A50(const BytePtr& image, uInt32 size);
 
     /**
       Returns true if the image is probably a CTY bankswitching cartridge
     */
-    static bool isProbablyCTY(const uInt8* image, uInt32 size);
+    static bool isProbablyCTY(const BytePtr& image, uInt32 size);
 
     /**
       Returns true if the image is probably a CV bankswitching cartridge
     */
-    static bool isProbablyCV(const uInt8* image, uInt32 size);
+    static bool isProbablyCV(const BytePtr& image, uInt32 size);
 
     /**
       Returns true if the image is probably a DPC+ bankswitching cartridge
     */
-    static bool isProbablyDPCplus(const uInt8* image, uInt32 size);
+    static bool isProbablyDPCplus(const BytePtr& image, uInt32 size);
 
     /**
       Returns true if the image is probably a E0 bankswitching cartridge
     */
-    static bool isProbablyE0(const uInt8* image, uInt32 size);
+    static bool isProbablyE0(const BytePtr& image, uInt32 size);
 
     /**
       Returns true if the image is probably a E7 bankswitching cartridge
     */
-    static bool isProbablyE7(const uInt8* image, uInt32 size);
+    static bool isProbablyE7(const BytePtr& image, uInt32 size);
 
     /**
       Returns true if the image is probably an EF/EFSC bankswitching cartridge
     */
-    static bool isProbablyEF(const uInt8* image, uInt32 size, BSType& type);
+    static bool isProbablyEF(const BytePtr& image, uInt32 size, BSType& type);
 
     /**
       Returns true if the image is probably an F6 bankswitching cartridge
     */
-    static bool isProbablyF6(const uInt8* image, uInt32 size);
+    static bool isProbablyF6(const BytePtr& image, uInt32 size);
 
     /**
       Returns true if the image is probably an FA2 bankswitching cartridge
     */
-    static bool isProbablyFA2(const uInt8* image, uInt32 size);
+    static bool isProbablyFA2(const BytePtr& image, uInt32 size);
 
     /**
       Returns true if the image is probably an FE bankswitching cartridge
     */
-    static bool isProbablyFE(const uInt8* image, uInt32 size);
+    static bool isProbablyFE(const BytePtr& image, uInt32 size);
 
     /**
       Returns true if the image is probably a SB bankswitching cartridge
     */
-    static bool isProbablySB(const uInt8* image, uInt32 size);
+    static bool isProbablySB(const BytePtr& image, uInt32 size);
 
     /**
       Returns true if the image is probably a UA bankswitching cartridge
     */
-    static bool isProbablyUA(const uInt8* image, uInt32 size);
+    static bool isProbablyUA(const BytePtr& image, uInt32 size);
 
     /**
       Returns true if the image is probably an X07 bankswitching cartridge
     */
-    static bool isProbablyX07(const uInt8* image, uInt32 size);
+    static bool isProbablyX07(const BytePtr& image, uInt32 size);
 };
 
 #endif

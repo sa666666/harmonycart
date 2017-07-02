@@ -122,7 +122,7 @@ uInt32 SerialPortWindows::receiveBlock(void* answer, uInt32 max_size)
     if(result == 0)
       timeoutTick();
   }
-  return (uInt32)result;
+  return uInt32(result);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -132,7 +132,7 @@ uInt32 SerialPortWindows::sendBlock(const void* data, uInt32 size)
   if(myHandle != INVALID_HANDLE_VALUE)
     WriteFile(myHandle, data, size, &result, NULL);
 
-  return (uInt32)result;
+  return uInt32(result);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
