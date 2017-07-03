@@ -15,6 +15,7 @@
 #ifndef __SERIALPORT_WINDOWS_HXX
 #define __SERIALPORT_WINDOWS_HXX
 
+#define NOMINMAX
 #include <windows.h>
 #include "SerialPort.hxx"
 

@@ -48,7 +48,7 @@ void usage()
 void runCommandlineApp(HarmonyCartWindow& win, int ac, char* av[])
 {
   string datafile = "";
-  BSType bstype = BS_AUTO;
+  BSType bstype = BSType::_AUTO;
   bool biosupdate = false;
 
   // Parse commandline args

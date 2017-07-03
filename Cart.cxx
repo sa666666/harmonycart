@@ -86,7 +86,7 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
                          bool verify, bool showprogress)
 {
   string result = "";
-  bool autodetect = type == BS_AUTO;
+  bool autodetect = type == BSType::_AUTO;
   uInt32 romsize = 0, armsize = 0, size = 0;
   BytePtr armbuf;
   uInt8 binary[512*1024], *binary_ptr = binary;
@@ -117,27 +117,27 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
   // First determine the name of the bankswitch file to use
   switch(type)
   {
-    case BS_0840:   armfile = "0840.arm";   break;
-    case BS_4K:     armfile = "2K4K.arm";   break;
-    case BS_3E:     armfile = "3E.arm";     break;
-    case BS_3F:     armfile = "3F.arm";     break;
-    case BS_CV:     armfile = "CV.arm";     break;
-    case BS_DPC:    armfile = "DPC.arm";    break;
-    case BS_E0:     armfile = "E0.arm";     break;
-    case BS_E7:     armfile = "E7.arm";     break;
-    case BS_FA:     armfile = "FA.arm";     break;
-    case BS_FA2:    armfile = "FA2.arm";    break;
-    case BS_F4:     armfile = "F4.arm";     break;
-    case BS_F6:     armfile = "F6.arm";     break;
-    case BS_F8:     armfile = "F8.arm";     break;
-    case BS_F4SC:   armfile = "F4SC.arm";   break;
-    case BS_F6SC:   armfile = "F6SC.arm";   break;
-    case BS_F8SC:   armfile = "F8SC.arm";   break;
-    case BS_FE:     armfile = "FE.arm";     break;
-    case BS_AR:     armfile = "SC.arm";     break;
-    case BS_UA:     armfile = "UA.arm";     break;
-    case BS_DPCP:   armfile = "DPC+.arm";   break;
-    case BS_CUSTOM:                         break;
+    case BSType::_0840:   armfile = "0840.arm";   break;
+    case BSType::_4K:     armfile = "2K4K.arm";   break;
+    case BSType::_3E:     armfile = "3E.arm";     break;
+    case BSType::_3F:     armfile = "3F.arm";     break;
+    case BSType::_CV:     armfile = "CV.arm";     break;
+    case BSType::_DPC:    armfile = "DPC.arm";    break;
+    case BSType::_E0:     armfile = "E0.arm";     break;
+    case BSType::_E7:     armfile = "E7.arm";     break;
+    case BSType::_FA:     armfile = "FA.arm";     break;
+    case BSType::_FA2:    armfile = "FA2.arm";    break;
+    case BSType::_F4:     armfile = "F4.arm";     break;
+    case BSType::_F6:     armfile = "F6.arm";     break;
+    case BSType::_F8:     armfile = "F8.arm";     break;
+    case BSType::_F4SC:   armfile = "F4SC.arm";   break;
+    case BSType::_F6SC:   armfile = "F6SC.arm";   break;
+    case BSType::_F8SC:   armfile = "F8SC.arm";   break;
+    case BSType::_FE:     armfile = "FE.arm";     break;
+    case BSType::_AR:     armfile = "SC.arm";     break;
+    case BSType::_UA:     armfile = "UA.arm";     break;
+    case BSType::_DPCP:   armfile = "DPC+.arm";   break;
+    case BSType::_CUSTOM:                         break;
     default:
       result = "Bankswitch type \'" + Bankswitch::typeToName(type) + "\' not supported.";
       *myLog << "ERROR: " << result.c_str() << endl;
@@ -171,7 +171,7 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
   memset(binary_ptr, 0, 512*1024);
   switch(type)
   {
-    case BS_F4SC:
+    case BSType::_F4SC:
     {
       // Copy ROM data
       memcpy(binary_ptr, rombuf.get(), romsize);
@@ -187,7 +187,7 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
       break;
     }
 
-    case BS_F4:
+    case BSType::_F4:
     {
       // Copy ARM data to determine remaining size
       // Leave space for 8 bytes, to indicate the bank configuration
@@ -252,7 +252,7 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
       break;
     }
 
-    case BS_4K:  // 2K & 'Sub2K'
+    case BSType::_4K:  // 2K & 'Sub2K'
     {
       if(romsize < 4096)
       {
@@ -273,7 +273,7 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
       break;
     }
 
-    case BS_AR:  // Supercharger
+    case BSType::_AR:  // Supercharger
     {
       // Take care of special AR ROM which are only 6K
       if(romsize == 6144)
@@ -304,7 +304,7 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
       break;
     }
 
-    case BS_DPCP:
+    case BSType::_DPCP:
     {
       // There are two variants of DPC+; one with the ARM code
       // already added (32KB), and the other without (29KB)
@@ -320,7 +320,7 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
       break;
     }
 
-    case BS_FA2:
+    case BSType::_FA2:
     {
       // There are two variants of FA2; one with the ARM code
       // already added and padded (32KB), and the other without (28KB)
@@ -345,7 +345,7 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
       break;
     }
 
-    case BS_CUSTOM:
+    case BSType::_CUSTOM:
     {
       // Copy ROM data; no further processing required
       size = romsize;

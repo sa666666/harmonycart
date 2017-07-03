@@ -75,9 +75,15 @@ class CartDetector
                                uInt32 minhits);
 
     /**
-      Returns true if the image is probably a SuperChip (256 bytes RAM)
+      Returns true if the image is probably a SuperChip (128 bytes RAM)
+      Note: should be called only on ROMs with size multiple of 4K
     */
     static bool isProbablySC(const BytePtr& image, uInt32 size);
+
+    /**
+      Returns true if the image is probably a 4K SuperChip (128 bytes RAM)
+    */
+    static bool isProbably4KSC(const BytePtr& image, uInt32 size);
 
     /**
       Returns true if the image probably contains ARM code in the first 1K
@@ -95,6 +101,11 @@ class CartDetector
     static bool isProbably3E(const BytePtr& image, uInt32 size);
 
     /**
+      Returns true if the image is probably a 3E+ bankswitching cartridge
+    */
+    static bool isProbably3EPlus(const BytePtr& image, uInt32 size);
+
+    /**
       Returns true if the image is probably a 3F bankswitching cartridge
     */
     static bool isProbably3F(const BytePtr& image, uInt32 size);
@@ -105,6 +116,21 @@ class CartDetector
     static bool isProbably4A50(const BytePtr& image, uInt32 size);
 
     /**
+      Returns true if the image is probably a BF/BFSC bankswitching cartridge
+    */
+    static bool isProbablyBF(const BytePtr& image, uInt32 size, BSType& type);
+
+    /**
+      Returns true if the image is probably a BUS bankswitching cartridge
+    */
+    static bool isProbablyBUS(const BytePtr& image, uInt32 size);
+
+    /**
+      Returns true if the image is probably a CDF bankswitching cartridge
+    */
+    static bool isProbablyCDF(const BytePtr& image, uInt32 size);
+
+    /**
       Returns true if the image is probably a CTY bankswitching cartridge
     */
     static bool isProbablyCTY(const BytePtr& image, uInt32 size);
@@ -113,6 +139,21 @@ class CartDetector
       Returns true if the image is probably a CV bankswitching cartridge
     */
     static bool isProbablyCV(const BytePtr& image, uInt32 size);
+
+    /**
+      Returns true if the image is probably a CV+ bankswitching cartridge
+    */
+    static bool isProbablyCVPlus(const BytePtr& image, uInt32 size);
+
+    /**
+      Returns true if the image is probably a DASH bankswitching cartridge
+    */
+    static bool isProbablyDASH(const BytePtr& image, uInt32 size);
+
+    /**
+      Returns true if the image is probably a DF/DFSC bankswitching cartridge
+    */
+    static bool isProbablyDF(const BytePtr& image, uInt32 size, BSType& type);
 
     /**
       Returns true if the image is probably a DPC+ bankswitching cartridge
@@ -150,6 +191,11 @@ class CartDetector
     static bool isProbablyFE(const BytePtr& image, uInt32 size);
 
     /**
+      Returns true if the image is probably a MDM bankswitching cartridge
+    */
+    static bool isProbablyMDM(const BytePtr& image, uInt32 size);
+
+    /**
       Returns true if the image is probably a SB bankswitching cartridge
     */
     static bool isProbablySB(const BytePtr& image, uInt32 size);
@@ -163,6 +209,14 @@ class CartDetector
       Returns true if the image is probably an X07 bankswitching cartridge
     */
     static bool isProbablyX07(const BytePtr& image, uInt32 size);
+
+  private:
+    // Following constructors and assignment operators not supported
+    CartDetector() = delete;
+    CartDetector(const CartDetector&) = delete;
+    CartDetector(CartDetector&&) = delete;
+    CartDetector& operator=(const CartDetector&) = delete;
+    CartDetector& operator=(CartDetector&&) = delete;
 };
 
 #endif
