@@ -110,6 +110,13 @@ class SerialPortWindows : public SerialPort
   private:
     // Handle to serial port
     HANDLE myHandle;
+
+  private:
+    // Following constructors and assignment operators not supported
+    SerialPortWindows(const SerialPortWindows&) = delete;
+    SerialPortWindows(SerialPortWindows&&) = delete;
+    SerialPortWindows& operator=(const SerialPortWindows&) = delete;
+    SerialPortWindows& operator=(SerialPortWindows&&) = delete;
 };
 
 #endif

@@ -112,6 +112,13 @@ class SerialPortUNIX : public SerialPort
     int myHandle;
 
     struct termios myOldtio, myNewtio;
+
+  private:
+    // Following constructors and assignment operators not supported
+    SerialPortUNIX(const SerialPortUNIX&) = delete;
+    SerialPortUNIX(SerialPortUNIX&&) = delete;
+    SerialPortUNIX& operator=(const SerialPortUNIX&) = delete;
+    SerialPortUNIX& operator=(SerialPortUNIX&&) = delete;
 };
 
 #endif

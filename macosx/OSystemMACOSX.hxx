@@ -16,7 +16,6 @@
 #define __OSYSTEM_UNIX_HXX
 
 #include "OSystem.hxx"
-#include "bspf_harmony.hxx"
 
 /**
   This class defines UNIX-like OS's (MacOS X) system specific settings.
@@ -35,6 +34,13 @@ class OSystemMACOSX : public OSystem
       Destructor
     */
     virtual ~OSystemMACOSX() = default;
+
+  private:
+    // Following constructors and assignment operators not supported
+    OSystemMACOSX(const OSystemMACOSX&) = delete;
+    OSystemMACOSX(OSystemMACOSX&&) = delete;
+    OSystemMACOSX& operator=(const OSystemMACOSX&) = delete;
+    OSystemMACOSX& operator=(OSystemMACOSX&&) = delete;
 };
 
 #endif

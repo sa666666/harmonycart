@@ -31,7 +31,7 @@ class SerialPortManager
 {
   public:
     SerialPortManager();
-    ~SerialPortManager();
+    ~SerialPortManager() = default;
 
     void setDefaultPort(const string& port);
     void connectHarmonyCart(Cart& cart);
@@ -59,6 +59,13 @@ class SerialPortManager
     bool myFoundHarmonyCart;
     string myPortName;
     string myVersionID;
+
+  private:
+    // Following constructors and assignment operators not supported
+    SerialPortManager(const SerialPortManager&) = delete;
+    SerialPortManager(SerialPortManager&&) = delete;
+    SerialPortManager& operator=(const SerialPortManager&) = delete;
+    SerialPortManager& operator=(SerialPortManager&&) = delete;
 };
 
 #endif // __SERIALPORTMANAGER_HXX

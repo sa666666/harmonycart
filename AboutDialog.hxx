@@ -26,10 +26,18 @@ class AboutDialog : public QDialog
 Q_OBJECT
   public:
     AboutDialog(QWidget* parent, const QString& title, const QString& info);
-    ~AboutDialog();
+    virtual ~AboutDialog();
 
   private:
     Ui::AboutDialog* m_ui;
+
+  private:
+    // Following constructors and assignment operators not supported
+    AboutDialog() = delete;
+    AboutDialog(const AboutDialog&) = delete;
+    AboutDialog(AboutDialog&&) = delete;
+    AboutDialog& operator=(const AboutDialog&) = delete;
+    AboutDialog& operator=(AboutDialog&&) = delete;
 };
 
 #endif // ABOUTDIALOG_HXX

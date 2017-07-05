@@ -47,7 +47,7 @@ class HarmonyCartWindow : public QMainWindow
 Q_OBJECT
   public:
     HarmonyCartWindow(QWidget* parent = 0);
-    ~HarmonyCartWindow();
+    virtual ~HarmonyCartWindow();
 
   public:
     SerialPortManager& portManager() { return myManager; }
@@ -115,6 +115,13 @@ Q_OBJECT
   #else
     OSystem myOSystem;
   #endif
+
+  private:
+    // Following constructors and assignment operators not supported
+    HarmonyCartWindow(const HarmonyCartWindow&) = delete;
+    HarmonyCartWindow(HarmonyCartWindow&&) = delete;
+    HarmonyCartWindow& operator=(const HarmonyCartWindow&) = delete;
+    HarmonyCartWindow& operator=(HarmonyCartWindow&&) = delete;
 };
 
 #endif

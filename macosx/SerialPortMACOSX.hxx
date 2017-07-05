@@ -12,8 +12,6 @@
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 //=========================================================================
 
-#include "bspf_harmony.hxx"
-
 #ifndef __SERIALPORT_MACOSX_HXX
 #define __SERIALPORT_MACOSX_HXX
 
@@ -125,6 +123,13 @@ class SerialPortMACOSX : public SerialPort
     int myHandle;
 
     struct termios myOldtio, myNewtio;
+
+  private:
+    // Following constructors and assignment operators not supported
+    SerialPortMACOSX(const SerialPortMACOSX&) = delete;
+    SerialPortMACOSX(SerialPortMACOSX&&) = delete;
+    SerialPortMACOSX& operator=(const SerialPortMACOSX&) = delete;
+    SerialPortMACOSX& operator=(SerialPortMACOSX&&) = delete;
 };
 
 #endif

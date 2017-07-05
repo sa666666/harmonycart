@@ -34,6 +34,13 @@ class OSystemUNIX : public OSystem
       Destructor
     */
     virtual ~OSystemUNIX() = default;
+
+  private:
+    // Following constructors and assignment operators not supported
+    OSystemUNIX(const OSystemUNIX&) = delete;
+    OSystemUNIX(OSystemUNIX&&) = delete;
+    OSystemUNIX& operator=(const OSystemUNIX&) = delete;
+    OSystemUNIX& operator=(OSystemUNIX&&) = delete;
 };
 
 #endif

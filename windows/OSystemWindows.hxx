@@ -34,6 +34,13 @@ class OSystemWindows : public OSystem
       Destructor
     */
     virtual ~OSystemWindows() = default;
+
+  private:
+    // Following constructors and assignment operators not supported
+    OSystemWindows(const OSystemWindows&) = delete;
+    OSystemWindows(OSystemWindows&&) = delete;
+    OSystemWindows& operator=(const OSystemWindows&) = delete;
+    OSystemWindows& operator=(OSystemWindows&&) = delete;
 };
 
 #endif

@@ -43,6 +43,13 @@ class OSystem
 
   protected:
     QString myARMPath;
+
+  private:
+    // Following constructors and assignment operators not supported
+    OSystem(const OSystem&) = delete;
+    OSystem(OSystem&&) = delete;
+    OSystem& operator=(const OSystem&) = delete;
+    OSystem& operator=(OSystem&&) = delete;
 };
 
 #endif

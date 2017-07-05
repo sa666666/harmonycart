@@ -31,11 +31,6 @@ SerialPortManager::SerialPortManager()
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-SerialPortManager::~SerialPortManager()
-{
-}
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void SerialPortManager::setDefaultPort(const string& port)
 {
   myPortName = port;

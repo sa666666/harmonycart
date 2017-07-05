@@ -37,7 +37,7 @@ Q_OBJECT
         myManager(manager),
         myCart(cart)
     { }
-    ~FindHarmonyThread() { }
+    virtual ~FindHarmonyThread() = default;
 
   protected:
     void run() { myManager.connectHarmonyCart(myCart); }
@@ -45,6 +45,13 @@ Q_OBJECT
   private:
     SerialPortManager& myManager;
     Cart& myCart;
+
+    // Following constructors and assignment operators not supported
+    FindHarmonyThread() = delete;
+    FindHarmonyThread(const FindHarmonyThread&) = delete;
+    FindHarmonyThread(FindHarmonyThread&&) = delete;
+    FindHarmonyThread& operator=(const FindHarmonyThread&) = delete;
+    FindHarmonyThread& operator=(FindHarmonyThread&&) = delete;
 };
 
 #endif // FINDHARMONYTHREAD_HXX

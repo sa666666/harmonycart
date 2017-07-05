@@ -239,6 +239,13 @@ class SerialPort
     bool myControlLinesSwapped;
     string myID;
     StringList myPortNames;
+
+  private:
+    // Following constructors and assignment operators not supported
+    SerialPort(const SerialPort&) = delete;
+    SerialPort(SerialPort&&) = delete;
+    SerialPort& operator=(const SerialPort&) = delete;
+    SerialPort& operator=(SerialPort&&) = delete;
 };
 
 #endif

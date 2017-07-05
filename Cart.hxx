@@ -272,6 +272,13 @@ class Cart
 
     // Supercharger/Arcadia ROM header
     static uInt8 ourARHeader[256];
+
+  private:
+    // Following constructors and assignment operators not supported
+    Cart(const Cart&) = delete;
+    Cart(Cart&&) = delete;
+    Cart& operator=(const Cart&) = delete;
+    Cart& operator=(Cart&&) = delete;
 };
 
 #endif
