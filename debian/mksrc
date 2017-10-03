@@ -1,0 +1,33 @@
+#!/bin/bash
+
+cd "$(dirname "$(readlink -f "${0}")")/.."
+readonly maintainer="Sven Oliver Moll <svolli@svolli.de>"
+readonly version="$(grep '#define HARMONY_VERSION' Version.hxx | cut -f2 -d\")"
+readonly revision="$(git rev-list --count HEAD)"
+readonly repo="$(git ls-remote --get-url)"
+readonly branch="$(git branch | grep '^\* ' | cut -f2- -d' ')"
+readonly commit="$(git show HEAD | head -1 | sed -e 's/commit //')"
+readonly prefix="$(echo "${commit}" | cut -c-7)" # same as --abbrev-commit
+
+cat >debian/changelog <<EOF
+harmonycart (${version}.${revision}.${prefix}) UNRELEASED; urgency=medium
+
+  * automatically generated, refer to git history for changes
+    repository: ${repo}
+    branch: ${branch}
+    commit: ${commit}
+
+ -- ${maintainer}  $(date -R)
+EOF
+dpkg-buildpackage -S -d
+
+filebase="$(head -1 debian/changelog | sed -e 's/\([^ ]*\) (\([^)]*\).*/\1_\2/')"
+ls -l ../${filebase}* || exit 1
+
+cat <<EOF
+
+Source package generation done. You can now use the file above to create
+binary package(s), or just run 'dpkg-buildpackage -b'.
+
+EOF
+
