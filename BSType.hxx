@@ -103,11 +103,8 @@ class Bankswitch
     // Convert string to BSType enum
     static BSType nameToType(const string& name)
     {
-      std::string upper( name );
-      for(int i = 0, namelen = name.length(); i < namelen; ++i)
-        upper[i] = ::toupper( upper[i] );
       for(int i = 0; i < int(BSType::NumSchemes); ++i)
-        if(BSList[i].name == name)
+        if(BSPF::equalsIgnoreCase(BSList[i].name, name))
           return BSType(i);
 
       return BSType::_AUTO;
