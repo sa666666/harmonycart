@@ -54,7 +54,7 @@ BSType CartDetector::autodetectType(const string& rom)
     in.seekg(0, std::ios::beg);
     if(length > 0)
     {
-      BytePtr buffer = make_ptr<uInt8[]>(length);
+      BytePtr buffer = make_unique<uInt8[]>(length);
       in.read((char*)buffer.get(), length);
       in.close();
       type = autodetectTypeByContent(buffer, length);

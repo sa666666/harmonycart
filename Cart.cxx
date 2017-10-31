@@ -262,7 +262,7 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
           power2 <<= 1;
 
         // Create a 4K buffer and reassign to rombuf
-        BytePtr tmp = make_ptr<uInt8[]>(4096);
+        BytePtr tmp = make_unique<uInt8[]>(4096);
         uInt8* tmp_ptr = tmp.get();
         for(uInt32 i = 0; i < 4096/power2; ++i, tmp_ptr += power2)
           memcpy(tmp_ptr, rombuf.get(), romsize);
@@ -279,7 +279,7 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
       if(romsize == 6144)
       {
         // Minimum buffer size is 6K + 256 bytes
-        BytePtr tmp = make_ptr<uInt8[]>(6144+256);
+        BytePtr tmp = make_unique<uInt8[]>(6144+256);
         memcpy(tmp.get(), rombuf.get(), 6144);          // copy ROM
         memcpy(tmp.get()+6144, ourARHeader, 256); // copy missing header
 
@@ -290,7 +290,7 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
       {
         // To save space, we skip 2K in each Supercharger load
         uInt32 numLoads = romsize / 8448;
-        BytePtr tmp = make_ptr<uInt8[]>(numLoads*(6144+256));
+        BytePtr tmp = make_unique<uInt8[]>(numLoads*(6144+256));
         uInt8 *tmp_ptr = tmp.get(), *rom_ptr = rombuf.get();
         for(uInt32 i = 0; i < numLoads; ++i, tmp_ptr += 6144+256, rom_ptr += 8448)
         {
@@ -397,7 +397,7 @@ BytePtr Cart::readFile(const string& filename, uInt32& size)
   if(length <= 0)
     return buffer;
 
-  buffer = make_ptr<uInt8[]>(length);
+  buffer = make_unique<uInt8[]>(length);
   in.read((char*)buffer.get(), length);
   *myLog << "read in " << length << " bytes" << endl;
   in.close();
@@ -764,7 +764,7 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
           << BinaryLength << ", now " << newBinaryLength << ")\n";
     BinaryLength = newBinaryLength;
   }
-  BytePtr binaryContent = make_ptr<uInt8[]>(BinaryLength);
+  BytePtr binaryContent = make_unique<uInt8[]>(BinaryLength);
   memcpy(binaryContent.get(), data, size);
   uInt32 progressStep = 0;
   if(showprogress)

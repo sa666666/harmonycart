@@ -19,12 +19,13 @@ HEADERS += HarmonyCartWindow.hxx \
     SerialPort.hxx \
     Version.hxx \
     FindHarmonyThread.hxx \
-    AboutDialog.hxx \
-    UniquePtr.hxx
+    AboutDialog.hxx
 FORMS += harmonycartwindow.ui \
     aboutdialog.ui
 RESOURCES += resources.qrc
 QT += widgets
+QMAKE_CXXFLAGS += -std=c++14
+
 windows { 
 #  Uncomment the following to create a commandline-compatible Windows build
 #    TARGET = HarmonyCart.com
@@ -36,7 +37,7 @@ windows {
     RC_FILE = windows/HarmonyCart.rc
 }
 unix:!macx { 
-    DEFINES += HAVE_INTTYPES BSPF_UNIX
+    DEFINES += BSPF_UNIX
     INCLUDEPATH += unix
     SOURCES += unix/SerialPortUNIX.cxx unix/OSystemUNIX.cxx
     HEADERS += unix/SerialPortUNIX.hxx unix/OSystemUNIX.hxx
@@ -62,7 +63,7 @@ unix:!macx {
         desktop
 }
 macx { 
-    DEFINES += HAVE_INTTYPES BSPF_MAC_OSX
+    DEFINES += BSPF_MAC_OSX
     INCLUDEPATH += macosx
     SOURCES += macosx/SerialPortMACOSX.cxx macosx/OSystemMACOSX.cxx
     HEADERS += macosx/SerialPortMACOSX.hxx macosx/OSystemMACOSX.hxx
