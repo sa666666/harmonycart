@@ -33,7 +33,7 @@
   #include "OSystemUNIX.hxx"
 #elif defined(BSPF_WINDOWS)
   #include "OSystemWindows.hxx"
-#elif defined(BSPF_MAC_OSX)
+#elif defined(BSPF_MACOS)
   #include "OSystemMACOSX.hxx"
 #endif
 
@@ -110,7 +110,7 @@ Q_OBJECT
     OSystemUNIX myOSystem;
   #elif defined(BSPF_WINDOWS)
     OSystemWindows myOSystem;
-  #elif defined(BSPF_MAC_OSX)
+  #elif defined(BSPF_MACOS)
     OSystemMACOSX myOSystem;
   #else
     OSystem myOSystem;

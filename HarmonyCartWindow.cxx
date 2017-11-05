@@ -76,7 +76,7 @@ HarmonyCartWindow::HarmonyCartWindow(QWidget* parent)
 
   // Initialize settings
   QCoreApplication::setApplicationName("HarmonyCart");
-#ifdef BSPF_MAC_OSX
+#ifdef BSPF_MACOS
   QCoreApplication::setOrganizationName("atariage");
 #else
   QCoreApplication::setOrganizationName("atariage.com");

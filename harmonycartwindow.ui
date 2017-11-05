@@ -35,7 +35,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="biosTab">
        <attribute name="title">
@@ -182,7 +182,7 @@ EEPROM</string>
           <item>
            <layout class="QGridLayout" name="gridLayout_4">
             <property name="spacing">
-             <number>-1</number>
+             <number>6</number>
             </property>
             <item row="0" column="0">
              <widget class="QLabel" name="label_10">
@@ -589,6 +589,11 @@ supported by the Harmony Cart.</string>
                 </item>
                 <item>
                  <property name="text">
+                  <string>3E+* (TJ modified DASH)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
                   <string>3F (32K Tigervision)</string>
                  </property>
                 </item>
@@ -604,7 +609,37 @@ supported by the Harmony Cart.</string>
                 </item>
                 <item>
                  <property name="text">
+                  <string>4KSC (CPUWIZ 4K + ram)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
                   <string>AR (Supercharger)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>BF* (CPUWIZ 256K)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>BFSC* (CPUWIZ 256K + ram)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>BUS* (Experimental)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>CDF* (Chris, Darrell, Fred)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>CM (SpectraVideo CompuMate)</string>
                  </property>
                 </item>
                 <item>
@@ -615,6 +650,26 @@ supported by the Harmony Cart.</string>
                 <item>
                  <property name="text">
                   <string>CV (Commvid + RAM)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>CV+ (Extended Commavid)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>DASH (Experimental)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>DF* (CPUWIZ 128K)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>DFSC* (CPUWIZ 128K + ram)</string>
                  </property>
                 </item>
                 <item>
@@ -689,7 +744,7 @@ supported by the Harmony Cart.</string>
                 </item>
                 <item>
                  <property name="text">
-                  <string>FA2 (CBS RAM Plus extended)</string>
+                  <string>FA2 (CBS RAM Plus 24/28K)</string>
                  </property>
                 </item>
                 <item>
@@ -699,7 +754,7 @@ supported by the Harmony Cart.</string>
                 </item>
                 <item>
                  <property name="text">
-                  <string>MC* (C. Wilkson Megacart)</string>
+                  <string>MDM* (Menu Driven Megacart)</string>
                  </property>
                 </item>
                 <item>
@@ -710,6 +765,11 @@ supported by the Harmony Cart.</string>
                 <item>
                  <property name="text">
                   <string>UA (8K UA Ltd.)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>WD* (Experimental)</string>
                  </property>
                 </item>
                 <item>

@@ -25,8 +25,9 @@ FORMS += harmonycartwindow.ui \
 RESOURCES += resources.qrc
 QT += widgets
 QMAKE_CXXFLAGS += -std=c++14
+DEFINES += CUSTOM_ARM
 
-windows { 
+windows {
 #  Uncomment the following to create a commandline-compatible Windows build
 #    TARGET = HarmonyCart.com
 #    CONFIG += qt console
@@ -36,7 +37,7 @@ windows {
     HEADERS += windows/SerialPortWindows.hxx windows/OSystemWindows.hxx
     RC_FILE = windows/HarmonyCart.rc
 }
-unix:!macx { 
+unix:!macx {
     DEFINES += BSPF_UNIX
     INCLUDEPATH += unix
     SOURCES += unix/SerialPortUNIX.cxx unix/OSystemUNIX.cxx
@@ -62,8 +63,8 @@ unix:!macx {
         arm \
         desktop
 }
-macx { 
-    DEFINES += BSPF_MAC_OSX
+macx {
+    DEFINES += BSPF_MACOS
     INCLUDEPATH += macosx
     SOURCES += macosx/SerialPortMACOSX.cxx macosx/OSystemMACOSX.cxx
     HEADERS += macosx/SerialPortMACOSX.hxx macosx/OSystemMACOSX.hxx

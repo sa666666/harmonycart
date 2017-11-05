@@ -19,7 +19,7 @@
 
 #if defined(BSPF_WINDOWS)
   #include "SerialPortWindows.hxx"
-#elif defined(BSPF_MAC_OSX)
+#elif defined(BSPF_MACOS)
   #include "SerialPortMACOSX.hxx"
 #elif defined(BSPF_UNIX)
   #include "SerialPortUNIX.hxx"
@@ -50,7 +50,7 @@ class SerialPortManager
   private:
   #if defined(BSPF_WINDOWS)
     SerialPortWindows myPort;
-  #elif defined(BSPF_MAC_OSX)
+  #elif defined(BSPF_MACOS)
     SerialPortMACOSX myPort;
   #elif defined(BSPF_UNIX)
     SerialPortUNIX myPort;

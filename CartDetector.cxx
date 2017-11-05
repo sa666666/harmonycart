@@ -97,31 +97,38 @@ BSType CartDetector::autodetectTypeByContent(const BytePtr &image, uInt32 size)
 {
   BSType type = BSType::_CUSTOM;
 
-  if((size % 8448) == 0 || size == 6144)
+  if(isProbablyCVPlus(image,size))
+  {
+    type = BSType::_CVP;
+  }
+  else if((size % 8448) == 0 || size == 6144)
   {
     type = BSType::_AR;
   }
   else if(size < 2048)  // Sub2K images
   {
-    type = BSType::_4K;     // 2K is automatically converted to 4K
+    type = BSType::_2K;
   }
   else if((size == 2048) ||
           (size == 4096 && memcmp(image.get(), image.get() + 2048, 2048) == 0))
   {
-    if(isProbablyCV(image, size))
-      type = BSType::_CV;
-    else
-      type = BSType::_4K;   // 2K is automatically converted to 4K
+    type = isProbablyCV(image, size) ? BSType::_CV : BSType::_2K;
   }
   else if(size == 4096)
   {
     if(isProbablyCV(image, size))
       type = BSType::_CV;
+    else if(isProbably4KSC(image, size))
+      type = BSType::_4KSC;
     else
       type = BSType::_4K;
   }
   else if(size == 8*1024)  // 8K
   {
+    // First check for *potential* F8
+    uInt8 signature[] = { 0x8D, 0xF9, 0x1F };  // STA $1FF9
+    bool f8 = searchForBytes(image.get(), size, signature, 3, 2);
+
     if(isProbablySC(image, size))
       type = BSType::_F8SC;
     else if(memcmp(image.get(), image.get() + 4096, 4096) == 0)
@@ -134,12 +141,16 @@ BSType CartDetector::autodetectTypeByContent(const BytePtr &image, uInt32 size)
       type = BSType::_3F;
     else if(isProbablyUA(image, size))
       type = BSType::_UA;
-    else if(isProbablyFE(image, size))
+    else if(isProbablyFE(image, size) && !f8)
       type = BSType::_FE;
     else if(isProbably0840(image, size))
       type = BSType::_0840;
     else
       type = BSType::_F8;
+  }
+  else if(size == 8*1024 + 3)  // 8195 bytes (Experimental)
+  {
+    type = BSType::_WD;
   }
   else if(size >= 10240 && size <= 10496)  // ~10K - Pitfall2
   {
@@ -157,8 +168,10 @@ BSType CartDetector::autodetectTypeByContent(const BytePtr &image, uInt32 size)
       type = BSType::_E7;
     else if(isProbably3E(image, size))
       type = BSType::_3E;
+  /* no known 16K 3F ROMS
     else if(isProbably3F(image, size))
       type = BSType::_3F;
+  */
     else
       type = BSType::_F6;
   }
@@ -181,6 +194,10 @@ BSType CartDetector::autodetectTypeByContent(const BytePtr &image, uInt32 size)
       type = BSType::_3E;
     else if(isProbably3F(image, size))
       type = BSType::_3F;
+    else if (isProbablyBUS(image, size))
+      type = BSType::_BUS;
+    else if (isProbablyCDF(image, size))
+      type = BSType::_CDF;
     else if(isProbablyDPCplus(image, size))
       type = BSType::_DPCP;
     else if(isProbablyCTY(image, size))
@@ -209,23 +226,25 @@ BSType CartDetector::autodetectTypeByContent(const BytePtr &image, uInt32 size)
   {
     if(isProbably3E(image, size))
       type = BSType::_3E;
+    else if(isProbablyDF(image, size, type))
+      ; // type has been set directly in the function
     else if(isProbably3F(image, size))
       type = BSType::_3F;
     else if(isProbably4A50(image, size))
       type = BSType::_4A50;
     else if(isProbablySB(image, size))
       type = BSType::_SB;
-    else
-      type = BSType::_MC;
   }
   else if(size == 256*1024)  // 256K
   {
     if(isProbably3E(image, size))
       type = BSType::_3E;
+    else if(isProbablyBF(image, size, type))
+      ; // type has been set directly in the function
     else if(isProbably3F(image, size))
       type = BSType::_3F;
     else /*if(isProbablySB(image, size))*/
-      type = BSType::_SB; // Not supported
+      type = BSType::_SB;
   }
   else  // what else can we do?
   {
@@ -233,9 +252,19 @@ BSType CartDetector::autodetectTypeByContent(const BytePtr &image, uInt32 size)
       type = BSType::_3E;
     else if(isProbably3F(image, size))
       type = BSType::_3F;
+    else
+      type = BSType::_4K;  // Most common bankswitching type
   }
 
-  return type;
+  // Variable sized ROM formats are independent of image size and come last
+  if(isProbablyDASH(image, size))
+    type = BSType::_DASH;
+  else if(isProbably3EPlus(image, size))
+    type = BSType::_3EP;
+  else if(isProbablyMDM(image, size))
+    type = BSType::_MDM;
+
+  return type == BSType::_2K ? BSType::_4K : type;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

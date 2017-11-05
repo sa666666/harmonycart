@@ -22,14 +22,16 @@
 
 // Currently supported bankswitch schemes
 enum class BSType {
-  _AUTO,  _0840,    _2IN1,  _4IN1,  _8IN1,  _16IN1, _32IN1,
-  _64IN1, _128IN1,  _2K,    _3E,    _3EP,   _3F,    _4A50,
-  _4K,    _4KSC,    _AR,    _BF,    _BFSC,  _BUS,   _CDF,
-  _CM,    _CTY,     _CV,    _CVP,   _DASH,  _DF,    _DFSC,
-  _DPC,   _DPCP,    _E0,    _E7,    _EF,    _EFSC,  _F0,
-  _F4,    _F4SC,    _F6,    _F6SC,  _F8,    _F8SC,  _FA,
-  _FA2,   _FE,      _MC,    _MDM,   _SB,    _UA,    _WD,
-  _X07,   _CUSTOM,
+  _AUTO,  _0840,    _2IN1,  _4IN1,   _8IN1,   _16IN1, _32IN1,
+  _64IN1, _128IN1,  _2K,    _3E,     _3EP,    _3F,    _4A50,
+  _4K,    _4KSC,    _AR,    _BF,     _BFSC,   _BUS,   _CDF,
+  _CM,    _CTY,     _CV,    _CVP,    _DASH,   _DF,    _DFSC,
+  _DPC,   _DPCP,    _E0,    _E7,     _EF,     _EFSC,  _F0,
+  _F4,    _F4SC,    _F6,    _F6SC,   _F8,     _F8SC,  _FA,
+  _FA2,   _FE,      _MDM,   _SB,     _UA,     _WD,    _X07,
+#ifdef CUSTOM_ARM
+  _CUSTOM,
+#endif
   NumSchemes
 };
 
@@ -60,7 +62,7 @@ static BSDescription BSList[int(BSType::NumSchemes)] = {
   { "AR",       "AR (Supercharger)"             },
   { "BF",       "BF (CPUWIZ 256K)"              },
   { "BFSC",     "BFSC (CPUWIZ 256K + ram)"      },
-  { "BUS",      "BUS (Bus Stuffing)"            },
+  { "BUS",      "BUS (Experimental)"            },
   { "CDF",      "CDF (Chris, Darrell, Fred)"    },
   { "CM",       "CM (SpectraVideo CompuMate)"   },
   { "CTY",      "CTY (CDW - Chetiry)"           },
@@ -85,13 +87,14 @@ static BSDescription BSList[int(BSType::NumSchemes)] = {
   { "FA",       "FA (CBS RAM Plus)"             },
   { "FA2",      "FA2 (CBS RAM Plus 24/28K)"     },
   { "FE",       "FE (8K Decathlon)"             },
-  { "MC",       "MC (C. Wilkson Megacart)"      },
   { "MDM",      "MDM (Menu Driven Megacart)"    },
   { "SB",       "SB (128-256K SUPERbank)"       },
   { "UA",       "UA (8K UA Ltd.)"               },
   { "WD",       "WD (Experimental)"             },
   { "X07",      "X07 (64K AtariAge)"            },
+#ifdef CUSTOM_ARM
   { "CUSTOM",   "CUSTOM (ARM)"                  }
+#endif
 };
 
 class Bankswitch
