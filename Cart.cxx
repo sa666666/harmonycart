@@ -33,7 +33,8 @@ Cart::Cart()
   : myDetectedDevice(0),
     myRetry(1),
     myOscillator("10000"),
-    myLog(&cout)
+    myLog(&cout),
+    myF4FirstCompressionBank(0)
 {
   myProgress.setWindowModality(Qt::WindowModal);
   myProgress.setWindowIcon(QPixmap(":icons/pics/appicon.png"));
@@ -44,6 +45,12 @@ Cart::Cart()
 void Cart::setLogger(ostream* out)
 {
   myLog = out;
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+void Cart::skipF4CompressionOnBank0(bool skip)
+{
+   myF4FirstCompressionBank = skip ? 1 : 0;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -200,7 +207,7 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
       //   01235674  01234675  01234576  01234567
 
       uInt32 i;
-      for(i = 0; i < 8; ++i) // i = bank to go last
+      for(i = myF4FirstCompressionBank; i < 8; ++i) // i = bank to go last
       {
         uInt8* ptr = binary_ptr;
         for(uInt32 h = 0; h < 8; ++h)

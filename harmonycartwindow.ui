@@ -1205,6 +1205,7 @@ Left-click to use the chosen ROM.</string>
     <addaction name="actAutoDownFileSelect"/>
     <addaction name="actAutoVerifyDownload"/>
     <addaction name="actShowLogAfterDownload"/>
+    <addaction name="actF4CompressionNoBank0"/>
     <addaction name="menuRetryCount"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
@@ -1368,6 +1369,14 @@ Left-click to use the chosen ROM.</string>
    </property>
    <property name="text">
     <string>Show log after download</string>
+   </property>
+  </action>
+  <action name="actF4CompressionNoBank0">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Skip bank 0 compression on F4</string>
    </property>
   </action>
  </widget>

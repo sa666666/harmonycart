@@ -116,6 +116,7 @@ void HarmonyCartWindow::setupConnections()
   group->addAction(ui->actRetry3);
   connect(group, SIGNAL(triggered(QAction*)), this, SLOT(slotRetry(QAction*)));
   connect(ui->actShowLogAfterDownload, SIGNAL(toggled(bool)), this, SLOT(slotShowLog(bool)));
+  connect(ui->actF4CompressionNoBank0, SIGNAL(toggled(bool)), this, SLOT(slotF4CompressionBank0Skip(bool)));
 
   // Help menu
   connect(ui->actAbout, SIGNAL(triggered()), this, SLOT(slotAbout()));
@@ -185,6 +186,7 @@ void HarmonyCartWindow::readSettings()
       default: ui->actRetry0->setChecked(true);  break;
     }
     ui->actShowLogAfterDownload->setChecked(s.value("showlog", false).toBool());
+    ui->actF4CompressionNoBank0->setChecked(s.value("f4compressbank0skip", false).toBool());
     ui->actAutoDownFileSelect->setChecked(s.value("autodownload", false).toBool());
     ui->actAutoVerifyDownload->setChecked(s.value("autoverify", false).toBool());
     int activetab = s.value("activetab", 0).toInt();
@@ -267,6 +269,7 @@ void HarmonyCartWindow::closeEvent(QCloseEvent* event)
     s.setValue("autodownload", ui->actAutoDownFileSelect->isChecked());
     s.setValue("autoverify", ui->actAutoVerifyDownload->isChecked());
     s.setValue("showlog", ui->actShowLogAfterDownload->isChecked());
+    s.setValue("f4compressbank0skip", ui->actF4CompressionNoBank0->isChecked());
     s.setValue("activetab", ui->tabWidget->currentIndex());
   s.endGroup();
 
@@ -656,6 +659,12 @@ void HarmonyCartWindow::slotShowLog(bool checked)
     myCart.setLogger(&myLog);
   else
     myCart.setLogger(&cout);
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+void HarmonyCartWindow::slotF4CompressionBank0Skip(bool checked)
+{
+  myCart.skipF4CompressionOnBank0(checked);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

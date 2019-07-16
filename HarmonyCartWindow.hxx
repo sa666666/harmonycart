@@ -83,6 +83,7 @@ Q_OBJECT
     void slotQPButtonClicked(QAbstractButton* b);
     void slotBSTypeChanged(int id);
     void slotShowLog(bool checked);
+    void slotF4CompressionBank0Skip(bool checked);
     void slotShowDefaultMsg();
 
     void slotSelectEEPROM();
