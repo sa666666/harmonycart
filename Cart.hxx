@@ -69,6 +69,14 @@ class Cart
     /** Set number of write retries before bailing out. */
     void setRetry(int retry) { myRetry = retry + 1; }
 
+    /**
+      On F4 (32K) bankswitching, when the first bank is compressed, the
+      cartridge starts in bank 1. This can cause problems with some ROMs.
+      This option will allow to leave out bank 0 when searching for the
+      first compressable bank.
+    */
+    void skipF4CompressionOnBank0(bool skip);
+
   private:
     enum TARGET           { NXP_ARM, ANALOG_DEVICES_ARM };
     enum TARGET_MODE      { PROGRAM_MODE, RUN_MODE      };
@@ -149,6 +157,7 @@ class Cart
     uInt32   myRetry;
     string   myOscillator;
     ostream* myLog;
+    uInt32   myF4FirstCompressionBank;
 
     QProgressDialog myProgress;
 
