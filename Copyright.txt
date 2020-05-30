@@ -10,7 +10,7 @@
                   License Information and Copyright Notice
 ===========================================================================
 
-Copyright (C) 2009-2017 Stephen Anthony <sa666666@gmail.com>
+Copyright (C) 2009-2020 Stephen Anthony <sa666666@gmail.com>
 
 This program is released under the GNU GPLv3.  See the file 'License.txt'
 for more information.  The program includes portions of the following
@@ -18,4 +18,4 @@ programs:
 
   lpc21isp - programming utilities for the Philips LPC21xxx chips
   KrokCom  - icons and various other images
-  Stella   - bankswitch autodetection code
+  Stella   - bankswitch autodetection code and various other classes

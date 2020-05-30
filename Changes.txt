@@ -10,12 +10,14 @@
                              Release History
 ===========================================================================
 
-1.4: (Jan. xx, 2017)
+1.4: (Jun. xx, 2020)
 
   * Included NTSC HBIOS 1.06.
 
   * Fixed annoying bug where dialog box would appear when first starting
     the app, and would have to be manually closed.
+
+  * Updated bankswitch autodetection code to latest from Stella 6.2.
 
   * Codebase ported to (and now requires) Qt 5.7.
 
