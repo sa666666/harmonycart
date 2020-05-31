@@ -42,8 +42,7 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 HarmonyCartWindow::HarmonyCartWindow(QWidget* parent)
   : QMainWindow(parent),
-    ui(new Ui::HarmonyCartWindow),
-    myDownloadInProgress(false)
+    ui(new Ui::HarmonyCartWindow)
 {
   // Create GUI
   ui->setupUi(this);

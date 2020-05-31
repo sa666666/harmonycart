@@ -92,20 +92,20 @@ Q_OBJECT
     void slotSelectARMPath();
 
   private:
-    Ui::HarmonyCartWindow* ui;
-    FindHarmonyThread* myFindHarmonyThread;
-    QButtonGroup* myQPGroup;
+    Ui::HarmonyCartWindow* ui{nullptr};
+    FindHarmonyThread* myFindHarmonyThread{nullptr};
+    QButtonGroup* myQPGroup{nullptr};
 
     Cart myCart;
     ostringstream myLog;
     SerialPortManager myManager;
 
-    QLabel* myStatus;
-    QLabel* myLED;
+    QLabel* myStatus{nullptr};
+    QLabel* myLED{nullptr};
     QDir myLastDir;
 
     QString myHarmonyCartMessage;
-    bool myDownloadInProgress;
+    bool myDownloadInProgress{false};
 
   #if defined(BSPF_UNIX)
     OSystemUNIX myOSystem;

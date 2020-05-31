@@ -56,7 +56,7 @@ class SerialPortManager
     SerialPortUNIX myPort;
   #endif
 
-    bool myFoundHarmonyCart;
+    bool myFoundHarmonyCart{false};
     string myPortName;
     string myVersionID;
 

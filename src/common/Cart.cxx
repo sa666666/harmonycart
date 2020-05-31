@@ -30,11 +30,6 @@
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Cart::Cart()
-  : myDetectedDevice(0),
-    myRetry(1),
-    myOscillator("10000"),
-    myLog(&cout),
-    myF4FirstCompressionBank(0)
 {
   myProgress.setWindowModality(Qt::WindowModal);
   myProgress.setWindowIcon(QPixmap(":icons/pics/appicon.png"));

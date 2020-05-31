@@ -28,7 +28,7 @@
 class OSystem
 {
   public:
-    OSystem() : myARMPath("") { }
+    OSystem() = default;
     ~OSystem() = default;
 
   public:
@@ -42,7 +42,7 @@ class OSystem
     const QString& defaultARMPath() const { return myARMPath; }
 
   protected:
-    QString myARMPath;
+    QString myARMPath{""};
 
   private:
     // Following constructors and assignment operators not supported

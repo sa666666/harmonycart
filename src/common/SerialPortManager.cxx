@@ -21,9 +21,6 @@
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 SerialPortManager::SerialPortManager()
-  : myFoundHarmonyCart(false),
-    myPortName(""),
-    myVersionID("")
 {
   myPort.setBaud(38400);
   myPort.setControlSwap(true);

@@ -42,8 +42,8 @@ bool SerialPortWINDOWS::openPort(const string& device)
   COMMTIMEOUTS commtimeouts;
 
   const string& portname = string("\\\\.\\") + device;
-  myHandle = CreateFileA(portname.c_str(), GENERIC_READ|GENERIC_WRITE,
-                         0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+  myHandle = CreateFile(portname.c_str(), GENERIC_READ|GENERIC_WRITE,
+                        0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
   if(myHandle == INVALID_HANDLE_VALUE)
     return false;
 

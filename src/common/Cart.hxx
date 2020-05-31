@@ -153,11 +153,11 @@ class Cart
     uInt8 lpc_GetAndReportErrorNumber(const char* Answer);
 
   private:
-    uInt32   myDetectedDevice;
-    uInt32   myRetry;
-    string   myOscillator;
-    ostream* myLog;
-    uInt32   myF4FirstCompressionBank;
+    uInt32   myDetectedDevice{0};
+    uInt32   myRetry{1};
+    string   myOscillator{"10000"};
+    ostream* myLog{&cout};
+    uInt32   myF4FirstCompressionBank{0};
 
     QProgressDialog myProgress;
 
