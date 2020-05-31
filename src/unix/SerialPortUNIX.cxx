@@ -29,6 +29,7 @@
 #include <dirent.h>
 #include <cstring>
 
+#include "FSNode.hxx"
 #include "SerialPortUNIX.hxx"
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -135,9 +136,9 @@ bool SerialPortUNIX::isOpen()
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-uInt32 SerialPortUNIX::receiveBlock(void* answer, uInt32 max_size)
+size_t SerialPortUNIX::receiveBlock(void* answer, size_t max_size)
 {
-  uInt32 result = 0;
+  size_t result = 0;
   if(myHandle)
   {
     result = read(myHandle, answer, max_size);
@@ -148,7 +149,7 @@ uInt32 SerialPortUNIX::receiveBlock(void* answer, uInt32 max_size)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-uInt32 SerialPortUNIX::sendBlock(const void* data, uInt32 size)
+size_t SerialPortUNIX::sendBlock(const void* data, size_t size)
 {
   return myHandle ? write(myHandle, data, size) : 0;
 }
@@ -214,33 +215,23 @@ const StringList& SerialPortUNIX::getPortNames()
 {
   myPortNames.clear();
 
-  // First get all possible devices in the '/dev' directory
-  DIR* dirp = opendir("/dev");
-  if(dirp != NULL)
+  // Get all possible devices in the '/dev' directory
+  FilesystemNode::NameFilter filter = [](const FilesystemNode& node) {
+    return BSPF::startsWithIgnoreCase(node.getPath(), "/dev/ttyS") ||
+           BSPF::startsWithIgnoreCase(node.getPath(), "/dev/ttyUSB");
+  };
+  FSList portList;
+  portList.reserve(16);
+
+  FilesystemNode dev("/dev/");
+  dev.getChildren(portList, FilesystemNode::ListMode::All, filter, false);
+
+  // Add only those that can be opened
+  for(const auto& port: portList)
   {
-    // Search for files matching common serial port device names
-    struct dirent* dp;
-    while ((dp = readdir(dirp)) != NULL)
-    {
-      const char* ptr = dp->d_name;
-
-      if((strstr(ptr, "ttyS") == ptr) ||  // linux Serial Ports
-         (strstr(ptr, "ttyUSB") == ptr))  // for USB frobs
-      {
-        string device = "/dev/";
-        device += ptr;
-
-        if(openPort(device))
-        {
-          uInt8 c;
-          int n = receiveBlock(&c, 1);
-          if(n >= 0)
-            myPortNames.push_back(device);
-        }
-        closePort();
-      }
-    }
-    closedir(dirp);
+    if(openPort(port.getPath()))
+      myPortNames.push_back(port.getPath());
+    closePort();
   }
 
   return myPortNames;

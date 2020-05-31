@@ -88,9 +88,9 @@ class SerialPort
       @param data  The string to write to the port
       @return  The number of bytes written
     */
-    uInt32 send(const void* data, uInt32 size = 0)
+    size_t send(const void* data, size_t size = 0)
     {
-      return sendBlock(data, size == 0 ? uInt32(strlen((const char*)data)) : size);
+      return sendBlock(data, size == 0 ? strlen(static_cast<const char*>(data)) : size);
     }
 
     /**
@@ -103,7 +103,7 @@ class SerialPort
                      completing the read
       @return The number of bytes read
     */
-    uInt32 receive(void* block, uInt32 size, uInt32 timeout = 500)
+    size_t receive(void* block, size_t size, uInt32 timeout = 500)
     {
       uInt32 realsize = 0, read;
       char *result = (char*)block;
@@ -130,8 +130,8 @@ class SerialPort
                       reading with an incomplete buffer (in milliseconds)
       @return  The number of bytes read
     */
-    uInt32 receive(const char* Ans, uInt32 MaxSize,
-                   uInt32 Wanted, uInt32 timeout)
+    size_t receive(const char* Ans, size_t MaxSize,
+                   size_t Wanted, size_t timeout)
     {
       uInt32 tmp_realsize;
       uInt32 nr_of_0x0A = 0;
@@ -200,7 +200,7 @@ class SerialPort
       @param max_size  The size of buffer pointed to by answer
       @return  The number of bytes read
     */
-    virtual uInt32 receiveBlock(void* answer, uInt32 max_size) = 0;
+    virtual size_t receiveBlock(void* answer, size_t max_size) = 0;
 
     /**
       Write block of bytes to the serial port.
@@ -209,7 +209,7 @@ class SerialPort
       @param size  The size of the block
       @return  The number of bytes written
     */
-    virtual uInt32 sendBlock(const void* data, uInt32 size) = 0;
+    virtual size_t sendBlock(const void* data, size_t size) = 0;
 
     /**
       Check to see if the serial timeout timer has run down.
