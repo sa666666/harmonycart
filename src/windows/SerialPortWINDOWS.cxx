@@ -176,20 +176,33 @@ const StringList& SerialPortWINDOWS::getPortNames()
 {
   myPortNames.clear();
 
-  for(int i = 1; i <= 256; ++i)
+  HKEY hKey = NULL;
+  LSTATUS result = RegOpenKeyExW(HKEY_LOCAL_MACHINE,
+      L"HARDWARE\\DEVICEMAP\\SERIALCOMM", 0, KEY_READ, &hKey);
+  if(result == ERROR_SUCCESS)
   {
-    TCHAR strPort[32] = {0};
-    sprintf(strPort, "COM%d", i);
+    TCHAR deviceName[2048], friendlyName[32];
+    DWORD numValues = 0;
 
-    if(openPort(strPort))
+    result = RegQueryInfoKey(hKey, NULL, NULL, NULL, NULL, NULL, NULL,
+        &numValues, NULL, NULL, NULL, NULL);
+    if(result == ERROR_SUCCESS)
     {
-      uInt8 c;
-      size_t n = receiveBlock(&c, 1);
-      if(n >= 0)
-        myPortNames.push_back(strPort);
+      DWORD type = 0;
+      DWORD deviceNameLen = 2047;
+      DWORD friendlyNameLen = 31;
+
+      for(DWORD i = 0; i < numValues; ++i)
+      {
+        result = RegEnumValue(hKey, i, deviceName, &deviceNameLen,
+            NULL, &type, (LPBYTE)friendlyName, &friendlyNameLen);
+
+        if(result == ERROR_SUCCESS && type == REG_SZ)
+          myPortNames.emplace_back(friendlyName);
+      }
     }
-    closePort();
   }
+  RegCloseKey(hKey);
 
   return myPortNames;
 }

@@ -39,6 +39,7 @@ windows {
     DEFINES -= UNICODE _UNICODE
     DEFINES += _CRT_SECURE_NO_WARNINGS BSPF_WINDOWS
     INCLUDEPATH += src/windows
+    LIBS += -lAdvapi32
     SOURCES += src/windows/FSNodeWINDOWS.cxx src/windows/SerialPortWINDOWS.cxx src/windows/OSystemWINDOWS.cxx
     HEADERS += src/windows/FSNodeWINDOWS.hxx src/windows/SerialPortWINDOWS.hxx src/windows/OSystemWINDOWS.hxx
     RC_FILE = src/windows/HarmonyCart.rc
