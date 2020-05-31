@@ -12,16 +12,6 @@
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 //=========================================================================
 
-/**
-  Auto-detect cart type.
-  Based on auto-detection code from Stella (https://stella-emu.github.io)
-
-  @author  Stephen Anthony
-*/
-
-#include <cstring>
-#include <fstream>
-
 #include "CartDetectorWrapper.hxx"
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

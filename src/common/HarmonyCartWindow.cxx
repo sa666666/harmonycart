@@ -463,7 +463,6 @@ void HarmonyCartWindow::slotDownloadROM()
     QString t = regex.cap();
     Bankswitch::Type type = Bankswitch::nameToType(regex.cap().toStdString());
 
-cerr << "Type: " << Bankswitch::typeToName(type) << endl;
     myLog.str("");
     string result = myCart.downloadROM(myManager.port(), armpath.toStdString(),
       romfile.toStdString(), type, ui->actAutoVerifyDownload->isChecked());

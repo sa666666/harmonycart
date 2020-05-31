@@ -12,7 +12,7 @@
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 //=========================================================================
 
-#include "bspf_harmony.hxx"
+#include "bspf.hxx"
 
 #include <cstdio>
 #include <fcntl.h>
@@ -23,23 +23,23 @@
 #include <unistd.h>
 #include <cstring>
 
-#include "SerialPortMACOSX.hxx"
+#include "SerialPortMACOS.hxx"
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-SerialPortMACOSX::SerialPortMACOSX()
+SerialPortMACOS::SerialPortMACOS()
   : SerialPort(),
     myHandle(0)
 {
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-SerialPortMACOSX::~SerialPortMACOSX()
+SerialPortMACOS::~SerialPortMACOS()
 {
   closePort();
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool SerialPortMACOSX::openPort(const string& device)
+bool SerialPortMACOS::openPort(const string& device)
 {
   myHandle = open(device.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);
   if(myHandle < 0)
@@ -101,7 +101,7 @@ bool SerialPortMACOSX::openPort(const string& device)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void SerialPortMACOSX::closePort()
+void SerialPortMACOS::closePort()
 {
   if(myHandle)
   {
@@ -115,13 +115,13 @@ void SerialPortMACOSX::closePort()
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool SerialPortMACOSX::isOpen()
+bool SerialPortMACOS::isOpen()
 {
   return myHandle > 0;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-uInt32 SerialPortMACOSX::receiveBlock(void* answer, uInt32 max_size)
+uInt32 SerialPortMACOS::receiveBlock(void* answer, uInt32 max_size)
 {
   uInt32 result = 0;
   if(myHandle)
@@ -134,19 +134,19 @@ uInt32 SerialPortMACOSX::receiveBlock(void* answer, uInt32 max_size)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-uInt32 SerialPortMACOSX::sendBlock(const void* data, uInt32 size)
+uInt32 SerialPortMACOS::sendBlock(const void* data, uInt32 size)
 {
   return myHandle ? write(myHandle, data, size) : 0;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void SerialPortMACOSX::setTimeout(uInt32 timeout_milliseconds)
+void SerialPortMACOS::setTimeout(uInt32 timeout_milliseconds)
 {
   mySerialTimeoutCount = timeout_milliseconds / 100;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void SerialPortMACOSX::clearBuffers()
+void SerialPortMACOS::clearBuffers()
 {
   // Variables to store the current tty state, create a new one
   struct termios origtty, tty;
@@ -163,7 +163,7 @@ void SerialPortMACOSX::clearBuffers()
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void SerialPortMACOSX::controlModemLines(bool DTR, bool RTS)
+void SerialPortMACOS::controlModemLines(bool DTR, bool RTS)
 {
   // Handle whether to swap the control lines
   if(myControlLinesSwapped)
@@ -190,13 +190,13 @@ void SerialPortMACOSX::controlModemLines(bool DTR, bool RTS)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void SerialPortMACOSX::sleepMillis(uInt32 milliseconds)
+void SerialPortMACOS::sleepMillis(uInt32 milliseconds)
 {
   usleep(milliseconds*1000); // convert to microseconds
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const StringList& SerialPortMACOSX::getPortNames()
+const StringList& SerialPortMACOS::getPortNames()
 {
   myPortNames.clear();
 
@@ -216,7 +216,7 @@ const StringList& SerialPortMACOSX::getPortNames()
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-kern_return_t SerialPortMACOSX::createSerialIterator(io_iterator_t* serialIterator)
+kern_return_t SerialPortMACOS::createSerialIterator(io_iterator_t* serialIterator)
 {
   kern_return_t kernResult;
   mach_port_t masterPort;
@@ -241,7 +241,7 @@ kern_return_t SerialPortMACOSX::createSerialIterator(io_iterator_t* serialIterat
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const char* SerialPortMACOSX::getRegistryString(io_object_t sObj, const char* propName)
+const char* SerialPortMACOS::getRegistryString(io_object_t sObj, const char* propName)
 {
   static char resultStr[256];
   CFTypeRef nameCFstring;

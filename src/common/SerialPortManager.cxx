@@ -83,7 +83,7 @@ bool SerialPortManager::detect(const string& device, Cart& cart)
   if(myPort.openPort(device))
   {
     string version = cart.autodetectHarmony(myPort);
-    if(strncmp(version.c_str(), "ERROR:", 6) != 0)
+    if(!BSPF::startsWithIgnoreCase(version, "ERROR:"))
     {
       myFoundHarmonyCart = true;
       myPortName = device;

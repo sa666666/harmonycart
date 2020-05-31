@@ -77,7 +77,7 @@ string Cart::downloadBIOS(SerialPort& port, const string& filename,
   string result = "";
 
   // Read the file into a buffer
-  uInt32 size = 0;
+  size_t size = 0;
   ByteBuffer bios = readFile(filename, size);
   if(size > 0)
     result = lpc_NxpDownload(port, bios.get(), size, verify, showprogress);
@@ -94,7 +94,7 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
 {
   string result = "";
   bool autodetect = type == Bankswitch::Type::_AUTO;
-  uInt32 romsize = 0, armsize = 0, size = 0;
+  size_t romsize = 0, armsize = 0, size = 0;
   ByteBuffer armbuf;
   uInt8 binary[512*1024], *binary_ptr = binary;
   string armfile = "";
@@ -383,33 +383,19 @@ cleanup:
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-ByteBuffer Cart::readFile(const string& filename, uInt32& size)
+ByteBuffer Cart::readFile(const string& filename, size_t& size)
 {
-  ByteBuffer buffer;
-  size = 0;
-
   *myLog << "Reading from file: \'" << filename.c_str() << "\' ... ";
 
+  FilesystemNode file(filename);
+
   // Read file into buffer
-  ifstream in(filename, std::ios::binary);
-  if(!in)
-  {
+  ByteBuffer buffer;  size = 0;
+  if((size = file.read(buffer)) == 0)
     *myLog << "ERROR: file not found\n";
-    return buffer;
-  }
-  // Figure out how much data we should read
-  in.seekg(0, std::ios::end);
-  std::streampos length = in.tellg();
-  in.seekg(0, std::ios::beg);
-  if(length <= 0)
-    return buffer;
+  else
+    *myLog << "read in " << size << " bytes" << endl;
 
-  buffer = make_unique<uInt8[]>(length);
-  in.read((char*)buffer.get(), length);
-  *myLog << "read in " << length << " bytes" << endl;
-  in.close();
-
-  size = length;
   return buffer;
 }
 

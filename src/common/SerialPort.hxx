@@ -105,8 +105,8 @@ class SerialPort
     */
     size_t receive(void* block, size_t size, uInt32 timeout = 500)
     {
-      uInt32 realsize = 0, read;
-      char *result = (char*)block;
+      size_t realsize = 0, read;
+      char* result = (char*)block;
 
       setTimeout(timeout);
       do {
@@ -133,20 +133,19 @@ class SerialPort
     size_t receive(const char* Ans, size_t MaxSize,
                    size_t Wanted, size_t timeout)
     {
-      uInt32 tmp_realsize;
+      size_t tmp_realsize;
       uInt32 nr_of_0x0A = 0;
       uInt32 nr_of_0x0D = 0;
       int eof = 0;
-      uInt32 p;
       uInt8* Answer = (uInt8*) Ans;
       setTimeout(timeout);
-      uInt32 RealSize = 0;
+      size_t RealSize = 0;
 
       do {
         tmp_realsize = receiveBlock(Answer + RealSize, MaxSize - 1 - RealSize);
         if(tmp_realsize != 0)
         {
-          for(p = RealSize; p < RealSize + tmp_realsize; p++)
+          for(size_t p = RealSize; p < RealSize + tmp_realsize; p++)
           {
             if(Answer[p] == 0x0a)        nr_of_0x0A++;
             else if (Answer[p] == 0x0d)  nr_of_0x0D++;

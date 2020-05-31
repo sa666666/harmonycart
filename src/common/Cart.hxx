@@ -86,7 +86,7 @@ class Cart
       Read data from given file and return it in a buffer, along
       with the allocated size.
     */
-    ByteBuffer readFile(const string& filename, uInt32& size);
+    ByteBuffer readFile(const string& filename, size_t &size);
 
     /**
       Resets the target leaving it in either download (program) mode or
