@@ -16,7 +16,7 @@
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Bankswitch::Type CartDetectorHC::autodetectType(
-    const string& rom, const ByteBuffer& image, uInt32 size)
+    const string& rom, const ByteBuffer& image, size_t size)
 {
   // First attempt to detect by filename extension
   Bankswitch::Type type = autodetectTypeByExtension(rom);
@@ -65,7 +65,7 @@ Bankswitch::Type CartDetectorHC::autodetectTypeByExtension(const string& rom)
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Bankswitch::Type CartDetectorHC::autodetectTypeByContent(
-    const ByteBuffer& image, uInt32 size)
+    const ByteBuffer& image, size_t size)
 {
 //  Bankswitch::Type type = Bankswitch::Type::_CUSTOM;
 

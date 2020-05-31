@@ -80,7 +80,8 @@ string Cart::downloadBIOS(SerialPort& port, const string& filename,
   size_t size = 0;
   ByteBuffer bios = readFile(filename, size);
   if(size > 0)
-    result = lpc_NxpDownload(port, bios.get(), size, verify, showprogress);
+    result = lpc_NxpDownload(port, bios.get(), static_cast<uInt32>(size),
+                             verify, showprogress);
   else
     result = "Couldn't open BIOS file";
 
@@ -296,10 +297,10 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
       else  // size is multiple of 8448
       {
         // To save space, we skip 2K in each Supercharger load
-        uInt32 numLoads = romsize / 8448;
+        size_t numLoads = romsize / 8448;
         ByteBuffer tmp = make_unique<uInt8[]>(numLoads*(6144+256));
         uInt8 *tmp_ptr = tmp.get(), *rom_ptr = rombuf.get();
-        for(uInt32 i = 0; i < numLoads; ++i, tmp_ptr += 6144+256, rom_ptr += 8448)
+        for(size_t i = 0; i < numLoads; ++i, tmp_ptr += 6144+256, rom_ptr += 8448)
         {
           memcpy(tmp_ptr, rom_ptr, 6144);                // 6KB  @ pos 0K
           memcpy(tmp_ptr+6144, rom_ptr+6144+2048, 256);  // 256b @ pos 8K
@@ -376,7 +377,7 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
     size = romsize + armsize;
   }
 
-  result = lpc_NxpDownload(port, binary, size, verify, showprogress);
+  result = lpc_NxpDownload(port, binary, static_cast<uInt32>(size), verify, showprogress);
 
 cleanup:
   return result;
@@ -614,7 +615,7 @@ string Cart::lpc_NxpChipVersion(SerialPort& port)
     port.send("?");
 
     memset(Answer, 0, sizeof(Answer));
-    strippedsize = port.receive(Answer, sizeof(Answer)-1, 1, 100);
+    strippedsize = static_cast<int>(port.receive(Answer, sizeof(Answer)-1, 1, 100));
     strippedAnswer = Answer;
 
     while ((strippedsize > 0) && ((*strippedAnswer == '?') || (*strippedAnswer == 0)))
@@ -823,7 +824,7 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
     port.send("?");
 
     memset(Answer, 0, sizeof(Answer));
-    strippedsize = port.receive(Answer, sizeof(Answer)-1, 1, 100);
+    strippedsize = static_cast<int>(port.receive(Answer, sizeof(Answer)-1, 1, 100));
     strippedAnswer = Answer;
 
     while ((strippedsize > 0) && ((*strippedAnswer == '?') || (*strippedAnswer == 0)))
@@ -1260,7 +1261,7 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
     port.send(tmpString);  //goto 0 : run this fresh new downloaded code code
     if (BinaryOffset < lpc_ReturnValueLpcRamStart())
     { // Skip response on G command - show response on Terminal instead
-      uInt32 realsize = port.receive(Answer, sizeof(Answer)-1, 2, 5000);
+      size_t realsize = port.receive(Answer, sizeof(Answer)-1, 2, 5000);
       /* the reply string is frequently terminated with a -1 (EOF) because the
        * connection gets broken; zero-terminate the string ourselves
        */

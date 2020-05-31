@@ -35,7 +35,7 @@ class CartDetectorHC
       @return  The "best guess" for the cartridge type
     */
     static Bankswitch::Type autodetectType(
-        const string& rom, const ByteBuffer& image, uInt32 size);
+        const string& rom, const ByteBuffer& image, size_t size);
     static Bankswitch::Type autodetectType(const string& rom);
 
   private:
@@ -56,7 +56,7 @@ class CartDetectorHC
       @param rom  The file containing the ROM image
       @return  The "best guess" for the cartridge type
     */
-    static Bankswitch::Type autodetectTypeByContent(const ByteBuffer& image, uInt32 size);
+    static Bankswitch::Type autodetectTypeByContent(const ByteBuffer& image, size_t size);
 
   private:
     // Following constructors and assignment operators not supported

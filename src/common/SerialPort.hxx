@@ -131,7 +131,7 @@ class SerialPort
       @return  The number of bytes read
     */
     size_t receive(const char* Ans, size_t MaxSize,
-                   size_t Wanted, size_t timeout)
+                   size_t Wanted, uInt32 timeout)
     {
       size_t tmp_realsize;
       uInt32 nr_of_0x0A = 0;

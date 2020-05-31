@@ -34,6 +34,11 @@
      </item>
      <item>
       <widget class="QTextBrowser" name="myText">
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
        <property name="openExternalLinks">
         <bool>true</bool>
        </property>
@@ -63,6 +68,11 @@
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+        </font>
        </property>
        <property name="orientation">
         <enum>Qt::Horizontal</enum>

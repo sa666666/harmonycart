@@ -17,23 +17,23 @@
 #include <sstream>
 #include <cstdio>
 
-#include "SerialPortWindows.hxx"
+#include "SerialPortWINDOWS.hxx"
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-SerialPortWindows::SerialPortWindows()
+SerialPortWINDOWS::SerialPortWINDOWS()
   : SerialPort(),
     myHandle(INVALID_HANDLE_VALUE)
 {
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-SerialPortWindows::~SerialPortWindows()
+SerialPortWINDOWS::~SerialPortWINDOWS()
 {
   closePort();
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool SerialPortWindows::openPort(const string& device)
+bool SerialPortWINDOWS::openPort(const string& device)
 {
   if(!myHandle)
     closePort();
@@ -97,7 +97,7 @@ bool SerialPortWindows::openPort(const string& device)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void SerialPortWindows::closePort()
+void SerialPortWINDOWS::closePort()
 {
   if(myHandle != INVALID_HANDLE_VALUE)
   {
@@ -107,48 +107,48 @@ void SerialPortWindows::closePort()
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool SerialPortWindows::isOpen()
+bool SerialPortWINDOWS::isOpen()
 {
   return myHandle != INVALID_HANDLE_VALUE;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-uInt32 SerialPortWindows::receiveBlock(void* answer, uInt32 max_size)
+size_t SerialPortWINDOWS::receiveBlock(void* answer, size_t max_size)
 {
   DWORD result = 0;
   if(myHandle != INVALID_HANDLE_VALUE)
   {
-    ReadFile(myHandle, answer, max_size, &result, NULL);
+    ReadFile(myHandle, answer, static_cast<DWORD>(max_size), &result, NULL);
     if(result == 0)
       timeoutTick();
   }
-  return uInt32(result);
+  return result;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-uInt32 SerialPortWindows::sendBlock(const void* data, uInt32 size)
+size_t SerialPortWINDOWS::sendBlock(const void* data, size_t size)
 {
   DWORD result = 0;
   if(myHandle != INVALID_HANDLE_VALUE)
-    WriteFile(myHandle, data, size, &result, NULL);
+    WriteFile(myHandle, data, static_cast<DWORD>(size), &result, NULL);
 
-  return uInt32(result);
+  return result;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void SerialPortWindows::setTimeout(uInt32 timeout_milliseconds)
+void SerialPortWINDOWS::setTimeout(uInt32 timeout_milliseconds)
 {
   mySerialTimeoutCount = timeout_milliseconds;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void SerialPortWindows::clearBuffers()
+void SerialPortWINDOWS::clearBuffers()
 {
   PurgeComm(myHandle, PURGE_TXABORT | PURGE_RXABORT | PURGE_TXCLEAR | PURGE_RXCLEAR);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void SerialPortWindows::controlModemLines(bool DTR, bool RTS)
+void SerialPortWINDOWS::controlModemLines(bool DTR, bool RTS)
 {
   // Handle whether to swap the control lines
   if(myControlLinesSwapped)
@@ -166,13 +166,13 @@ void SerialPortWindows::controlModemLines(bool DTR, bool RTS)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void SerialPortWindows::sleepMillis(uInt32 milliseconds)
+void SerialPortWINDOWS::sleepMillis(uInt32 milliseconds)
 {
   Sleep(DWORD(milliseconds));
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const StringList& SerialPortWindows::getPortNames()
+const StringList& SerialPortWINDOWS::getPortNames()
 {
   myPortNames.clear();
 
@@ -184,7 +184,7 @@ const StringList& SerialPortWindows::getPortNames()
     if(openPort(strPort))
     {
       uInt8 c;
-      int n = receiveBlock(&c, 1);
+      size_t n = receiveBlock(&c, 1);
       if(n >= 0)
         myPortNames.push_back(strPort);
     }

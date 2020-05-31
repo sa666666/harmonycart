@@ -29,7 +29,6 @@ FORMS += harmonycartwindow.ui \
     aboutdialog.ui
 RESOURCES += resources.qrc
 QT += widgets
-QMAKE_CXXFLAGS += -std=c++14 -Wno-unused-parameter
 DEFINES += CUSTOM_ARM
 INCLUDEPATH += src/common
 
@@ -37,13 +36,16 @@ windows {
 #  Uncomment the following to create a commandline-compatible Windows build
 #    TARGET = HarmonyCart.com
 #    CONFIG += qt console
+    DEFINES -= UNICODE _UNICODE
     DEFINES += _CRT_SECURE_NO_WARNINGS BSPF_WINDOWS
     INCLUDEPATH += src/windows
-    SOURCES += src/unix/FSNodeWindows.cxx src/windows/SerialPortWindows.cxx src/windows/OSystemWindows.cxx
-    HEADERS += src/unix/FSNodeWindows.hxx src/windows/SerialPortWindows.hxx src/windows/OSystemWindows.hxx
+    SOURCES += src/windows/FSNodeWINDOWS.cxx src/windows/SerialPortWINDOWS.cxx src/windows/OSystemWINDOWS.cxx
+    HEADERS += src/windows/FSNodeWINDOWS.hxx src/windows/SerialPortWINDOWS.hxx src/windows/OSystemWINDOWS.hxx
     RC_FILE = src/windows/HarmonyCart.rc
+    QMAKE_CXXFLAGS_WARN_ON += -wd4100
 }
 unix:!macx {
+    QMAKE_CXXFLAGS += -std=c++14 -Wno-unused-parameter
     DEFINES += BSPF_UNIX
     INCLUDEPATH += src/unix
     SOURCES += src/unix/FSNodePOSIX.cxx src/unix/SerialPortUNIX.cxx src/unix/OSystemUNIX.cxx

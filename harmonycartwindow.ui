@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>HarmonyCartWindow</class>
  <widget class="QMainWindow" name="HarmonyCartWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>745</width>
+    <height>461</height>
+   </rect>
+  </property>
   <property name="sizePolicy">
    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
     <horstretch>0</horstretch>
@@ -34,8 +42,13 @@
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
+      <property name="font">
+       <font>
+        <pointsize>9</pointsize>
+       </font>
+      </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="biosTab">
        <attribute name="title">
@@ -430,6 +443,11 @@ HBIOS</string>
           </item>
           <item>
            <widget class="QLabel" name="label_2">
+            <property name="font">
+             <font>
+              <pointsize>9</pointsize>
+             </font>
+            </property>
             <property name="text">
              <string>Select ROM file and bankswitching type, the click on the Download button to send the ROM to the Harmony Cartridge.  Note that this will disable mult-cart capability.</string>
             </property>
@@ -449,6 +467,11 @@ HBIOS</string>
            <layout class="QVBoxLayout" name="verticalLayout">
             <item>
              <widget class="QLabel" name="label_3">
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
               <property name="text">
                <string>ROM File:</string>
               </property>
@@ -456,6 +479,11 @@ HBIOS</string>
             </item>
             <item>
              <widget class="QLabel" name="label_4">
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
               <property name="text">
                <string>ROM Size:</string>
               </property>
@@ -463,6 +491,11 @@ HBIOS</string>
             </item>
             <item>
              <widget class="QLabel" name="label_5">
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
               <property name="text">
                <string>ARM Dir:</string>
               </property>
@@ -865,6 +898,11 @@ image to the Harmony Cart.</string>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="font">
+           <font>
+            <pointsize>9</pointsize>
+           </font>
+          </property>
           <property name="title">
            <string>Quick Pick</string>
           </property>
@@ -1164,6 +1202,14 @@ Left-click to use the chosen ROM.</string>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>745</width>
+     <height>26</height>
+    </rect>
+   </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>File</string>

@@ -24,11 +24,11 @@
 
   @author  Stephen Anthony
 */
-class SerialPortWindows : public SerialPort
+class SerialPortWINDOWS : public SerialPort
 {
   public:
-    SerialPortWindows();
-    virtual ~SerialPortWindows();
+    SerialPortWINDOWS();
+    virtual ~SerialPortWINDOWS();
 
     /**
       Open the given serial port with the specified attributes.
@@ -36,19 +36,19 @@ class SerialPortWindows : public SerialPort
       @param device  The name of the port
       @return  False on any errors, else true
     */
-    bool openPort(const string& device);
+    bool openPort(const string& device) override;
 
     /**
       Close a previously opened serial port.
     */
-    void closePort();
+    void closePort() override;
 
     /**
       Answers if the port is currently open and ready for I/O.
 
       @return  True if open and ready, else false
     */
-    bool isOpen();
+    bool isOpen() override;
 
     /**
       Receives a buffer from the open com port. Returns all the characters
@@ -60,7 +60,7 @@ class SerialPortWindows : public SerialPort
       @param max_size  The size of buffer pointed to by answer
       @return  The number of bytes read
     */
-    uInt32 receiveBlock(void* answer, uInt32 max_size);
+    size_t receiveBlock(void* answer, size_t max_size) override;
 
     /**
       Write block of bytes to the serial port.
@@ -69,7 +69,7 @@ class SerialPortWindows : public SerialPort
       @param size  The size of the block
       @return  The number of bytes written
     */
-    uInt32 sendBlock(const void* data, uInt32 size);
+    size_t sendBlock(const void* data, size_t size) override;
 
     /**
       Sets (or resets) the timeout to the timout period requested.  Starts
@@ -81,12 +81,12 @@ class SerialPortWindows : public SerialPort
 
       @param timeout_milliseconds  The time in milliseconds to use for timeout
     */
-    void setTimeout(uInt32 timeout_milliseconds);
+    void setTimeout(uInt32 timeout_milliseconds) override;
 
     /**
       Empty the serial port buffers.  Cleans things to a known state.
     */
-    void clearBuffers();
+    void clearBuffers() override;
 
     /**
       Controls the modem lines to place the microcontroller into various
@@ -95,17 +95,17 @@ class SerialPortWindows : public SerialPort
       @param DTR  The state to set the DTR line to
       @param RTS  The state to set the RTS line to
     */
-    void controlModemLines(bool DTR, bool RTS);
+    void controlModemLines(bool DTR, bool RTS) override;
 
     /**
       Sleep the specified amount of time (in milliseconds).
     */
-    void sleepMillis(uInt32 milliseconds);
+    void sleepMillis(uInt32 milliseconds) override;
 
     /**
       Get all valid serial ports detected on this system.
     */
-    const StringList& getPortNames();
+    const StringList& getPortNames() override;
 
   private:
     // Handle to serial port
@@ -113,10 +113,10 @@ class SerialPortWindows : public SerialPort
 
   private:
     // Following constructors and assignment operators not supported
-    SerialPortWindows(const SerialPortWindows&) = delete;
-    SerialPortWindows(SerialPortWindows&&) = delete;
-    SerialPortWindows& operator=(const SerialPortWindows&) = delete;
-    SerialPortWindows& operator=(SerialPortWindows&&) = delete;
+    SerialPortWINDOWS(const SerialPortWINDOWS&) = delete;
+    SerialPortWINDOWS(SerialPortWINDOWS&&) = delete;
+    SerialPortWINDOWS& operator=(const SerialPortWINDOWS&) = delete;
+    SerialPortWINDOWS& operator=(SerialPortWINDOWS&&) = delete;
 };
 
 #endif

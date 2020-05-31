@@ -18,7 +18,7 @@
 #include "Cart.hxx"
 
 #if defined(BSPF_WINDOWS)
-  #include "SerialPortWindows.hxx"
+  #include "SerialPortWINDOWS.hxx"
 #elif defined(BSPF_MACOS)
   #include "SerialPortMACOSX.hxx"
 #elif defined(BSPF_UNIX)
@@ -49,7 +49,7 @@ class SerialPortManager
 
   private:
   #if defined(BSPF_WINDOWS)
-    SerialPortWindows myPort;
+    SerialPortWINDOWS myPort;
   #elif defined(BSPF_MACOS)
     SerialPortMACOSX myPort;
   #elif defined(BSPF_UNIX)
