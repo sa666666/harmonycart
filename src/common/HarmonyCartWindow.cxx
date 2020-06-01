@@ -156,7 +156,7 @@ void HarmonyCartWindow::setupConnections()
 
   myQPGroup = new QButtonGroup(this);
   myQPGroup->setExclusive(false);
-  for(size_t i = 0; i < qpButtons.size(); ++i)
+  for(int i = 0; i < static_cast<int>(qpButtons.size()); ++i)
   {
     myQPGroup->addButton(qpButtons[i], i+1);
     connect(qpButtons[i], &QClickButton::doubleClicked, [=](QClickButton* b){ assignToQPButton(b, i+1); });
