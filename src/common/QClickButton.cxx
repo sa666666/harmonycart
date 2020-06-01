@@ -12,19 +12,16 @@
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 //=========================================================================
 
-#include "QLRPushButton.hxx"
+#include "QClickButton.hxx"
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-QLRPushButton::QLRPushButton(QWidget* parent)
+QClickButton::QClickButton(QWidget* parent)
   : QPushButton(parent)
 {
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void QLRPushButton::mousePressEvent(QMouseEvent* e)
+void QClickButton::mouseDoubleClickEvent(QMouseEvent*)
 {
-  if(e->button() == Qt::LeftButton)
-    emit leftClicked(this);
-  else if(e->button() == Qt::RightButton)
-    emit rightClicked(this);
+  emit doubleClicked(this);
 }

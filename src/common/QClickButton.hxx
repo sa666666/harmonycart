@@ -19,23 +19,26 @@
 #include <QMouseEvent>
 
 /**
-  Normal QPushButton doesn't support signals on right-click,
-  only on left-click.  So we need a new class to do it.
+  Normal QPushButton supports only left-click.
+  We need a second option, so we use double-click too.
+
+  Note: Using right-click causes all kinds of (different) problems
+        on different platforms.  Best to avoid it, and leave the
+        right button alone.
 
   @author  Stephen Anthony
 */
-class QLRPushButton : public QPushButton
+class QClickButton : public QPushButton
 {
 Q_OBJECT
   public:
-    explicit QLRPushButton(QWidget* parent = nullptr);
-
-  private slots:
-    void mousePressEvent(QMouseEvent* e);
+    explicit QClickButton(QWidget* parent = nullptr);
 
   signals:
-    void leftClicked(QLRPushButton*);
-    void rightClicked(QLRPushButton*);
+    void doubleClicked(QClickButton*);
+
+  protected:
+    void mouseDoubleClickEvent(QMouseEvent*);
 };
 
 #endif // Q_LR_PUSHBUTTON_HXX
