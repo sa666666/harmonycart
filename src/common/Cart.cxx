@@ -383,11 +383,13 @@ ByteBuffer Cart::readFile(const string& filename, size_t& size)
 {
   *myLog << "Reading from file: \'" << filename.c_str() << "\' ... ";
 
-  FilesystemNode file(filename);
-
   // Read file into buffer
+  FilesystemNode file(filename);
   ByteBuffer buffer;  size = 0;
-  if((size = file.read(buffer)) == 0)
+
+  if(filename == "" || !file.exists())
+    *myLog << "ERROR: file not found\n";
+  else if((size = file.read(buffer)) == 0)
     *myLog << "ERROR: file not found\n";
   else
     *myLog << "read in " << size << " bytes" << endl;
