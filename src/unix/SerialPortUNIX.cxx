@@ -230,7 +230,7 @@ const StringList& SerialPortUNIX::getPortNames()
   for(const auto& port: portList)
   {
     if(openPort(port.getPath()))
-      myPortNames.push_back(port.getPath());
+      myPortNames.emplace_back(port.getPath());
     closePort();
   }
 

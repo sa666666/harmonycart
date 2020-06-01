@@ -29,6 +29,7 @@ FORMS += harmonycartwindow.ui \
     aboutdialog.ui
 RESOURCES += resources.qrc
 QT += widgets
+CONFIG += c++14
 DEFINES += CUSTOM_ARM
 INCLUDEPATH += src/common
 
@@ -46,7 +47,6 @@ windows {
     QMAKE_CXXFLAGS_WARN_ON += -wd4100
 }
 unix:!macx {
-    QMAKE_CXXFLAGS += -std=c++14 -Wno-unused-parameter
     DEFINES += BSPF_UNIX
     INCLUDEPATH += src/unix
     SOURCES += src/unix/FSNodePOSIX.cxx src/unix/SerialPortUNIX.cxx src/unix/OSystemUNIX.cxx
@@ -71,14 +71,16 @@ unix:!macx {
         docs \
         arm \
         desktop
+    QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter
 }
 macx {
     DEFINES += BSPF_MACOS
-    INCLUDEPATH += src/macos
-    SOURCES += src/macos/SerialPortMACOS.cxx src/macos/OSystemMACOS.cxx
-    HEADERS += src/macos/SerialPortMACOS.hxx src/macos/OSystemMACOS.hxx
+    INCLUDEPATH += src/macos src/unix
+    SOURCES += src/unix/FSNodePOSIX.cxx src/macos/SerialPortMACOS.cxx src/macos/OSystemMACOS.cxx
+    HEADERS += src/unix/FSNodePOSIX.hxx src/macos/SerialPortMACOS.hxx src/macos/OSystemMACOS.hxx
     LIBS += -framework CoreFoundation -framework IOKit
     ICON = src/macos/Harmony_icon.icns
+    QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter
 }
 
 DISTFILES += \

@@ -13,6 +13,7 @@
 //=========================================================================
 
 #include "bspf.hxx"
+#include "FSNode.hxx"
 
 #include <cstdio>
 #include <fcntl.h>
@@ -27,8 +28,7 @@
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 SerialPortMACOS::SerialPortMACOS()
-  : SerialPort(),
-    myHandle(0)
+  : SerialPort()
 {
 }
 
@@ -121,9 +121,9 @@ bool SerialPortMACOS::isOpen()
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-uInt32 SerialPortMACOS::receiveBlock(void* answer, uInt32 max_size)
+size_t SerialPortMACOS::receiveBlock(void* answer, size_t max_size)
 {
-  uInt32 result = 0;
+  size_t result = 0;
   if(myHandle)
   {
     result = read(myHandle, answer, max_size);
@@ -134,7 +134,7 @@ uInt32 SerialPortMACOS::receiveBlock(void* answer, uInt32 max_size)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-uInt32 SerialPortMACOS::sendBlock(const void* data, uInt32 size)
+size_t SerialPortMACOS::sendBlock(const void* data, size_t size)
 {
   return myHandle ? write(myHandle, data, size) : 0;
 }
@@ -200,59 +200,24 @@ const StringList& SerialPortMACOS::getPortNames()
 {
   myPortNames.clear();
 
-  io_iterator_t theSerialIterator;
-  io_object_t theObject;
-  char dialInDevice[1024];
-  if(createSerialIterator(&theSerialIterator) == KERN_SUCCESS)
+  // Get all possible devices in the '/dev' directory
+  FilesystemNode::NameFilter filter = [](const FilesystemNode& node) {
+    return BSPF::startsWithIgnoreCase(node.getPath(), "/dev/tty.usb") ||
+           BSPF::startsWithIgnoreCase(node.getPath(), "/dev/ttyUSB");
+  };
+  FSList portList;
+  portList.reserve(16);
+
+  FilesystemNode dev("/dev/");
+  dev.getChildren(portList, FilesystemNode::ListMode::All, filter, false);
+
+  // Add only those that can be opened
+  for(const auto& port: portList)
   {
-    while((theObject = IOIteratorNext(theSerialIterator)) != 0)
-    {
-      strcpy(dialInDevice, getRegistryString(theObject, kIODialinDeviceKey));
-      myPortNames.push_back(dialInDevice);
-    }
+    if(openPort(port.getPath()))
+      myPortNames.emplace_back(port.getPath());
+    closePort();
   }
 
   return myPortNames;
-}
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-kern_return_t SerialPortMACOS::createSerialIterator(io_iterator_t* serialIterator)
-{
-  kern_return_t kernResult;
-  mach_port_t masterPort;
-  CFMutableDictionaryRef classesToMatch;
-  if((kernResult = IOMasterPort(NULL, &masterPort)) != KERN_SUCCESS)
-  {
-    cerr << "IOMasterPort returned " << kernResult << endl;
-    return kernResult;
-  }
-  if((classesToMatch = IOServiceMatching(kIOSerialBSDServiceValue)) == NULL)
-  {
-    cerr << "IOServiceMatching returned NULL\n";
-    return kernResult;
-  }
-  CFDictionarySetValue(classesToMatch, CFSTR(kIOSerialBSDTypeKey), CFSTR(kIOSerialBSDRS232Type));
-  kernResult = IOServiceGetMatchingServices(masterPort, classesToMatch, serialIterator);
-  if(kernResult != KERN_SUCCESS)
-  {
-    cerr << "IOServiceGetMatchingServices returned " << kernResult << endl;
-  }
-  return kernResult;
-}
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const char* SerialPortMACOS::getRegistryString(io_object_t sObj, const char* propName)
-{
-  static char resultStr[256];
-  CFTypeRef nameCFstring;
-  resultStr[0] = 0;
-  nameCFstring = IORegistryEntryCreateCFProperty(sObj,
-      CFStringCreateWithCString(kCFAllocatorDefault, propName, kCFStringEncodingASCII),
-      kCFAllocatorDefault, 0);
-  if(nameCFstring)
-  {
-    CFStringGetCString((CFStringRef)nameCFstring, resultStr, sizeof(resultStr), kCFStringEncodingASCII);
-    CFRelease(nameCFstring);
-  }
-  return resultStr;
 }

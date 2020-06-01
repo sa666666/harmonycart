@@ -34,7 +34,7 @@
 #elif defined(BSPF_WINDOWS)
   #include "OSystemWindows.hxx"
 #elif defined(BSPF_MACOS)
-  #include "OSystemMACOSX.hxx"
+  #include "OSystemMACOS.hxx"
 #endif
 
 namespace Ui
@@ -112,7 +112,7 @@ Q_OBJECT
   #elif defined(BSPF_WINDOWS)
     OSystemWindows myOSystem;
   #elif defined(BSPF_MACOS)
-    OSystemMACOSX myOSystem;
+    OSystemMACOS myOSystem;
   #else
     OSystem myOSystem;
   #endif
