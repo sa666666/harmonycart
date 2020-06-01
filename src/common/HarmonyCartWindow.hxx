@@ -57,16 +57,17 @@ Q_OBJECT
 
   protected:
     void closeEvent(QCloseEvent* event);
-    bool eventFilter(QObject* object, QEvent* event);
 
   private:
     void setupConnections();
     void readSettings();
     void loadROM(const QString& file);
+    void qpButtonClicked(QPushButton* button, int id);
     void assignToQPButton(QPushButton* button, int id);
     void assignToQPButton(QPushButton* button, int id, const QString& file, bool save);
     QString getOpenROMName(const QString& path);
 
+    void showLog(bool checked);
     void statusMessage(const QString& msg);
 
   private slots:
@@ -80,10 +81,6 @@ Q_OBJECT
     void slotOpenROM();
     void slotRetry(QAction* action);
     void slotAbout();
-    void slotQPButtonClicked(QAbstractButton* b);
-    void slotBSTypeChanged(int id);
-    void slotShowLog(bool checked);
-    void slotF4CompressionBank0Skip(bool checked);
     void slotShowDefaultMsg();
 
     void slotSelectEEPROM();

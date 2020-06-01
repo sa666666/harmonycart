@@ -89,9 +89,9 @@ HarmonyCartWindow::~HarmonyCartWindow()
   if(myFindHarmonyThread)
   {
     myFindHarmonyThread->quit();
-    delete myFindHarmonyThread;
+    delete myFindHarmonyThread;  myFindHarmonyThread = nullptr;
   }
-  delete ui;
+  delete ui;  ui = nullptr;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -114,8 +114,11 @@ void HarmonyCartWindow::setupConnections()
   group->addAction(ui->actRetry2);
   group->addAction(ui->actRetry3);
   connect(group, SIGNAL(triggered(QAction*)), this, SLOT(slotRetry(QAction*)));
-  connect(ui->actShowLogAfterDownload, SIGNAL(toggled(bool)), this, SLOT(slotShowLog(bool)));
-  connect(ui->actF4CompressionNoBank0, SIGNAL(toggled(bool)), this, SLOT(slotF4CompressionBank0Skip(bool)));
+
+  connect(ui->actShowLogAfterDownload, &QAction::toggled, this,
+      [=](bool checked){ showLog(checked); });
+  connect(ui->actF4CompressionNoBank0, &QAction::toggled, this,
+      [=](bool checked){ myCart.skipF4CompressionOnBank0(checked); });
 
   // Help menu
   connect(ui->actAbout, SIGNAL(triggered()), this, SLOT(slotAbout()));
@@ -137,32 +140,31 @@ void HarmonyCartWindow::setupConnections()
   // Buttons
   connect(ui->openRomButton, SIGNAL(clicked()), this, SLOT(slotOpenROM()));
   connect(ui->downloadButton, SIGNAL(clicked()), this, SLOT(slotDownloadROM()));
-  connect(ui->openARMPathButton, SIGNAL(clicked()), this, SLOT(slotSelectARMPath()));
-  ui->openARMPathButton->installEventFilter(this);
+
+  connect(ui->openARMPathButton, &QLRPushButton::leftClicked,  [=](){ slotSelectARMPath();  });
+  connect(ui->openARMPathButton, &QLRPushButton::rightClicked, [=]() {
+      ui->armpathFileEdit->setText(myOSystem.defaultARMPath());
+  });
 
   // Quick-select buttons
+  std::array<QLRPushButton*, 16> qpButtons = {
+    ui->qp1Button,  ui->qp2Button,  ui->qp3Button,  ui->qp4Button,
+    ui->qp5Button,  ui->qp6Button,  ui->qp7Button,  ui->qp8Button,
+    ui->qp9Button,  ui->qp10Button, ui->qp11Button, ui->qp12Button,
+    ui->qp13Button, ui->qp14Button, ui->qp15Button, ui->qp16Button
+  };
+
   myQPGroup = new QButtonGroup(this);
   myQPGroup->setExclusive(false);
-  myQPGroup->addButton(ui->qp1Button, 1);   ui->qp1Button->installEventFilter(this);
-  myQPGroup->addButton(ui->qp2Button, 2);   ui->qp2Button->installEventFilter(this);
-  myQPGroup->addButton(ui->qp3Button, 3);   ui->qp3Button->installEventFilter(this);
-  myQPGroup->addButton(ui->qp4Button, 4);   ui->qp4Button->installEventFilter(this);
-  myQPGroup->addButton(ui->qp5Button, 5);   ui->qp5Button->installEventFilter(this);
-  myQPGroup->addButton(ui->qp6Button, 6);   ui->qp6Button->installEventFilter(this);
-  myQPGroup->addButton(ui->qp7Button, 7);   ui->qp7Button->installEventFilter(this);
-  myQPGroup->addButton(ui->qp8Button, 8);   ui->qp8Button->installEventFilter(this);
-  myQPGroup->addButton(ui->qp9Button, 9);   ui->qp9Button->installEventFilter(this);
-  myQPGroup->addButton(ui->qp10Button, 10); ui->qp10Button->installEventFilter(this);
-  myQPGroup->addButton(ui->qp11Button, 11); ui->qp11Button->installEventFilter(this);
-  myQPGroup->addButton(ui->qp12Button, 12); ui->qp12Button->installEventFilter(this);
-  myQPGroup->addButton(ui->qp13Button, 13); ui->qp13Button->installEventFilter(this);
-  myQPGroup->addButton(ui->qp14Button, 14); ui->qp14Button->installEventFilter(this);
-  myQPGroup->addButton(ui->qp15Button, 15); ui->qp15Button->installEventFilter(this);
-  myQPGroup->addButton(ui->qp16Button, 16); ui->qp16Button->installEventFilter(this);
-  connect(myQPGroup, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(slotQPButtonClicked(QAbstractButton*)));
+  for(size_t i = 0; i < qpButtons.size(); ++i)
+  {
+    myQPGroup->addButton(qpButtons[i]);
+    connect(qpButtons[i], &QLRPushButton::leftClicked,  [=](QLRPushButton* b){ qpButtonClicked(b, i+1);  });
+    connect(qpButtons[i], &QLRPushButton::rightClicked, [=](QLRPushButton* b){ assignToQPButton(b, i+1); });
+  }
 
   // Other
-  connect(ui->romBSType, SIGNAL(activated(int)), this, SLOT(slotBSTypeChanged(int)));
+//  connect(ui->romBSType, SIGNAL(activated(int)), this, SLOT(slotBSTypeChanged(int)));
 
   connect(myFindHarmonyThread, SIGNAL(finished()), this, SLOT(slotUpdateFindHarmonyStatus()));
 }
@@ -193,7 +195,7 @@ void HarmonyCartWindow::readSettings()
     ui->tabWidget->setCurrentIndex(activetab);
   s.endGroup();
 
-  slotShowLog(ui->actShowLogAfterDownload->isChecked());
+  showLog(ui->actShowLogAfterDownload->isChecked());
   myCart.setRetry(retrycount);
 
   s.beginGroup("QPButtons");
@@ -281,50 +283,6 @@ void HarmonyCartWindow::closeEvent(QCloseEvent* event)
   s.endGroup();
 
   event->accept();
-}
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool HarmonyCartWindow::eventFilter(QObject* object, QEvent* event)
-{
-  // This is necessary because braindead QPushButtons don't return right-click events
-  if(event->type() == QEvent::ContextMenu)
-  {
-    int id = 0;
-
-    // Quick-pick buttons
-    if(object == ui->qp1Button)       id = 1;
-    else if(object == ui->qp2Button)  id = 2;
-    else if(object == ui->qp3Button)  id = 3;
-    else if(object == ui->qp4Button)  id = 4;
-    else if(object == ui->qp5Button)  id = 5;
-    else if(object == ui->qp6Button)  id = 6;
-    else if(object == ui->qp7Button)  id = 7;
-    else if(object == ui->qp8Button)  id = 8;
-    else if(object == ui->qp9Button)  id = 9;
-    else if(object == ui->qp10Button) id = 10;
-    else if(object == ui->qp11Button) id = 11;
-    else if(object == ui->qp12Button) id = 12;
-    else if(object == ui->qp13Button) id = 13;
-    else if(object == ui->qp14Button) id = 14;
-    else if(object == ui->qp15Button) id = 15;
-    else if(object == ui->qp16Button) id = 16;
-
-    // File select buttons
-    else if(object == ui->openARMPathButton)
-    {
-      ui->armpathFileEdit->setText(myOSystem.defaultARMPath());
-      return true;
-    }
-    else return false;
-
-    assignToQPButton(static_cast<QPushButton*>(object), id);
-    return true;
-  }
-  else
-  {
-    // pass the event on to the parent class
-    return QMainWindow::eventFilter(object, event);
-  }
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -618,11 +576,9 @@ void HarmonyCartWindow::slotAbout()
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void HarmonyCartWindow::slotQPButtonClicked(QAbstractButton* b)
+void HarmonyCartWindow::qpButtonClicked(QPushButton* b, int id)
 {
   // Get the full path from the settings
-  QPushButton* button = static_cast<QPushButton*>(b);
-  int id = myQPGroup->id(b);
   QString key = "button" + QString::number(id);
   QSettings s;
   s.beginGroup("QPButtons");
@@ -638,7 +594,7 @@ void HarmonyCartWindow::slotQPButtonClicked(QAbstractButton* b)
       "This ROM no longer exists.  Do you wish to remove it\nfrom the QuickPick list?",
       QMessageBox::Yes, QMessageBox::No))
     {
-      button->setText("");
+      b->setText("");
       s.beginGroup("QPButtons");
         s.remove(key);
       s.endGroup();
@@ -647,23 +603,12 @@ void HarmonyCartWindow::slotQPButtonClicked(QAbstractButton* b)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void HarmonyCartWindow::slotBSTypeChanged(int /*id*/)
-{
-}
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void HarmonyCartWindow::slotShowLog(bool checked)
+void HarmonyCartWindow::showLog(bool checked)
 {
   if(checked)
     myCart.setLogger(&myLog);
   else
     myCart.setLogger(&cout);
-}
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void HarmonyCartWindow::slotF4CompressionBank0Skip(bool checked)
-{
-  myCart.skipF4CompressionOnBank0(checked);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

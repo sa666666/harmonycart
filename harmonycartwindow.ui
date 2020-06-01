@@ -810,7 +810,7 @@ for single-load ROM images.</string>
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="openARMPathButton">
+               <widget class="QLRPushButton" name="openARMPathButton">
                 <property name="toolTip">
                  <string>Select location of the 'ARM' files for single-load ROM images.
 Right-click to select default location.
@@ -875,7 +875,7 @@ image to the Harmony Cart.</string>
               <enum>QLayout::SetDefaultConstraint</enum>
              </property>
              <item row="0" column="0">
-              <widget class="QPushButton" name="qp1Button">
+              <widget class="QLRPushButton" name="qp1Button">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -898,7 +898,7 @@ Left-click to use the chosen ROM.</string>
               </widget>
              </item>
              <item row="0" column="1">
-              <widget class="QPushButton" name="qp2Button">
+              <widget class="QLRPushButton" name="qp2Button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -915,7 +915,7 @@ Left-click to use the chosen ROM.</string>
               </widget>
              </item>
              <item row="0" column="2">
-              <widget class="QPushButton" name="qp3Button">
+              <widget class="QLRPushButton" name="qp3Button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -932,7 +932,7 @@ Left-click to use the chosen ROM.</string>
               </widget>
              </item>
              <item row="0" column="3">
-              <widget class="QPushButton" name="qp4Button">
+              <widget class="QLRPushButton" name="qp4Button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -949,7 +949,7 @@ Left-click to use the chosen ROM.</string>
               </widget>
              </item>
              <item row="1" column="0">
-              <widget class="QPushButton" name="qp5Button">
+              <widget class="QLRPushButton" name="qp5Button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -966,7 +966,7 @@ Left-click to use the chosen ROM.</string>
               </widget>
              </item>
              <item row="1" column="1">
-              <widget class="QPushButton" name="qp6Button">
+              <widget class="QLRPushButton" name="qp6Button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -983,7 +983,7 @@ Left-click to use the chosen ROM.</string>
               </widget>
              </item>
              <item row="1" column="2">
-              <widget class="QPushButton" name="qp7Button">
+              <widget class="QLRPushButton" name="qp7Button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -1000,7 +1000,7 @@ Left-click to use the chosen ROM.</string>
               </widget>
              </item>
              <item row="1" column="3">
-              <widget class="QPushButton" name="qp8Button">
+              <widget class="QLRPushButton" name="qp8Button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -1017,7 +1017,7 @@ Left-click to use the chosen ROM.</string>
               </widget>
              </item>
              <item row="2" column="0">
-              <widget class="QPushButton" name="qp9Button">
+              <widget class="QLRPushButton" name="qp9Button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -1034,7 +1034,7 @@ Left-click to use the chosen ROM.</string>
               </widget>
              </item>
              <item row="2" column="1">
-              <widget class="QPushButton" name="qp10Button">
+              <widget class="QLRPushButton" name="qp10Button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -1051,7 +1051,7 @@ Left-click to use the chosen ROM.</string>
               </widget>
              </item>
              <item row="2" column="2">
-              <widget class="QPushButton" name="qp11Button">
+              <widget class="QLRPushButton" name="qp11Button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -1068,7 +1068,7 @@ Left-click to use the chosen ROM.</string>
               </widget>
              </item>
              <item row="2" column="3">
-              <widget class="QPushButton" name="qp12Button">
+              <widget class="QLRPushButton" name="qp12Button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -1085,7 +1085,7 @@ Left-click to use the chosen ROM.</string>
               </widget>
              </item>
              <item row="3" column="0">
-              <widget class="QPushButton" name="qp13Button">
+              <widget class="QLRPushButton" name="qp13Button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -1102,7 +1102,7 @@ Left-click to use the chosen ROM.</string>
               </widget>
              </item>
              <item row="3" column="1">
-              <widget class="QPushButton" name="qp14Button">
+              <widget class="QLRPushButton" name="qp14Button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -1119,7 +1119,7 @@ Left-click to use the chosen ROM.</string>
               </widget>
              </item>
              <item row="3" column="2">
-              <widget class="QPushButton" name="qp15Button">
+              <widget class="QLRPushButton" name="qp15Button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -1136,7 +1136,7 @@ Left-click to use the chosen ROM.</string>
               </widget>
              </item>
              <item row="3" column="3">
-              <widget class="QPushButton" name="qp16Button">
+              <widget class="QLRPushButton" name="qp16Button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -1380,6 +1380,13 @@ Left-click to use the chosen ROM.</string>
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QLRPushButton</class>
+   <extends>QPushButton</extends>
+   <header>src/common/QLRPushButton.hxx</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="resources.qrc"/>
  </resources>
