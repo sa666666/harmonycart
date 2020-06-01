@@ -141,7 +141,7 @@ void HarmonyCartWindow::setupConnections()
   connect(ui->openRomButton, SIGNAL(clicked()), this, SLOT(slotOpenROM()));
   connect(ui->downloadButton, SIGNAL(clicked()), this, SLOT(slotDownloadROM()));
 
-  connect(ui->openARMPathButton, &QLRPushButton::leftClicked,  [=](){ slotSelectARMPath();  });
+  connect(ui->openARMPathButton, &QLRPushButton::leftClicked,  [=](){ slotSelectARMPath(); });
   connect(ui->openARMPathButton, &QLRPushButton::rightClicked, [=]() {
       ui->armpathFileEdit->setText(myOSystem.defaultARMPath());
   });
@@ -576,7 +576,7 @@ void HarmonyCartWindow::slotAbout()
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void HarmonyCartWindow::qpButtonClicked(QPushButton* b, int id)
+void HarmonyCartWindow::qpButtonClicked(QAbstractButton* button, int id)
 {
   // Get the full path from the settings
   QString key = "button" + QString::number(id);
@@ -594,7 +594,7 @@ void HarmonyCartWindow::qpButtonClicked(QPushButton* b, int id)
       "This ROM no longer exists.  Do you wish to remove it\nfrom the QuickPick list?",
       QMessageBox::Yes, QMessageBox::No))
     {
-      b->setText("");
+      button->setText("");
       s.beginGroup("QPButtons");
         s.remove(key);
       s.endGroup();
@@ -691,7 +691,7 @@ void HarmonyCartWindow::loadROM(const QString& filename)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void HarmonyCartWindow::assignToQPButton(QPushButton* button, int id)
+void HarmonyCartWindow::assignToQPButton(QAbstractButton* button, int id)
 {
   // Get the full path from the settings
   QString key = "button" + QString::number(id);
@@ -720,7 +720,7 @@ void HarmonyCartWindow::assignToQPButton(QPushButton* button, int id)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void HarmonyCartWindow::assignToQPButton(QPushButton* button, int id,
+void HarmonyCartWindow::assignToQPButton(QAbstractButton* button, int id,
                                          const QString& file, bool save)
 {
   QFileInfo info(file);

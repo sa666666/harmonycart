@@ -28,7 +28,7 @@ class QLRPushButton : public QPushButton
 {
 Q_OBJECT
   public:
-    explicit QLRPushButton(QWidget* parent = 0);
+    explicit QLRPushButton(QWidget* parent = nullptr);
 
   private slots:
     void mousePressEvent(QMouseEvent* e);

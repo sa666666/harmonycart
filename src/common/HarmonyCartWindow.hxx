@@ -62,9 +62,9 @@ Q_OBJECT
     void setupConnections();
     void readSettings();
     void loadROM(const QString& file);
-    void qpButtonClicked(QPushButton* button, int id);
-    void assignToQPButton(QPushButton* button, int id);
-    void assignToQPButton(QPushButton* button, int id, const QString& file, bool save);
+    void qpButtonClicked(QAbstractButton* button, int id);
+    void assignToQPButton(QAbstractButton* button, int id);
+    void assignToQPButton(QAbstractButton* button, int id, const QString& file, bool save);
     QString getOpenROMName(const QString& path);
 
     void showLog(bool checked);
