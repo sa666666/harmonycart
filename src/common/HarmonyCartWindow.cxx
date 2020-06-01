@@ -576,7 +576,7 @@ void HarmonyCartWindow::slotAbout()
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void HarmonyCartWindow::qpButtonClicked(QAbstractButton* button, int id)
+void HarmonyCartWindow::qpButtonClicked(QAbstractButton* button, size_t id)
 {
   // Get the full path from the settings
   QString key = "button" + QString::number(id);
@@ -691,7 +691,7 @@ void HarmonyCartWindow::loadROM(const QString& filename)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void HarmonyCartWindow::assignToQPButton(QAbstractButton* button, int id)
+void HarmonyCartWindow::assignToQPButton(QAbstractButton* button, size_t id)
 {
   // Get the full path from the settings
   QString key = "button" + QString::number(id);
@@ -720,7 +720,7 @@ void HarmonyCartWindow::assignToQPButton(QAbstractButton* button, int id)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void HarmonyCartWindow::assignToQPButton(QAbstractButton* button, int id,
+void HarmonyCartWindow::assignToQPButton(QAbstractButton* button, size_t id,
                                          const QString& file, bool save)
 {
   QFileInfo info(file);
