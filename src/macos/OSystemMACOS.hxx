@@ -21,7 +21,7 @@ class OSystemMACOS : public OSystem
 {
   public:
     /**
-      Create a new MACOSX-specific operating system object
+      Create a new macOS-specific operating system object
     */
     OSystemMACOS();
 

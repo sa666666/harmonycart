@@ -27,7 +27,7 @@
 #include "SerialPort.hxx"
 
 /**
-  Implement reading and writing from a serial port under MacOSX.
+  Implement reading and writing from a serial port under macOS.
 
   @author  Stephen Anthony
 */

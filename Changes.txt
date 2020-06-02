@@ -12,14 +12,24 @@
 
 1.4: (Jun. xx, 2020)
 
-  * Included NTSC HBIOS 1.06.
+  * Completely reworked serial port autodetection for Mac and Windows
+    ports.
 
-  * Fixed annoying bug where dialog box would appear when first starting
+  * Changed from using 'right-click' to 'double-click' to select ROMs in
+    the 'QuickPick' list.  This fixes bugs in all ports, but particularly
+    in MacOS, where the UI would sometimes become unresponsive.
+
+  * Fixed annoying bug where a dialog box would appear when first starting
     the app, and would have to be manually closed.
+
+  * Added option to skip bank 0 when compressing F4 images.  This is needed
+    for some roms (Triptych).
+
+  * Included NTSC HBIOS 1.06.
 
   * Updated bankswitch autodetection code to latest from Stella 6.2.
 
-  * Codebase ported to (and now requires) Qt 5.7.
+  * Codebase ported to (and now requires) Qt 5.14.
 
 -Have fun!
 

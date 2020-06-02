@@ -8,7 +8,7 @@ Build-Depends: debhelper, qt5-default
 Package: harmonycart
 Architecture: any
 Depends: ${shlibs:Depends}
-Description: Harmony Cartridge programming tool for Linux/OSX/Windows.
+Description: Harmony Cartridge programming tool for Linux/macOS/Windows.
  The Harmony cartridge is a programmable add-on for the Atari 2600 console
  that allows you to load an entire library of games into a single cartridge
  and then select which title you want to play from a friendly, on-screen
