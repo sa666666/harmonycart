@@ -5,9 +5,9 @@
 AppName=HarmonyCart
 AppVerName=HarmonyCart 1.4
 AppPublisher=Stephen Anthony
-AppPublisherURL=http://harmony.atariage.com
-AppSupportURL=http://harmony.atariage.com
-AppUpdatesURL=http://harmony.atariage.com
+AppPublisherURL=https://github.com/sa666666/harmonycart
+AppSupportURL=https://github.com/sa666666/harmonycart
+AppUpdatesURL=https://github.com/sa666666/harmonycart
 DefaultDirName={pf}\HarmonyCart
 DefaultGroupName=HarmonyCart
 OutputBaseFilename="HarmonyCart-1.4-x64"
@@ -41,12 +41,12 @@ Name: "eng"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}";
 
 [Files]
-Source: "..\Release\HarmonyCart.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\Release\HarmonyCart.com"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\Release\*.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\Release\platforms\*.dll"; DestDir: "{app}\platforms"; Flags: ignoreversion
-Source: "..\arm\*"; DestDir: "{app}\arm"; Flags: ignoreversion
-Source: "..\*.txt"; DestDir: "{app}\docs"; Flags: ignoreversion;  AfterInstall: ConvertLineEndings
+Source: "..\..\Release\HarmonyCart.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\Release\HarmonyCart.com.exe"; DestDir: "{app}"; DestName: "HarmonyCart.com"; Flags: ignoreversion
+Source: "..\..\Release\*.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\Release\platforms\*.dll"; DestDir: "{app}\platforms"; Flags: ignoreversion
+Source: "..\..\arm\*"; DestDir: "{app}\arm"; Flags: ignoreversion
+Source: "..\..\*.txt"; DestDir: "{app}\docs"; Flags: ignoreversion;  AfterInstall: ConvertLineEndings
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

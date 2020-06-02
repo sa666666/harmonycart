@@ -26,7 +26,8 @@ HEADERS += src/common/HarmonyCartWindow.hxx \
     src/common/SerialPort.hxx \
     src/common/Version.hxx \
     src/common/FindHarmonyThread.hxx \
-    src/common/AboutDialog.hxx
+    src/common/AboutDialog.hxx \
+    src/windows/HomeFinder.hxx
 FORMS += harmonycartwindow.ui \
     aboutdialog.ui
 RESOURCES += resources.qrc
@@ -42,7 +43,7 @@ windows {
     DEFINES -= UNICODE _UNICODE
     DEFINES += _CRT_SECURE_NO_WARNINGS BSPF_WINDOWS
     INCLUDEPATH += src/windows
-    LIBS += -lAdvapi32
+    LIBS += -lAdvapi32 -lShell32
     SOURCES += src/windows/FSNodeWINDOWS.cxx src/windows/SerialPortWINDOWS.cxx src/windows/OSystemWINDOWS.cxx
     HEADERS += src/windows/FSNodeWINDOWS.hxx src/windows/SerialPortWINDOWS.hxx src/windows/OSystemWINDOWS.hxx
     RC_FILE = src/windows/HarmonyCart.rc
