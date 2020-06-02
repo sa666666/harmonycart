@@ -32,7 +32,7 @@
 #if defined(BSPF_UNIX)
   #include "OSystemUNIX.hxx"
 #elif defined(BSPF_WINDOWS)
-  #include "OSystemWindows.hxx"
+  #include "OSystemWINDOWS.hxx"
 #elif defined(BSPF_MACOS)
   #include "OSystemMACOS.hxx"
 #endif

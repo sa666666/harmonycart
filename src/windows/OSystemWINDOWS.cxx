@@ -13,7 +13,7 @@
 //=========================================================================
 
 #include <QCoreApplication>
-#include "OSystemWindows.hxx"
+#include "OSystemWINDOWS.hxx"
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 OSystemWindows::OSystemWindows()
