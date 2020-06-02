@@ -4,7 +4,7 @@
 # usage:
 #    Create_build.sh <version>
 #
-# The result will be a file called ~/Desktop/HarmonyCart-<ver>-macosx.dmg
+# The result will be a file called ~/Desktop/HarmonyCart-<ver>-macos.dmg
 
 if [ $# != 1 ]; then
 	echo "usage: Create_build.sh version"
@@ -12,7 +12,7 @@ if [ $# != 1 ]; then
 fi
 
 VER="$1"
-DMG="HarmonyCart-${VER}-macosx.dmg"
+DMG="HarmonyCart-${VER}-macos.dmg"
 DISK="/Volumes/HarmonyCart"
 DEST=~/Desktop/${DMG}
 
@@ -28,18 +28,18 @@ echo "Mounting ${DMG} file ..."
 hdiutil attach "${DMG}"
 
 echo "Adding Qt framework ..."
-macdeployqt ../HarmonyCart.app/
+macdeployqt ../../HarmonyCart.app/
 
 echo "Adding ARM directory ..."
-mkdir ../HarmonyCart.app/arm
-cp ../arm/*.arm ../arm/*.bin ../HarmonyCart.app/arm/
+mkdir ../../HarmonyCart.app/arm
+cp ../../arm/*.arm ../../arm/*.bin ../../HarmonyCart.app/arm/
 
 echo "Copying documentation ..."
-ditto ../Announce.txt ../Changes.txt ../Copyright.txt ../License.txt ../Readme.txt "${DISK}"
+ditto ../../Announce.txt ../../Changes.txt ../../Copyright.txt ../../License.txt ../../Readme.txt "${DISK}"
 
 echo "Copying application ..."
-cp -r ../HarmonyCart.app "${DISK}"
-cp -r ../arm "${DISK}"
+cp -r ../../HarmonyCart.app "${DISK}"
+cp -r ../../arm "${DISK}"
 
 echo "Ejecting ${DMG} ..."
 hdiutil eject "${DISK}"
