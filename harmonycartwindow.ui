@@ -798,8 +798,7 @@ supported by the Harmony Cart.</string>
                  </size>
                 </property>
                 <property name="toolTip">
-                 <string>Copy and paste the location of the 'ARM' files
-for single-load ROM images.</string>
+                 <string>Copy and paste the location of the 'ARM' files for single-load ROM images.</string>
                 </property>
                 <property name="readOnly">
                  <bool>false</bool>
@@ -810,14 +809,22 @@ for single-load ROM images.</string>
                </widget>
               </item>
               <item>
-               <widget class="QClickButton" name="openARMPathButton">
+               <widget class="QPushButton" name="openARMPathButton">
                 <property name="toolTip">
-                 <string>Select location of the 'ARM' files for single-load ROM images.
-Right-click to select default location.
-Left-click to select a specific location.</string>
+                 <string>Select location of the 'ARM' files for single-load ROM images.</string>
                 </property>
                 <property name="text">
                  <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="defaultARMPathButton">
+                <property name="toolTip">
+                 <string>Set default location of the 'ARM' files for single-load ROM images.</string>
+                </property>
+                <property name="text">
+                 <string>Default</string>
                 </property>
                </widget>
               </item>
@@ -889,8 +896,8 @@ image to the Harmony Cart.</string>
                 <enum>Qt::DefaultContextMenu</enum>
                </property>
                <property name="toolTip">
-                <string>Right-click to select ROM Image.
-Left-click to use the chosen ROM.</string>
+                <string>Click to use the chosen ROM.
+Double-click to store a different ROM.</string>
                </property>
                <property name="text">
                 <string/>
@@ -906,8 +913,8 @@ Left-click to use the chosen ROM.</string>
                 </sizepolicy>
                </property>
                <property name="toolTip">
-                <string>Right-click to select ROM Image.
-Left-click to use the chosen ROM.</string>
+                <string>Click to use the chosen ROM.
+Double-click to store a different ROM.</string>
                </property>
                <property name="text">
                 <string/>
@@ -923,8 +930,8 @@ Left-click to use the chosen ROM.</string>
                 </sizepolicy>
                </property>
                <property name="toolTip">
-                <string>Right-click to select ROM Image.
-Left-click to use the chosen ROM.</string>
+                <string>Click to use the chosen ROM.
+Double-click to store a different ROM.</string>
                </property>
                <property name="text">
                 <string/>
@@ -940,8 +947,8 @@ Left-click to use the chosen ROM.</string>
                 </sizepolicy>
                </property>
                <property name="toolTip">
-                <string>Right-click to select ROM Image.
-Left-click to use the chosen ROM.</string>
+                <string>Click to use the chosen ROM.
+Double-click to store a different ROM.</string>
                </property>
                <property name="text">
                 <string/>
@@ -957,8 +964,8 @@ Left-click to use the chosen ROM.</string>
                 </sizepolicy>
                </property>
                <property name="toolTip">
-                <string>Right-click to select ROM Image.
-Left-click to use the chosen ROM.</string>
+                <string>Click to use the chosen ROM.
+Double-click to store a different ROM.</string>
                </property>
                <property name="text">
                 <string/>
@@ -974,8 +981,8 @@ Left-click to use the chosen ROM.</string>
                 </sizepolicy>
                </property>
                <property name="toolTip">
-                <string>Right-click to select ROM Image.
-Left-click to use the chosen ROM.</string>
+                <string>Click to use the chosen ROM.
+Double-click to store a different ROM.</string>
                </property>
                <property name="text">
                 <string/>
@@ -991,8 +998,8 @@ Left-click to use the chosen ROM.</string>
                 </sizepolicy>
                </property>
                <property name="toolTip">
-                <string>Right-click to select ROM Image.
-Left-click to use the chosen ROM.</string>
+                <string>Click to use the chosen ROM.
+Double-click to store a different ROM.</string>
                </property>
                <property name="text">
                 <string/>
@@ -1008,8 +1015,8 @@ Left-click to use the chosen ROM.</string>
                 </sizepolicy>
                </property>
                <property name="toolTip">
-                <string>Right-click to select ROM Image.
-Left-click to use the chosen ROM.</string>
+                <string>Click to use the chosen ROM.
+Double-click to store a different ROM.</string>
                </property>
                <property name="text">
                 <string/>
@@ -1025,8 +1032,8 @@ Left-click to use the chosen ROM.</string>
                 </sizepolicy>
                </property>
                <property name="toolTip">
-                <string>Right-click to select ROM Image.
-Left-click to use the chosen ROM.</string>
+                <string>Click to use the chosen ROM.
+Double-click to store a different ROM.</string>
                </property>
                <property name="text">
                 <string/>
@@ -1042,8 +1049,8 @@ Left-click to use the chosen ROM.</string>
                 </sizepolicy>
                </property>
                <property name="toolTip">
-                <string>Right-click to select ROM Image.
-Left-click to use the chosen ROM.</string>
+                <string>Click to use the chosen ROM.
+Double-click to store a different ROM.</string>
                </property>
                <property name="text">
                 <string/>
@@ -1059,8 +1066,8 @@ Left-click to use the chosen ROM.</string>
                 </sizepolicy>
                </property>
                <property name="toolTip">
-                <string>Right-click to select ROM Image.
-Left-click to use the chosen ROM.</string>
+                <string>Click to use the chosen ROM.
+Double-click to store a different ROM.</string>
                </property>
                <property name="text">
                 <string/>
@@ -1076,8 +1083,8 @@ Left-click to use the chosen ROM.</string>
                 </sizepolicy>
                </property>
                <property name="toolTip">
-                <string>Right-click to select ROM Image.
-Left-click to use the chosen ROM.</string>
+                <string>Click to use the chosen ROM.
+Double-click to store a different ROM.</string>
                </property>
                <property name="text">
                 <string/>
@@ -1093,8 +1100,8 @@ Left-click to use the chosen ROM.</string>
                 </sizepolicy>
                </property>
                <property name="toolTip">
-                <string>Right-click to select ROM Image.
-Left-click to use the chosen ROM.</string>
+                <string>Click to use the chosen ROM.
+Double-click to store a different ROM.</string>
                </property>
                <property name="text">
                 <string/>
@@ -1110,8 +1117,8 @@ Left-click to use the chosen ROM.</string>
                 </sizepolicy>
                </property>
                <property name="toolTip">
-                <string>Right-click to select ROM Image.
-Left-click to use the chosen ROM.</string>
+                <string>Click to use the chosen ROM.
+Double-click to store a different ROM.</string>
                </property>
                <property name="text">
                 <string/>
@@ -1127,8 +1134,8 @@ Left-click to use the chosen ROM.</string>
                 </sizepolicy>
                </property>
                <property name="toolTip">
-                <string>Right-click to select ROM Image.
-Left-click to use the chosen ROM.</string>
+                <string>Click to use the chosen ROM.
+Double-click to store a different ROM.</string>
                </property>
                <property name="text">
                 <string/>
@@ -1144,8 +1151,8 @@ Left-click to use the chosen ROM.</string>
                 </sizepolicy>
                </property>
                <property name="toolTip">
-                <string>Right-click to select ROM Image.
-Left-click to use the chosen ROM.</string>
+                <string>Click to use the chosen ROM.
+Double-click to store a different ROM.</string>
                </property>
                <property name="text">
                 <string/>

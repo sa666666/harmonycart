@@ -141,10 +141,10 @@ void HarmonyCartWindow::setupConnections()
   connect(ui->openRomButton, SIGNAL(clicked()), this, SLOT(slotOpenROM()));
   connect(ui->downloadButton, SIGNAL(clicked()), this, SLOT(slotDownloadROM()));
 
-  connect(ui->openARMPathButton, &QClickButton::clicked,  [=](){ slotSelectARMPath(); });
-//  connect(ui->openARMPathButton, &QClickButton::doubleClicked, [=]() {
-//      ui->armpathFileEdit->setText(myOSystem.defaultARMPath());
-//  });
+  connect(ui->openARMPathButton, &QAbstractButton::clicked, [=](){ slotSelectARMPath(); });
+  connect(ui->defaultARMPathButton, &QAbstractButton::clicked, [=]() {
+      ui->armpathFileEdit->setText(myOSystem.defaultARMPath());
+  });
 
   // Quick-select buttons
   std::array<QClickButton*, 16> qpButtons = {
@@ -153,14 +153,15 @@ void HarmonyCartWindow::setupConnections()
     ui->qp9Button,  ui->qp10Button, ui->qp11Button, ui->qp12Button,
     ui->qp13Button, ui->qp14Button, ui->qp15Button, ui->qp16Button
   };
-
   myQPGroup = new QButtonGroup(this);
   myQPGroup->setExclusive(false);
   for(int i = 0; i < static_cast<int>(qpButtons.size()); ++i)
   {
     myQPGroup->addButton(qpButtons[i], i+1);
+    // Double-click event is added to each button
     connect(qpButtons[i], &QClickButton::doubleClicked, [=](QClickButton* b){ assignToQPButton(b, i+1); });
   }
+  // Left-click event is added to the button group itself
   connect(myQPGroup, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked),
     [=](QAbstractButton* b){ qpButtonClicked(b, myQPGroup->id(b)); });
 
