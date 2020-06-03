@@ -29,7 +29,7 @@ Q_OBJECT
     virtual ~AboutDialog();
 
   private:
-    Ui::AboutDialog* m_ui;
+    Ui::AboutDialog* m_ui{nullptr};
 
   private:
     // Following constructors and assignment operators not supported

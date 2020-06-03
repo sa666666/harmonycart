@@ -109,7 +109,7 @@ class SerialPortWINDOWS : public SerialPort
 
   private:
     // Handle to serial port
-    HANDLE myHandle;
+    HANDLE myHandle{INVALID_HANDLE_VALUE};
 
   private:
     // Following constructors and assignment operators not supported
