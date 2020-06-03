@@ -10,7 +10,7 @@
                              Release History
 ===========================================================================
 
-1.4: (Jun. xx, 2020)
+1.4: (Jun. 14, 2020)
 
   * Completely reworked serial port autodetection for Mac and Windows
     ports.

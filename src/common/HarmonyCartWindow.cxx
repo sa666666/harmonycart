@@ -499,7 +499,7 @@ void HarmonyCartWindow::slotAbout()
         << "<li><a href=\"http://stella-emu.github.io\">Stella</a>: bankswitch autodetection code and various other classes</li>"
         << "</ul></p>"
 
-        << "<p>Version 1.4 (Jun. xx, 2020):</p>"
+        << "<p>Version 1.4 (Jun. 14, 2020):</p>"
         << "<ul>"
         << "<li>Completely reworked serial port autodetection for Mac and Windows ports.</li>"
         << "<li>Changed from using 'right-click' to 'double-click' to select ROMs in "
