@@ -10,7 +10,6 @@ SOURCES += src/common/main.cxx \
     src/common/CartDetector.cxx \
     src/common/CartDetectorWrapper.cxx \
     src/common/FSNode.cxx \
-    src/common/QClickButton.cxx \
     src/common/SerialPortManager.cxx \
     src/common/AboutDialog.cxx
 HEADERS += src/common/HarmonyCartWindow.hxx \

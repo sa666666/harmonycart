@@ -32,13 +32,13 @@ class QClickButton : public QPushButton
 {
 Q_OBJECT
   public:
-    explicit QClickButton(QWidget* parent = nullptr);
+    explicit QClickButton(QWidget* parent = nullptr) : QPushButton(parent) { }
 
   signals:
     void doubleClicked(QClickButton*);
 
   protected:
-    void mouseDoubleClickEvent(QMouseEvent*);
+    void mouseDoubleClickEvent(QMouseEvent*) { emit doubleClicked(this); }
 };
 
 #endif // Q_LR_PUSHBUTTON_HXX
