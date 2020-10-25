@@ -20,15 +20,8 @@
 class OSystemWindows : public OSystem
 {
   public:
-    /**
-      Create a new Windows operating system object
-    */
     OSystemWindows();
-
-    /**
-      Destructor
-    */
-    virtual ~OSystemWindows() = default;
+    ~OSystemWindows() override = default;
 
   private:
     // Following constructors and assignment operators not supported

@@ -20,15 +20,8 @@
 class OSystemMACOS : public OSystem
 {
   public:
-    /**
-      Create a new macOS-specific operating system object
-    */
     OSystemMACOS();
-
-    /**
-      Destructor
-    */
-    virtual ~OSystemMACOS() = default;
+    ~OSystemMACOS() override = default;
 
   private:
     // Following constructors and assignment operators not supported

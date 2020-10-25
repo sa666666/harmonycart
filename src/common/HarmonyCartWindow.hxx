@@ -47,7 +47,7 @@ class HarmonyCartWindow : public QMainWindow
 Q_OBJECT
   public:
     HarmonyCartWindow(QWidget* parent = nullptr);
-    virtual ~HarmonyCartWindow();
+    virtual ~HarmonyCartWindow() override;
 
   public:
     SerialPortManager& portManager() { return myManager; }
@@ -56,7 +56,7 @@ Q_OBJECT
     bool verifyDownload() { return ui->actAutoVerifyDownload->isChecked(); }
 
   protected:
-    void closeEvent(QCloseEvent* event);
+    void closeEvent(QCloseEvent* event) override;
 
   private:
     void setupConnections();

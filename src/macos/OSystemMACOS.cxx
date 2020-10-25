@@ -18,7 +18,6 @@
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 OSystemMACOS::OSystemMACOS()
-  : OSystem()
 {
   QDir dir = QDir(QCoreApplication::applicationDirPath());
   dir.cdUp();

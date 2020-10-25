@@ -29,7 +29,7 @@ class OSystem
 {
   public:
     OSystem() = default;
-    ~OSystem() = default;
+    virtual ~OSystem() = default;
 
   public:
     /**

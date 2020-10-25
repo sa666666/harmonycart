@@ -34,7 +34,7 @@ SerialPortWINDOWS::~SerialPortWINDOWS()
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 bool SerialPortWINDOWS::openPort(const string& device)
 {
-  if(!myHandle)
+  if(myHandle == INVALID_HANDLE_VALUE)
     closePort();
 
   DCB dcb;

@@ -26,7 +26,7 @@ class AboutDialog : public QDialog
 Q_OBJECT
   public:
     AboutDialog(QWidget* parent, const QString& title, const QString& info);
-    virtual ~AboutDialog();
+    virtual ~AboutDialog() override;
 
   private:
     Ui::AboutDialog* m_ui{nullptr};

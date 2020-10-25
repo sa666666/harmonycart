@@ -16,7 +16,6 @@
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 OSystemUNIX::OSystemUNIX()
-  : OSystem()
 {
   // Hardcoded for now, since that's what the installer always uses
   // At some point, it would be better to query the OS directly

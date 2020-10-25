@@ -28,7 +28,7 @@ class SerialPortWINDOWS : public SerialPort
 {
   public:
     SerialPortWINDOWS();
-    virtual ~SerialPortWINDOWS();
+    ~SerialPortWINDOWS() override;
 
     /**
       Open the given serial port with the specified attributes.

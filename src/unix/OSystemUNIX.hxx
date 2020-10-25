@@ -20,15 +20,8 @@
 class OSystemUNIX : public OSystem
 {
   public:
-    /**
-      Create a new UNIX-specific operating system object
-    */
     OSystemUNIX();
-
-    /**
-      Destructor
-    */
-    virtual ~OSystemUNIX() = default;
+    ~OSystemUNIX() override = default;
 
   private:
     // Following constructors and assignment operators not supported

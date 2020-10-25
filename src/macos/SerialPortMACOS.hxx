@@ -35,7 +35,7 @@ class SerialPortMACOS : public SerialPort
 {
   public:
     SerialPortMACOS();
-    virtual ~SerialPortMACOS();
+    ~SerialPortMACOS() override;
 
     /**
       Open the given serial port with the specified attributes.

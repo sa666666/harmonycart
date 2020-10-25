@@ -38,7 +38,7 @@ Q_OBJECT
     void doubleClicked(QClickButton*);
 
   protected:
-    void mouseDoubleClickEvent(QMouseEvent*) { emit doubleClicked(this); }
+    void mouseDoubleClickEvent(QMouseEvent*) override { emit doubleClicked(this); }
 };
 
 #endif // Q_LR_PUSHBUTTON_HXX
