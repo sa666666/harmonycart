@@ -64,8 +64,6 @@ using std::istream;
 using std::ostream;
 using std::fstream;
 using std::iostream;
-using std::ifstream;
-using std::ofstream;
 using std::ostringstream;
 using std::istringstream;
 using std::stringstream;
@@ -93,6 +91,14 @@ using AdjustFunction = std::function<void(int)>;
 constexpr size_t operator "" _KB(unsigned long long size)
 {
    return static_cast<size_t>(size * 1024);
+}
+
+// Output contents of a vector
+template<typename T>
+std::ostream& operator<< (std::ostream& out, const std::vector<T>& v) {
+  for(const auto& elem: v)
+    out << elem << " ";
+  return out;
 }
 
 static const string EmptyString("");
@@ -128,8 +134,20 @@ namespace BSPF
     static const string ARCH = "NOARCH";
   #endif
 
-  // Maximum size of a ROM that Stella can support
-  inline constexpr size_t romMaxSize() { return 512_KB; }
+  // Get next power of two greater than or equal to the given value
+  inline size_t nextPowerOfTwo(size_t size) {
+    if(size < 2) return 1;
+    size_t power2 = 1;
+    while(power2 < size)
+      power2 <<= 1;
+    return power2;
+  }
+
+  // Get next multiple of the given value
+  // Note that this only works when multiple is a power of two
+  inline size_t nextMultipleOf(size_t size, size_t multiple) {
+    return (size + multiple - 1) & ~(multiple - 1);
+  }
 
   // Make 2D-arrays using std::array less verbose
   template<typename T, size_t ROW, size_t COL>
@@ -148,6 +166,12 @@ namespace BSPF
   template<typename T> inline T clampw(T val, T lower, T upper)
   {
     return (val < lower) ? upper : (val > upper) ? lower : val;
+  }
+
+  // Test whether the vector contains the given value
+  template<typename T>
+  bool contains(const std::vector<T>& v, const T& elem) {
+    return !(v.empty() || std::find(v.begin(), v.end(), elem) == v.end());
   }
 
   // Convert string to given case

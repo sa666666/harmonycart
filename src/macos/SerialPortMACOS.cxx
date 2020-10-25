@@ -200,24 +200,27 @@ const StringList& SerialPortMACOS::getPortNames()
 {
   myPortNames.clear();
 
+  // Check if port is valid; for now that means if it can be opened
+  auto isPortValid = [](const string& port) {
+    int handle = open(port.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);
+    if(handle > 0)  close(handle);
+    return handle > 0;
+  };
+
   // Get all possible devices in the '/dev' directory
   FilesystemNode::NameFilter filter = [](const FilesystemNode& node) {
-    return BSPF::startsWithIgnoreCase(node.getPath(), "/dev/tty.usb") ||
-           BSPF::startsWithIgnoreCase(node.getPath(), "/dev/ttyUSB");
+    return BSPF::startsWithIgnoreCase(node.getPath(), "/dev/tty.usb");
   };
   FSList portList;
-  portList.reserve(16);
+  portList.reserve(8);
 
   FilesystemNode dev("/dev/");
   dev.getChildren(portList, FilesystemNode::ListMode::All, filter, false);
 
   // Add only those that can be opened
   for(const auto& port: portList)
-  {
-    if(openPort(port.getPath()))
+    if(isPortValid(port.getPath()))
       myPortNames.emplace_back(port.getPath());
-    closePort();
-  }
 
   return myPortNames;
 }

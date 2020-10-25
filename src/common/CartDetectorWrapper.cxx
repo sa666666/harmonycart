@@ -35,7 +35,7 @@ Bankswitch::Type CartDetectorHC::autodetectType(const string& rom)
     return type;
 
   // Read file into buffer
-  ifstream in(rom, std::ios::binary);
+  std::ifstream in(rom, std::ios::binary);
   if(in)
   {
     // Figure out how much data we should read
