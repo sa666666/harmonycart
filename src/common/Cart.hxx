@@ -26,7 +26,7 @@
 
 /**
  *
- * @author stephena
+ * @author Stephen Anthony
  */
 class Cart
 {

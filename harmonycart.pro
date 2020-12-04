@@ -31,7 +31,7 @@ FORMS += harmonycartwindow.ui \
     aboutdialog.ui
 RESOURCES += resources.qrc
 QT += widgets
-CONFIG += c++14
+CONFIG += c++17
 DEFINES += CUSTOM_ARM
 INCLUDEPATH += src/common
 

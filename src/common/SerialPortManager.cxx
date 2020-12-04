@@ -62,12 +62,9 @@ void SerialPortManager::connectHarmonyCart(Cart& cart)
   }
   else  // Search through all ports
   {
-    const StringList& ports = myPort.getPortNames();
-    for(uInt32 i = 0; i < ports.size(); ++i)
-    {
-      if(detect(ports[i], cart))
+    for(const auto& device: myPort.getPortNames())
+      if(detect(device, cart))
         break;
-    }
   }
 }
 
@@ -92,7 +89,7 @@ bool SerialPortManager::detect(const string& device, Cart& cart)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool SerialPortManager::harmonyCartAvailable()
+bool SerialPortManager::harmonyCartAvailable() const
 {
   return myFoundHarmonyCart;
 }
@@ -104,13 +101,13 @@ SerialPort& SerialPortManager::port()
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const string& SerialPortManager::portName()
+const string& SerialPortManager::portName() const
 {
   return myPortName;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const string& SerialPortManager::versionID()
+const string& SerialPortManager::versionID() const
 {
   return myVersionID;
 }

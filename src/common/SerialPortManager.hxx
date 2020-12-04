@@ -35,11 +35,11 @@ class SerialPortManager
 
     void setDefaultPort(const string& port);
     void connectHarmonyCart(Cart& cart);
-    bool harmonyCartAvailable();
+    bool harmonyCartAvailable() const;
 
     SerialPort& port();
-    const string& portName();
-    const string& versionID();
+    const string& portName() const;
+    const string& versionID() const;
 
     bool openCartPort();
     void closeCartPort();
