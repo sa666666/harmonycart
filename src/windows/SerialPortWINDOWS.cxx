@@ -40,6 +40,10 @@ bool SerialPortWINDOWS::openPort(const string& device)
   DCB dcb;
   COMMTIMEOUTS commtimeouts;
 
+  /* Torsten Lang 2013-05-06 Switch to higher timer resolution (we want to use
+     1ms timeouts in the serial device driver!) */
+  timeBeginPeriod(1UL);
+
   const string& portname = string("\\\\.\\") + device;
   myHandle = CreateFile(portname.c_str(), GENERIC_READ|GENERIC_WRITE,
                         0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -52,8 +56,8 @@ bool SerialPortWINDOWS::openPort(const string& device)
   dcb.StopBits    = ONESTOPBIT;
   dcb.Parity      = NOPARITY;
   dcb.fDtrControl = DTR_CONTROL_DISABLE;
-  dcb.fOutX       = 0;
-  dcb.fInX        = 0;
+  dcb.fOutX       = TRUE; // TL TODO - according to LPC manual! FALSE;
+  dcb.fInX        = TRUE; // TL TODO - according to LPC manual! FALSE;
   dcb.fNull       = 0;
   dcb.fRtsControl = RTS_CONTROL_DISABLE;
 
@@ -86,7 +90,7 @@ bool SerialPortWINDOWS::openPort(const string& device)
   SetCommMask(myHandle, EV_RXCHAR | EV_TXEMPTY);
 
   commtimeouts.ReadIntervalTimeout         = MAXDWORD;
-  commtimeouts.ReadTotalTimeoutMultiplier  =    0;
+  commtimeouts.ReadTotalTimeoutMultiplier  = MAXDWORD;
   commtimeouts.ReadTotalTimeoutConstant    =    1;
   commtimeouts.WriteTotalTimeoutMultiplier =    0;
   commtimeouts.WriteTotalTimeoutConstant   =    0;
@@ -102,6 +106,9 @@ void SerialPortWINDOWS::closePort()
   {
     CloseHandle(myHandle);
     myHandle = INVALID_HANDLE_VALUE;
+
+    /* Torsten Lang 2013-05-06 Switch back timer resolution */
+    timeEndPeriod(1UL);
   }
 }
 
@@ -137,7 +144,13 @@ size_t SerialPortWINDOWS::sendBlock(const void* data, size_t size)
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void SerialPortWINDOWS::setTimeout(uInt32 timeout_milliseconds)
 {
-  mySerialTimeoutCount = timeout_milliseconds;
+  mySerialTimeoutCount = timeGetTime() + timeout_milliseconds;
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+bool SerialPortWINDOWS::timeoutCheck()
+{
+  return static_cast<Int32>(mySerialTimeoutCount - timeGetTime()) < 0;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -162,6 +175,26 @@ void SerialPortWINDOWS::controlModemLines(bool DTR, bool RTS)
   else     EscapeCommFunction(myHandle, CLRDTR);
   if (RTS) EscapeCommFunction(myHandle, SETRTS);
   else     EscapeCommFunction(myHandle, CLRRTS);
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+void SerialPortWINDOWS::controlXonXoff(bool XonXoff)
+{
+  DCB dcb;
+  GetCommState(myHandle, &dcb);
+
+  if(XonXoff)
+  {
+    dcb.fOutX = TRUE;
+    dcb.fInX  = TRUE;
+  }
+  else
+  {
+    dcb.fOutX = FALSE;
+    dcb.fInX  = FALSE;
+  }
+
+  SetCommState(myHandle, &dcb);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

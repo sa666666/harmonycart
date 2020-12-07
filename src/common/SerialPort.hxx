@@ -90,6 +90,7 @@ class SerialPort
       return sendBlock(data, size == 0 ? strlen(static_cast<const char*>(data)) : size);
     }
 
+#if 1  // Unused code
     /**
       Receives a fixed block from the open com port. Returns when the
       block is completely filled or the timeout period has passed.
@@ -100,7 +101,7 @@ class SerialPort
                      completing the read
       @return The number of bytes read
     */
-    size_t receive(void* block, size_t size, uInt32 timeout = 500)
+    size_t receiveCompleteBlock(void* block, size_t size, uInt32 timeout)
     {
       size_t realsize = 0, read;
       char* result = (char*)block;
@@ -113,11 +114,21 @@ class SerialPort
 
       return realsize;
     }
+#endif
 
     /**
       Receives a buffer from the open com port. Returns when the buffer is
-      filled, the number of requested linefeeds has been received or the timeout
-      period has passed.
+      filled, the numer of requested linefeeds has been received or the timeout
+      period has passed. The bootloaders may send 0x0d,0x0a,0x0a or 0x0d,0x0a as
+      linefeed pattern.
+
+      Note: We *could* filter out surplus 0x0a characters like in <CR><LF><LF>
+      but as we don't know how the individual bootloader behaves we don't want
+      to wait for possible surplus <LF> (which would slow down the transfer).
+      Thus, we just terminate after the expected number of <CR><LF> sequences
+      and leave it to the command handler in lpcprog.c to filter out surplus
+      <LF> characters which then occur as leading character in answers or
+      echoed commands.
 
       @param Answer   Buffer to hold the bytes read from the serial port
       @param MaxSize  The size of buffer pointed to by Answer
@@ -128,31 +139,82 @@ class SerialPort
       @return  The number of bytes read
     */
     size_t receive(const char* Ans, size_t MaxSize,
-                   size_t Wanted, uInt32 timeout)
+                   size_t WantedNr0x0A, uInt32 timeout)
     {
-      size_t tmp_realsize;
+      size_t tmp_realsize = 0;
       uInt32 nr_of_0x0A = 0;
       uInt32 nr_of_0x0D = 0;
       int eof = 0;
       uInt8* Answer = (uInt8*) Ans;
-      setTimeout(timeout);
+      uInt8* endPtr = nullptr;
+      static char residual_data[128] = {'\0'};
+      int lf = 0;
       size_t RealSize = 0;
 
-      do {
-        tmp_realsize = receiveBlock(Answer + RealSize, MaxSize - 1 - RealSize);
+      setTimeout(timeout);
+
+      do
+      {
+        if(residual_data[0] == '\0')
+        {
+          /* Receive new data */
+          tmp_realsize = receiveBlock(Answer + RealSize, MaxSize - 1 - RealSize);
+        }
+        else
+        {
+            /* Take over any old residual data */
+            strcpy((char *)Answer, residual_data);
+            tmp_realsize = strlen((char *)Answer);
+            residual_data[0] = '\0';
+        }
+
         if(tmp_realsize != 0)
         {
           for(size_t p = RealSize; p < RealSize + tmp_realsize; p++)
           {
-            if(Answer[p] == 0x0a)        nr_of_0x0A++;
-            else if (Answer[p] == 0x0d)  nr_of_0x0D++;
-            else if (((signed char) Answer[p]) < 0)  eof = 1;
+            /* Torsten Lang 2013-05-06 Scan for 0x0d,0x0a,0x0a and 0x0d,0x0a as linefeed pattern */
+            if(Answer[p] == 0x0a)
+            {
+              if(lf != 0)
+              {
+                nr_of_0x0A++;
+                lf = 0;
+                if(nr_of_0x0A >= WantedNr0x0A)
+                  endPtr = &Answer[p+1];
+              }
+            }
+            else if(Answer[p] == 0x0d)
+            {
+              nr_of_0x0D++;
+              lf = 1;
+            }
+            else if(((signed char) Answer[p]) < 0)
+            {
+              eof = 1;
+              lf  = 0;
+            }
+            else if (lf != 0)
+            {
+              nr_of_0x0D++;
+              nr_of_0x0A++;
+              lf = 0;
+              if(nr_of_0x0A >= WantedNr0x0A)
+                endPtr = &Answer[p+1];
+            }
           }
+          RealSize += tmp_realsize;
         }
-        RealSize += tmp_realsize;
-      } while ((RealSize < MaxSize) && !timeoutCheck() && (nr_of_0x0A < Wanted) && (nr_of_0x0D < Wanted) && !eof);
+      } while ((RealSize < MaxSize) && !timeoutCheck() && (nr_of_0x0A < WantedNr0x0A) && !eof);
 
-      Answer[RealSize] = 0;
+      /* Torsten Lang 2013-05-06 Store residual data and cut answer after expected nr. of 0x0a */
+      Answer[RealSize] = '\0';
+      if(endPtr != NULL)
+      {
+        strcpy(residual_data, (char *)endPtr);
+        *endPtr = '\0';
+        /* Torsten Lang 2013-06-28 Update size info */
+        RealSize = endPtr - Answer;
+      }
       return RealSize;
     }
 
@@ -164,6 +226,13 @@ class SerialPort
       @param RTS  The state to set the RTS line to
     */
     virtual void controlModemLines(bool DTR, bool RTS) = 0;
+
+    /**
+      Set software flow control state.
+
+      @param XonXoff  Enable/disable software flow control
+    */
+    virtual void controlXonXoff(bool XonXoff) = 0;
 
     /**
       Get/set the baud rate for this port.
@@ -212,10 +281,7 @@ class SerialPort
 
       @return  True if timer has run out, false if timer still has time left
     */
-    bool timeoutCheck()
-    {
-      return mySerialTimeoutCount == 0;
-    }
+    virtual bool timeoutCheck() = 0;
 
     /**
       Performs a timer tick.  In this simple case all we do is count down

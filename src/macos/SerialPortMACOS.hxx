@@ -91,6 +91,13 @@ class SerialPortMACOS : public SerialPort
     void setTimeout(uInt32 timeout_milliseconds) override;
 
     /**
+      Check to see if the serial timeout timer has run down.
+
+      @return  True if timer has run out, false if timer still has time left
+    */
+    bool timeoutCheck() override;
+
+    /**
       Empty the serial port buffers.  Cleans things to a known state.
     */
     void clearBuffers() override;
@@ -103,6 +110,13 @@ class SerialPortMACOS : public SerialPort
       @param RTS  The state to set the RTS line to
     */
     void controlModemLines(bool DTR, bool RTS) override;
+
+    /**
+      Set software flow control state.
+
+      @param XonXoff  Enable/disable software flow control
+    */
+    void controlXonXoff(bool XonXoff) override;
 
     /**
       Sleep the specified amount of time (in milliseconds).

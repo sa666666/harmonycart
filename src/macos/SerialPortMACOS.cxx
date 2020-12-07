@@ -146,6 +146,12 @@ void SerialPortMACOS::setTimeout(uInt32 timeout_milliseconds)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+bool SerialPortMACOS::timeoutCheck()
+{
+  return mySerialTimeoutCount == 0;
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void SerialPortMACOS::clearBuffers()
 {
   // Variables to store the current tty state, create a new one
@@ -187,6 +193,25 @@ void SerialPortMACOS::controlModemLines(bool DTR, bool RTS)
     cerr << "ioctl set failed, status = " << status << endl;
   if (ioctl(myHandle, TIOCMGET, &status) != 0)
     cerr << "ioctl get failed, status = " << status << endl;
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+void SerialPortMACOS::controlXonXoff(bool XonXoff)
+{
+  tcgetattr(myHandle, &myNewtio);
+
+  if(XonXoff)
+  {
+    myNewtio.c_iflag |= IXON;
+    myNewtio.c_iflag |= IXOFF;
+  }
+  else
+  {
+    myNewtio.c_iflag &= ~IXON;
+    myNewtio.c_iflag &= ~IXOFF;
+  }
+
+  tcsetattr(myHandle, TCSANOW, &myNewtio);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

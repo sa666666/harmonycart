@@ -152,6 +152,15 @@ class Cart
     */
     uInt8 lpc_GetAndReportErrorNumber(const char* Answer);
 
+    /**
+      Deal with commands that are variously terminated with either <CR><LF>
+      or only <LF>.
+
+      @param In   Pointer to input buffer
+      @param Out  Pointer to output buffer
+    */
+    void lpc_FormatCommand(const char* In, char* Out);
+
   private:
     uInt32   myDetectedDevice{0};
     uInt32   myRetry{1};
@@ -277,7 +286,7 @@ class Cart
     // Used for LPC8xx devices
     static const uInt32 SectorTable_8xx[16];
     static uInt32 SectorTable_RAM[1];
-    static LPC_DEVICE_TYPE LPCtypes[190];
+    static LPC_DEVICE_TYPE LPCtypes[133];
 
     // Supercharger/Arcadia ROM header
     static uInt8 ourARHeader[256];
