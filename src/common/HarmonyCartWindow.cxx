@@ -125,6 +125,8 @@ void HarmonyCartWindow::setupConnections()
       [=](bool checked){ showLog(checked); });
   connect(ui->actF4CompressionNoBank0, &QAction::toggled, this,
       [=](bool checked){ myCart.skipF4CompressionOnBank0(checked); });
+  connect(ui->actionAddDelayAfterWrites, &QAction::toggled, this,
+      [=](bool checked){ myManager.port().addDelayAfterWrite(checked); });
 
   // Help menu
   connect(ui->actAbout, SIGNAL(triggered()), this, SLOT(slotAbout()));
@@ -201,16 +203,18 @@ void HarmonyCartWindow::readSettings()
       case 20:  ui->actRetry20->setChecked(true); break;
       default: ui->actRetry1->setChecked(true);   break;
     }
-    ui->actShowLogAfterDownload->setChecked(s.value("showlog", false).toBool());
-    ui->actF4CompressionNoBank0->setChecked(s.value("f4compressbank0skip", false).toBool());
     ui->actAutoDownFileSelect->setChecked(s.value("autodownload", false).toBool());
     ui->actAutoVerifyDownload->setChecked(s.value("autoverify", false).toBool());
+    ui->actShowLogAfterDownload->setChecked(s.value("showlog", false).toBool());
+    ui->actF4CompressionNoBank0->setChecked(s.value("f4compressbank0skip", false).toBool());
+    ui->actionAddDelayAfterWrites->setChecked(s.value("delayafterwrites", false).toBool());
     int activetab = s.value("activetab", 0).toInt();
     if(activetab < 0 || activetab > 1)  activetab = 0;
     ui->tabWidget->setCurrentIndex(activetab);
   s.endGroup();
 
   showLog(ui->actShowLogAfterDownload->isChecked());
+  myManager.port().addDelayAfterWrite(ui->actionAddDelayAfterWrites->isChecked());
   myCart.setConnectionAttempts(connections);
   myCart.setRetry(retrycount);
 
@@ -291,6 +295,7 @@ void HarmonyCartWindow::closeEvent(QCloseEvent* event)
     s.setValue("autoverify", ui->actAutoVerifyDownload->isChecked());
     s.setValue("showlog", ui->actShowLogAfterDownload->isChecked());
     s.setValue("f4compressbank0skip", ui->actF4CompressionNoBank0->isChecked());
+    s.setValue("delayafterwrites", ui->actionAddDelayAfterWrites->isChecked());
     s.setValue("activetab", ui->tabWidget->currentIndex());
   s.endGroup();
 

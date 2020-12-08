@@ -79,6 +79,13 @@ class SerialPort
     virtual const StringList& getPortNames() = 0;
 
     /**
+      Add a 100 ms delay after each block (makes lpc21isp to work with bad UARTs).
+
+      @param delay  Whether to add a delay or not
+    */
+    void addDelayAfterWrite(bool delay) { myAddDelayAfterWrite = delay; }
+
+    /**
       Utility function to write a string to the serial port, automatically
       determining the size of the block.
 
@@ -87,10 +94,12 @@ class SerialPort
     */
     size_t send(const void* data, size_t size = 0)
     {
-      return sendBlock(data, size == 0 ? strlen(static_cast<const char*>(data)) : size);
+      size_t result = sendBlock(data, size == 0 ? strlen(static_cast<const char*>(data)) : size);
+      if(myAddDelayAfterWrite)
+        sleepMillis(100);
+      return result;
     }
 
-#if 1  // Unused code
     /**
       Receives a fixed block from the open com port. Returns when the
       block is completely filled or the timeout period has passed.
@@ -114,7 +123,6 @@ class SerialPort
 
       return realsize;
     }
-#endif
 
     /**
       Receives a buffer from the open com port. Returns when the buffer is
@@ -158,7 +166,7 @@ class SerialPort
         if(residual_data[0] == '\0')
         {
           /* Receive new data */
-          tmp_realsize = receiveBlock(Answer + RealSize, MaxSize - 1 - RealSize);
+          tmp_realsize = receiveBlock(Answer + RealSize, MaxSize - RealSize);
         }
         else
         {
@@ -298,6 +306,7 @@ class SerialPort
   protected:
     uInt32 myBaud{9600};
     uInt32 mySerialTimeoutCount{0};
+    bool myAddDelayAfterWrite{false};
     bool myControlLinesSwapped{false};
     string myID;
     StringList myPortNames;

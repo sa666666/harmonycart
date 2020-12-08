@@ -1226,6 +1226,7 @@ Double-click to store a different ROM.</string>
     <addaction name="actAutoVerifyDownload"/>
     <addaction name="actShowLogAfterDownload"/>
     <addaction name="actF4CompressionNoBank0"/>
+    <addaction name="actionAddDelayAfterWrites"/>
     <addaction name="menuConnectAttempts"/>
     <addaction name="menuRetryCount"/>
    </widget>
@@ -1425,6 +1426,14 @@ Double-click to store a different ROM.</string>
    </property>
    <property name="text">
     <string>100</string>
+   </property>
+  </action>
+  <action name="actionAddDelayAfterWrites">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Add delay after writes (bad UARTs)</string>
    </property>
   </action>
  </widget>
