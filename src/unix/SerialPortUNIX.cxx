@@ -145,6 +145,31 @@ size_t SerialPortUNIX::receiveBlock(void* answer, size_t max_size)
       timeoutTick();
   }
   return result;
+#if 0
+// FIXME: from lpc21isp 1.93 (not sure if this will be used yet)
+// This replaces the read call above
+    {
+        fd_set
+            readSet;
+        struct timeval
+            timeVal;
+
+        FD_ZERO(&readSet);                             // clear the set
+        FD_SET(IspEnvironment->fdCom,&readSet);        // add this descriptor to the set
+        timeVal.tv_sec=0;                              // set up the timeout waiting for one to come ready (500ms)
+        timeVal.tv_usec=500*1000;
+        if(select(FD_SETSIZE,&readSet,NULL,NULL,&timeVal)==1)    // wait up to 500 ms or until our data is ready
+        {
+            *real_size=read(IspEnvironment->fdCom, answer, max_size);
+        }
+        else
+        {
+            // timed out, show no characters received and timer expired
+            *real_size=0;
+            IspEnvironment->serial_timeout_count=0;
+        }
+    }
+#endif
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

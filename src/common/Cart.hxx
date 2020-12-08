@@ -67,7 +67,10 @@ class Cart
                        bool verify, bool showprogress = true);
 
     /** Set number of write retries before bailing out. */
-    void setRetry(int retry) { myRetry = retry + 1; }
+    void setConnectionAttempts(uInt32 attempt) { myConnectionAttempts = attempt; }
+
+    /** Set number of write retries before bailing out. */
+    void setRetry(uInt32 retry) { myRetry = retry; }
 
     /**
       On F4 (32K) bankswitching, when the first bank is compressed, the
@@ -163,7 +166,8 @@ class Cart
 
   private:
     uInt32   myDetectedDevice{0};
-    uInt32   myRetry{1};
+    uInt32   myConnectionAttempts{0};
+    uInt32   myRetry{0};
     string   myOscillator{"10000"};
     ostream* myLog{&cout};
     uInt32   myF4FirstCompressionBank{0};
@@ -286,7 +290,7 @@ class Cart
     // Used for LPC8xx devices
     static const uInt32 SectorTable_8xx[16];
     static uInt32 SectorTable_RAM[1];
-    static LPC_DEVICE_TYPE LPCtypes[133];
+    static LPC_DEVICE_TYPE LPCtypes[136];
 
     // Supercharger/Arcadia ROM header
     static uInt8 ourARHeader[256];

@@ -50,6 +50,7 @@ Q_OBJECT
     virtual ~HarmonyCartWindow() override;
 
   public:
+    Cart& cart() { return myCart; }
     SerialPortManager& portManager() { return myManager; }
     void connectHarmonyCart() { slotConnectHarmonyCart(); }
     string armPath() { return ui->armpathFileEdit->text().toStdString(); }
@@ -79,6 +80,7 @@ Q_OBJECT
     void slotCopyHBIOS();
 
     void slotOpenROM();
+    void slotConnectAttempt(QAction* action);
     void slotRetry(QAction* action);
     void slotAbout();
     void slotShowDefaultMsg();

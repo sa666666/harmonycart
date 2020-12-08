@@ -75,7 +75,8 @@ void runCommandlineApp(HarmonyCartWindow& win, int ac, char* av[])
       datafile = av[i];
   }
 
-  Cart cart;
+  Cart& cart = win.cart();
+  cart.setLogger(&cout);
   SerialPortManager& manager = win.portManager();
 
   manager.connectHarmonyCart(cart);

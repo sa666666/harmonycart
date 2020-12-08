@@ -1202,17 +1202,31 @@ Double-click to store a different ROM.</string>
       <enum>Qt::ActionsContextMenu</enum>
      </property>
      <property name="title">
-      <string>Retry Count</string>
+      <string>Number of retries on write failure</string>
      </property>
-     <addaction name="actRetry0"/>
      <addaction name="actRetry1"/>
-     <addaction name="actRetry2"/>
-     <addaction name="actRetry3"/>
+     <addaction name="actRetry5"/>
+     <addaction name="actRetry20"/>
+    </widget>
+    <widget class="QMenu" name="menuConnectAttempts">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="contextMenuPolicy">
+      <enum>Qt::ActionsContextMenu</enum>
+     </property>
+     <property name="title">
+      <string>Number of connection attempts</string>
+     </property>
+     <addaction name="actionConnect5"/>
+     <addaction name="actionConnect20"/>
+     <addaction name="actionConnect100"/>
     </widget>
     <addaction name="actAutoDownFileSelect"/>
     <addaction name="actAutoVerifyDownload"/>
     <addaction name="actShowLogAfterDownload"/>
     <addaction name="actF4CompressionNoBank0"/>
+    <addaction name="menuConnectAttempts"/>
     <addaction name="menuRetryCount"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
@@ -1299,22 +1313,11 @@ Double-click to store a different ROM.</string>
     <string>Incremental Download</string>
    </property>
   </action>
-  <action name="actRetry0">
+  <action name="actRetry1">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>0</string>
-   </property>
-   <property name="iconVisibleInMenu">
-    <bool>false</bool>
-   </property>
-  </action>
-  <action name="actRetry1">
-   <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="text">
@@ -1324,12 +1327,23 @@ Double-click to store a different ROM.</string>
     <bool>false</bool>
    </property>
   </action>
-  <action name="actRetry2">
+  <action name="actRetry5">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>2</string>
+    <string>5</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="actRetry20">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>20</string>
    </property>
    <property name="iconVisibleInMenu">
     <bool>false</bool>
@@ -1384,6 +1398,33 @@ Double-click to store a different ROM.</string>
    </property>
    <property name="text">
     <string>Skip bank 0 compression on F4</string>
+   </property>
+  </action>
+  <action name="actionConnect5">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>5</string>
+   </property>
+  </action>
+  <action name="actionConnect20">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>20</string>
+   </property>
+  </action>
+  <action name="actionConnect100">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>100</string>
    </property>
   </action>
  </widget>

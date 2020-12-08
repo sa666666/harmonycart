@@ -606,8 +606,7 @@ string Cart::lpc_NxpChipVersion(SerialPort& port)
 
   static char version[1024] = { 0 };
 
-  /* SA_CHANGED: '100' to '3' to shorten autodetection */
-  for (int nQuestionMarks = found = 0; !found && nQuestionMarks < 3; nQuestionMarks++)
+  for (uInt32 nQuestionMarks = found = 0; !found && nQuestionMarks < myConnectionAttempts; nQuestionMarks++)
   {
     port.send("?");
 
@@ -720,7 +719,8 @@ string Cart::lpc_NxpChipVersion(SerialPort& port)
     *endPtr = '\0'; /* delete \r\n */
 
     /* now search the table again */
-    for (i = sizeof LPCtypes / sizeof LPCtypes[0] - 1; i > 0 && LPCtypes[i].id != Id[0] && LPCtypes[i].id2 != Id[1]; i--)
+    for (i = sizeof LPCtypes / sizeof LPCtypes[0] - 1; i > 0 &&
+        (LPCtypes[i].id != Id[0] || LPCtypes[i].id2 != Id[1]); i--)
       /* nothing */;
     myDetectedDevice = i;
   }
@@ -743,7 +743,7 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
 {
   char Answer[128], ExpectedAnswer[128], temp[128];
   char *strippedAnswer, *endPtr;
-  int strippedsize, nQuestionMarks;
+  int strippedsize;
   int found;
   uInt32 Sector;
   uInt32 SectorLength;
@@ -795,8 +795,7 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
 
   *myLog << "Synchronizing";
 
-  /* SA_CHANGED: '100' to '3' to shorten autodetection */
-  for (nQuestionMarks = found = 0; !found && nQuestionMarks < 3; nQuestionMarks++)
+  for (uInt32 nQuestionMarks = found = 0; !found && nQuestionMarks < myConnectionAttempts; nQuestionMarks++)
   {
     *myLog << ".";
     port.send("?");
@@ -925,7 +924,8 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
     *endPtr = '\0'; /* delete \r\n */
 
     /* now search the table again */
-    for (i = sizeof LPCtypes / sizeof LPCtypes[0] - 1; i > 0 && LPCtypes[i].id != Id[0] && LPCtypes[i].id2 != Id[1]; i--)
+    for (i = sizeof LPCtypes / sizeof LPCtypes[0] - 1; i > 0 &&
+        (LPCtypes[i].id != Id[0] || LPCtypes[i].id2 != Id[1]); i--)
       /* nothing */;
     myDetectedDevice = i;
   }
@@ -1153,6 +1153,21 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
 
     for (SectorOffset = 0; SectorOffset < SectorLength; SectorOffset += SectorChunk)
     {
+      // Check if we are to write only 0xFFs - it would be just a waste of time..
+      if (SectorOffset == 0)
+      {
+        for (SectorOffset = 0; SectorOffset < SectorLength; ++SectorOffset)
+          if (binaryContent[SectorStart + SectorOffset] != 0xFF)
+            break;
+
+        if (SectorOffset == SectorLength) // all data contents were 0xFFs
+        {
+          *myLog << "Whole sector contents is 0xFFs, skipping programming." << std::flush;
+          break;
+        }
+        SectorOffset = 0; // re-set otherwise
+      }
+
       if (SectorOffset > 0)
         *myLog << "|" << std::flush;
 
@@ -1799,11 +1814,11 @@ Cart::LPC_DEVICE_TYPE Cart::LPCtypes[] = {
    { 0xF00B1B3F, 0x00000000, 1, "1810",           0,  32,  0, 8192, SectorTable_18xx, CHIP_VARIANT_LPC18XX }, // Flashless
    { 0xF00A9B3C, 0x00000000, 1, "1820",           0,  32,  0, 8192, SectorTable_18xx, CHIP_VARIANT_LPC18XX }, // Flashless
    { 0xF0009A30, 0x00000000, 1, "1830",           0,  32,  0, 8192, SectorTable_18xx, CHIP_VARIANT_LPC18XX }, // Flashless
-   { 0xF001DA30, 0x00000044, 1, "1833",         256,  32, 11, 8192, SectorTable_18xx, CHIP_VARIANT_LPC18XX },
-   { 0xF001DA30, 0x00000000, 1, "1837",         512,  32, 11, 8192, SectorTable_18xx, CHIP_VARIANT_LPC18XX },
+   { 0xF001DA30, 0x00000044, 1, "1833",         512,  32, 11, 8192, SectorTable_18xx, CHIP_VARIANT_LPC18XX },
+   { 0xF001DA30, 0x00000000, 1, "1837",        1024,  32, 15, 8192, SectorTable_18xx, CHIP_VARIANT_LPC18XX },
    { 0xF0009830, 0x00000000, 1, "1850",           0,  32,  0, 8192, SectorTable_18xx, CHIP_VARIANT_LPC18XX }, // Flashless
-   { 0xF001D830, 0x00000044, 1, "1853",         256,  32, 11, 8192, SectorTable_18xx, CHIP_VARIANT_LPC18XX }, // TODO - distinguish these parts (word 1)
-   { 0xF001D830, 0x00000000, 1, "1857",         512,  32, 11, 8192, SectorTable_18xx, CHIP_VARIANT_LPC18XX }, // TODO - distinguish these parts (word 1)
+   { 0xF001D830, 0x00000044, 1, "1853",         512,  32, 11, 8192, SectorTable_18xx, CHIP_VARIANT_LPC18XX }, // TODO - distinguish these parts (word 1)
+   { 0xF001D830, 0x00000000, 1, "1857",        1024,  32, 15, 8192, SectorTable_18xx, CHIP_VARIANT_LPC18XX }, // TODO - distinguish these parts (word 1)
 
    { 0x0004FF11, 0x00000000, 0, "2103",          32,   8,  8, 4096, SectorTable_2103, CHIP_VARIANT_LPC2XXX },
    { 0xFFF0FF12, 0x00000000, 0, "2104",         128,  16, 15, 8192, SectorTable_210x, CHIP_VARIANT_LPC2XXX },
@@ -1854,12 +1869,15 @@ Cart::LPC_DEVICE_TYPE Cart::LPCtypes[] = {
    { 0x1701FF30, 0x00000000, 0, "2470",           0,  98,  0, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
    { 0x1701FF35, 0x00000000, 0, "2478",         512,  98, 28, 4096, SectorTable_213x, CHIP_VARIANT_LPC2XXX },
 
-   { 0xA00A8B3F, 0x00000000, 0, "4310",           0, 168, 18, 4096, SectorTable_43xx, CHIP_VARIANT_LPC43XX }, /* From UM10503 Rev. 1.4 -- 3 Sep 2012 */
-   { 0xA0008B3C, 0x00000000, 0, "4320",           0, 200, 18, 4096, SectorTable_43xx, CHIP_VARIANT_LPC43XX }, /* From UM10503 Rev. 1.4 -- 3 Sep 2012 */
-   { 0xA0000A30, 0x00000000, 0, "4330",           0, 264, 18, 4096, SectorTable_43xx, CHIP_VARIANT_LPC43XX }, /* From UM10503 Rev. 1.4 -- 3 Sep 2012 */
-   { 0xA0000830, 0x00000000, 0, "4350",           0, 264, 18, 4096, SectorTable_43xx, CHIP_VARIANT_LPC43XX }, /* From UM10503 Rev. 1.4 -- 3 Sep 2012 */
-   { 0xA001C830, 0x00000000, 0, "4353",        1024, 512, 30, 4096, SectorTable_43xx, CHIP_VARIANT_LPC43XX }, /* From UM10503 Rev. 1.4 -- 3 Sep 2012 */
-   { 0xA001C830, 0x00000000, 0, "4357",        1024, 512, 30, 4096, SectorTable_43xx, CHIP_VARIANT_LPC43XX }  /* From UM10503 Rev. 1.4 -- 3 Sep 2012 */
+   { 0xA00A8B3F, 0x00000000, 1, "4310",           0, 168,  0, 4096, SectorTable_43xx, CHIP_VARIANT_LPC43XX }, /* From UM10503 Rev. 1.4 -- 3 Sep 2012 */
+   { 0xA0008B3C, 0x00000000, 1, "4320",           0, 200,  0, 4096, SectorTable_43xx, CHIP_VARIANT_LPC43XX }, /* From UM10503 Rev. 1.4 -- 3 Sep 2012 */
+   { 0xA0000A30, 0x00000000, 1, "4330",           0, 264,  0, 4096, SectorTable_43xx, CHIP_VARIANT_LPC43XX }, /* From UM10503 Rev. 1.4 -- 3 Sep 2012 */
+   { 0xA001CA30, 0x00000044, 1, "4333",         512, 512, 11, 4096, SectorTable_43xx, CHIP_VARIANT_LPC43XX }, /* info not yet available */
+   { 0xA001CA30, 0x00000000, 1, "4337",        1024, 512, 15, 4096, SectorTable_43xx, CHIP_VARIANT_LPC43XX }, /* info not yet available */
+   { 0xA0000830, 0x00000000, 1, "4350",           0, 264,  0, 4096, SectorTable_43xx, CHIP_VARIANT_LPC43XX }, /* From UM10503 Rev. 1.4 -- 3 Sep 2012 */
+   { 0xA001C830, 0x00000044, 1, "4353",         512, 512, 11, 4096, SectorTable_43xx, CHIP_VARIANT_LPC43XX }, /* From UM10503 Rev. 1.4 -- 3 Sep 2012 */
+   { 0xA001C830, 0x00000000, 1, "4357",        1024, 512, 15, 4096, SectorTable_43xx, CHIP_VARIANT_LPC43XX }, /* From UM10503 Rev. 1.4 -- 3 Sep 2012 */
+   { 0xA001C830, 0x0EF60000, 1, "4357",        1024, 512, 15, 4096, SectorTable_43xx, CHIP_VARIANT_LPC43XX }  /* info not yet available */
 };
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -107,13 +107,19 @@ void HarmonyCartWindow::setupConnections()
   connect(ui->actConnectHarmonyCart, SIGNAL(triggered()), this, SLOT(slotConnectHarmonyCart()));
 
   // Options menu
-  QActionGroup* group = new QActionGroup(this);
-  group->setExclusive(true);
-  group->addAction(ui->actRetry0);
-  group->addAction(ui->actRetry1);
-  group->addAction(ui->actRetry2);
-  group->addAction(ui->actRetry3);
-  connect(group, SIGNAL(triggered(QAction*)), this, SLOT(slotRetry(QAction*)));
+  QActionGroup* group1 = new QActionGroup(this);
+  group1->setExclusive(true);
+  group1->addAction(ui->actionConnect5);
+  group1->addAction(ui->actionConnect20);
+  group1->addAction(ui->actionConnect100);
+  connect(group1, SIGNAL(triggered(QAction*)), this, SLOT(slotConnectAttempt(QAction*)));
+
+  QActionGroup* group2 = new QActionGroup(this);
+  group2->setExclusive(true);
+  group2->addAction(ui->actRetry1);
+  group2->addAction(ui->actRetry5);
+  group2->addAction(ui->actRetry20);
+  connect(group2, SIGNAL(triggered(QAction*)), this, SLOT(slotRetry(QAction*)));
 
   connect(ui->actShowLogAfterDownload, &QAction::toggled, this,
       [=](bool checked){ showLog(checked); });
@@ -179,14 +185,21 @@ void HarmonyCartWindow::readSettings()
 
   s.beginGroup("MainWindow");
     myManager.setDefaultPort(s.value("harmonyport", "").toString().toStdString());
-    int retrycount = s.value("retrycount", 0).toInt();
+    int connections = s.value("connectionattempts", 5).toInt();
+    switch(connections)
+    {
+      case   5: ui->actionConnect5->setChecked(true);   break;
+      case  20: ui->actionConnect20->setChecked(true);  break;
+      case 100: ui->actionConnect100->setChecked(true); break;
+      default : ui->actionConnect5->setChecked(true);   break;
+    }
+    int retrycount = s.value("retrycount", 1).toInt();
     switch(retrycount)
     {
-      case 1:  ui->actRetry1->setChecked(true);  break;
-      case 2:  ui->actRetry2->setChecked(true);  break;
-      case 3:  ui->actRetry3->setChecked(true);  break;
-      case 0:
-      default: ui->actRetry0->setChecked(true);  break;
+      case  1:  ui->actRetry1->setChecked(true);  break;
+      case  5:  ui->actRetry5->setChecked(true);  break;
+      case 20:  ui->actRetry20->setChecked(true); break;
+      default: ui->actRetry1->setChecked(true);   break;
     }
     ui->actShowLogAfterDownload->setChecked(s.value("showlog", false).toBool());
     ui->actF4CompressionNoBank0->setChecked(s.value("f4compressbank0skip", false).toBool());
@@ -198,6 +211,7 @@ void HarmonyCartWindow::readSettings()
   s.endGroup();
 
   showLog(ui->actShowLogAfterDownload->isChecked());
+  myCart.setConnectionAttempts(connections);
   myCart.setRetry(retrycount);
 
   s.beginGroup("QPButtons");
@@ -263,11 +277,15 @@ void HarmonyCartWindow::closeEvent(QCloseEvent* event)
 
   s.beginGroup("MainWindow");
     s.setValue("harmonyport", QString(myManager.portName().c_str()));
-    int retrycount = 0;
-    if(ui->actRetry0->isChecked())       retrycount = 0;
-    else if(ui->actRetry1->isChecked())  retrycount = 1;
-    else if(ui->actRetry2->isChecked())  retrycount = 2;
-    else if(ui->actRetry3->isChecked())  retrycount = 3;
+    int connections = 5;
+    if(ui->actionConnect5->isChecked())         connections = 5;
+    else if(ui->actionConnect20->isChecked())   connections = 20;
+    else if(ui->actionConnect100->isChecked())  connections = 100;
+    s.setValue("connectionattempts", connections);
+    int retrycount = 1;
+    if(ui->actRetry1->isChecked())       retrycount = 1;
+    else if(ui->actRetry5->isChecked())  retrycount = 5;
+    else if(ui->actRetry20->isChecked()) retrycount = 20;
     s.setValue("retrycount", retrycount);
     s.setValue("autodownload", ui->actAutoDownFileSelect->isChecked());
     s.setValue("autoverify", ui->actAutoVerifyDownload->isChecked());
@@ -475,12 +493,21 @@ void HarmonyCartWindow::slotCopyHBIOS()
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+void HarmonyCartWindow::slotConnectAttempt(QAction* action)
+{
+  if(action == ui->actionConnect5)        myCart.setConnectionAttempts(5);
+  else if(action == ui->actionConnect20)  myCart.setConnectionAttempts(20);
+  else if(action == ui->actionConnect100) myCart.setConnectionAttempts(100);
+  else                                    myCart.setConnectionAttempts(5);
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void HarmonyCartWindow::slotRetry(QAction* action)
 {
-  if(action == ui->actRetry0)       myCart.setRetry(0);
-  else if(action == ui->actRetry1)  myCart.setRetry(1);
-  else if(action == ui->actRetry2)  myCart.setRetry(2);
-  else if(action == ui->actRetry3)  myCart.setRetry(3);
+  if(action == ui->actRetry1)       myCart.setRetry(1);
+  else if(action == ui->actRetry5)  myCart.setRetry(5);
+  else if(action == ui->actRetry20) myCart.setRetry(20);
+  else                              myCart.setRetry(1);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
