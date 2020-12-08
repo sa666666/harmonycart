@@ -46,6 +46,7 @@ HarmonyCartWindow::HarmonyCartWindow(QWidget* parent)
 {
   // Create GUI
   ui->setupUi(this);
+  setWindowTitle("Harmony Programming Tool " + QString(HARMONY_VERSION));
 
   // Fix BIOS and HBIOS buttons; make sure they're the same size
   int w = std::max(ui->updateBIOSButton->width(), ui->copyHBIOSButton->width());
@@ -531,8 +532,9 @@ void HarmonyCartWindow::slotAbout()
         << "<li><a href=\"http://stella-emu.github.io\">Stella</a>: bankswitch autodetection code and various other classes</li>"
         << "</ul></p>"
 
-        << "<p>Version 1.4 (Jun. 14, 2020):</p>"
+        << "<p>Version 2.0 (Dec. xx, 2020):</p>"
         << "<ul>"
+        << "<li>Updated lpc21isp code to version 1.97 (last released version since 2015).</li>"
         << "<li>Completely reworked serial port autodetection for Mac and Windows ports.</li>"
         << "<li>Changed from using 'right-click' to 'double-click' to select ROMs in "
            "the 'QuickPick' list.  This fixes bugs in all ports, but particularly "
@@ -541,9 +543,11 @@ void HarmonyCartWindow::slotAbout()
            "the app, and would have to be manually closed.</li>"
         << "<li>Added option to skip bank 0 when compressing F4 images.  This is needed "
            "for some roms (Triptych).</li>"
+        << "<li>Added option to delay after each write, to help with bad UARTs.</li>"
+        << "<li>Added option to specify the number of connection attempts.</li>"
         << "<li>Included NTSC HBIOS 1.06.</li>"
-        << "<li>Updated bankswitch autodetection code to latest from Stella 6.2.</li>"
-        << "<li>Codebase ported to (and now requires) Qt 5.14.</li>"
+        << "<li>Updated bankswitch autodetection code to latest from Stella 6.4.</li>"
+        << "<li>Codebase ported to (and now requires) Qt 5.15.</li>"
         << "</ul>"
         << "<p>Version 1.3 (Aug. 13, 2013):</p>"
         << "<ul>"

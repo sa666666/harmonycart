@@ -10,7 +10,10 @@
                              Release History
 ===========================================================================
 
-1.4: (Jun. 14, 2020)
+2.0: (Dec. xx, 2020)
+
+  * Updated lpc21isp code to version 1.97 (last released version
+    since 2015).
 
   * Completely reworked serial port autodetection for Mac and Windows
     ports.
@@ -19,17 +22,21 @@
     the 'QuickPick' list.  This fixes bugs in all ports, but particularly
     in MacOS, where the UI would sometimes become unresponsive.
 
-  * Fixed annoying bug where a dialog box would appear when first starting
-    the app, and would have to be manually closed.
+  * Fixed annoying bug where a dialog box would appear when first
+    starting the app, and would have to be manually closed.
 
   * Added option to skip bank 0 when compressing F4 images.  This is needed
     for some roms (Triptych).
 
+  * Added option to delay after each write, to help with bad UARTs.
+
+  * Added option to specify the number of connection attempts.
+
   * Included NTSC HBIOS 1.06.
 
-  * Updated bankswitch autodetection code to latest from Stella 6.2.
+  * Updated bankswitch autodetection code to latest from Stella 6.4.
 
-  * Codebase ported to (and now requires) Qt 5.14.
+  * Codebase ported to (and now requires) Qt 5.15.
 
 -Have fun!
 

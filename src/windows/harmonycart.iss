@@ -3,14 +3,14 @@
 
 [Setup]
 AppName=HarmonyCart
-AppVerName=HarmonyCart 1.4
+AppVerName=HarmonyCart 2.0
 AppPublisher=Stephen Anthony
 AppPublisherURL=https://github.com/sa666666/harmonycart
 AppSupportURL=https://github.com/sa666666/harmonycart
 AppUpdatesURL=https://github.com/sa666666/harmonycart
 DefaultDirName={pf}\HarmonyCart
 DefaultGroupName=HarmonyCart
-OutputBaseFilename="HarmonyCart-1.4-x64"
+OutputBaseFilename="HarmonyCart-2.0-x64"
 Compression=lzma
 SolidCompression=yes
 UninstallDisplayIcon={app}\HarmonyCart.exe

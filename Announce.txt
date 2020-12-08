@@ -7,7 +7,7 @@
   H   H  A   A  R  R   M   M   OOO   N   N    Y
 
 ===========================================================================
-                 Release 1.4 for Linux, macOS and Windows
+                 Release 2.0 for Linux, macOS and Windows
 ===========================================================================
 
 The Harmony cartridge is a programmable add-on for the Atari 2600 console
@@ -24,20 +24,20 @@ The Harmony Programming Tool is a cross-platform application used to
 program the Harmony Cartridge.  Both GUI and commandline usage is
 supported.
 
-This is the 1.4 release of HarmonyCart for Linux, macOS and Windows.
+This is the 2.0 release of HarmonyCart for Linux, macOS and Windows.
 The distributions currently available are:
 
-  * Binary installer for 64-bit Windows Vista/7/8/10:
-      HarmonyCart-1.4-x64.exe
+  * Binary installer for 64-bit Windows 7/8/10:
+      HarmonyCart-2.0-x64.exe
 
   * Binary distribution for macOS 10.7 and above:
-      HarmonyCart-1.4-macos.dmg
+      HarmonyCart-2.0-macos.dmg
 
   * Binary distribution in 64-bit Ubuntu DEB format:
-      harmonycart_1.4-1_amd64.deb
+      harmonycart_2.0-1_amd64.deb
 
   * Source code distribution for all platforms:
-      harmonycart-1.4-src.tar.xz
+      harmonycart-2.0-src.tar.xz
 
 
 Distribution Site
