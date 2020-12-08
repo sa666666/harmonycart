@@ -290,7 +290,7 @@ class Cart
     // Used for LPC8xx devices
     static const uInt32 SectorTable_8xx[16];
     static uInt32 SectorTable_RAM[1];
-    static LPC_DEVICE_TYPE LPCtypes[136];
+    static LPC_DEVICE_TYPE LPCtypes[178];
 
     // Supercharger/Arcadia ROM header
     static uInt8 ourARHeader[256];
