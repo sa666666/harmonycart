@@ -13,7 +13,7 @@ SOURCES += src/common/main.cxx \
     src/common/SerialPortManager.cxx \
     src/common/AboutDialog.cxx
 HEADERS += src/common/HarmonyCartWindow.hxx \
-    src/common/QClickButton.hxx \
+    src/common/QDoubleClickButton.hxx \
     src/common/bspf.hxx \
     src/common/Bankswitch.hxx \
     src/common/Cart.hxx \

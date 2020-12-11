@@ -28,17 +28,28 @@
 
   @author  Stephen Anthony
 */
-class QClickButton : public QPushButton
+class QDoubleClickButton : public QPushButton
 {
 Q_OBJECT
   public:
-    explicit QClickButton(QWidget* parent = nullptr) : QPushButton(parent) { }
+    explicit QDoubleClickButton(QWidget* parent = nullptr) : QPushButton(parent) { }
+
+    /**
+      Determines which button to detect double-click events for.
+      By default we detect the left button.
+    */
+    void setButtonToDetect(Qt::MouseButton b) { myButtonToDetect = b; }
 
   signals:
-    void doubleClicked(QClickButton*);
+    void doubleClicked(QDoubleClickButton*);
 
   protected:
-    void mouseDoubleClickEvent(QMouseEvent*) override { emit doubleClicked(this); }
+    void mouseDoubleClickEvent(QMouseEvent* event) override {
+      if(event->button() & myButtonToDetect) emit doubleClicked(this);
+    }
+
+  private:
+    Qt::MouseButton myButtonToDetect{Qt::LeftButton};
 };
 
-#endif // Q_LR_PUSHBUTTON_HXX
+#endif // Q_DOUBLECLICKBUTTON_HXX

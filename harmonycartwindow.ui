@@ -882,7 +882,7 @@ image to the Harmony Cart.</string>
               <enum>QLayout::SetDefaultConstraint</enum>
              </property>
              <item row="0" column="0">
-              <widget class="QClickButton" name="qp1Button">
+              <widget class="QDoubleClickButton" name="qp1Button">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -905,7 +905,7 @@ Double-click to store a different ROM.</string>
               </widget>
              </item>
              <item row="0" column="1">
-              <widget class="QClickButton" name="qp2Button">
+              <widget class="QDoubleClickButton" name="qp2Button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -922,7 +922,7 @@ Double-click to store a different ROM.</string>
               </widget>
              </item>
              <item row="0" column="2">
-              <widget class="QClickButton" name="qp3Button">
+              <widget class="QDoubleClickButton" name="qp3Button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -939,7 +939,7 @@ Double-click to store a different ROM.</string>
               </widget>
              </item>
              <item row="0" column="3">
-              <widget class="QClickButton" name="qp4Button">
+              <widget class="QDoubleClickButton" name="qp4Button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -956,7 +956,7 @@ Double-click to store a different ROM.</string>
               </widget>
              </item>
              <item row="1" column="0">
-              <widget class="QClickButton" name="qp5Button">
+              <widget class="QDoubleClickButton" name="qp5Button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -973,7 +973,7 @@ Double-click to store a different ROM.</string>
               </widget>
              </item>
              <item row="1" column="1">
-              <widget class="QClickButton" name="qp6Button">
+              <widget class="QDoubleClickButton" name="qp6Button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -990,7 +990,7 @@ Double-click to store a different ROM.</string>
               </widget>
              </item>
              <item row="1" column="2">
-              <widget class="QClickButton" name="qp7Button">
+              <widget class="QDoubleClickButton" name="qp7Button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -1007,7 +1007,7 @@ Double-click to store a different ROM.</string>
               </widget>
              </item>
              <item row="1" column="3">
-              <widget class="QClickButton" name="qp8Button">
+              <widget class="QDoubleClickButton" name="qp8Button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -1024,7 +1024,7 @@ Double-click to store a different ROM.</string>
               </widget>
              </item>
              <item row="2" column="0">
-              <widget class="QClickButton" name="qp9Button">
+              <widget class="QDoubleClickButton" name="qp9Button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -1041,7 +1041,7 @@ Double-click to store a different ROM.</string>
               </widget>
              </item>
              <item row="2" column="1">
-              <widget class="QClickButton" name="qp10Button">
+              <widget class="QDoubleClickButton" name="qp10Button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -1058,7 +1058,7 @@ Double-click to store a different ROM.</string>
               </widget>
              </item>
              <item row="2" column="2">
-              <widget class="QClickButton" name="qp11Button">
+              <widget class="QDoubleClickButton" name="qp11Button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -1075,7 +1075,7 @@ Double-click to store a different ROM.</string>
               </widget>
              </item>
              <item row="2" column="3">
-              <widget class="QClickButton" name="qp12Button">
+              <widget class="QDoubleClickButton" name="qp12Button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -1092,7 +1092,7 @@ Double-click to store a different ROM.</string>
               </widget>
              </item>
              <item row="3" column="0">
-              <widget class="QClickButton" name="qp13Button">
+              <widget class="QDoubleClickButton" name="qp13Button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -1109,7 +1109,7 @@ Double-click to store a different ROM.</string>
               </widget>
              </item>
              <item row="3" column="1">
-              <widget class="QClickButton" name="qp14Button">
+              <widget class="QDoubleClickButton" name="qp14Button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -1126,7 +1126,7 @@ Double-click to store a different ROM.</string>
               </widget>
              </item>
              <item row="3" column="2">
-              <widget class="QClickButton" name="qp15Button">
+              <widget class="QDoubleClickButton" name="qp15Button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -1143,7 +1143,7 @@ Double-click to store a different ROM.</string>
               </widget>
              </item>
              <item row="3" column="3">
-              <widget class="QClickButton" name="qp16Button">
+              <widget class="QDoubleClickButton" name="qp16Button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -1439,9 +1439,9 @@ Double-click to store a different ROM.</string>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QClickButton</class>
+   <class>QDoubleClickButton</class>
    <extends>QPushButton</extends>
-   <header>src/common/QClickButton.hxx</header>
+   <header>src/common/QDoubleClickButton.hxx</header>
   </customwidget>
  </customwidgets>
  <resources>
