@@ -18,8 +18,8 @@
   * Completely reworked serial port autodetection for Mac and Windows
     ports.
 
-  * Changed from using 'right-click' to 'double-click' to select ROMs in
-    the 'QuickPick' list.  This fixes bugs in all ports, but particularly
+  * Changed from using 'right-click' to 'left-double-click' to select ROMs
+    in the 'QuickPick' list.  This fixes bugs in all ports, but particularly
     in MacOS, where the UI would sometimes become unresponsive.
 
   * Fixed annoying bug where a dialog box would appear when first
