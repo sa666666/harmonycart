@@ -1544,19 +1544,16 @@ cleanup:
 int Cart::lpc_SendAndVerify(SerialPort& port, const char* Command,
                             char* AnswerBuffer, int AnswerLength)
 {
-  uInt32 cmdlen;
-
   port.send(Command);
   port.receive(AnswerBuffer, AnswerLength - 1, 2, 5000);
-  cmdlen = static_cast<uInt32>(strlen(Command));
+  size_t cmdlen = strlen(Command);
 
-  unique_ptr<char> FormattedCommand = std::make_unique<char>(cmdlen+1);
-  char* ptr = FormattedCommand.get();
-  lpc_FormatCommand(Command, ptr);
+  char* FormattedCommand = (char*) alloca(cmdlen+1);
+  lpc_FormatCommand(Command, FormattedCommand);
   lpc_FormatCommand(AnswerBuffer, AnswerBuffer);
-  cmdlen = static_cast<uInt32>(strlen(ptr));
-  return (strncmp(AnswerBuffer, ptr, cmdlen) == 0
-        && strcmp(AnswerBuffer + cmdlen, "0\n") == 0);
+  cmdlen = strlen(FormattedCommand);
+  return (strncmp(AnswerBuffer, FormattedCommand, cmdlen) == 0 &&
+          strcmp(AnswerBuffer + cmdlen, "0\n") == 0);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
