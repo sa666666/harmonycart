@@ -148,7 +148,7 @@ Bankswitch::BSList = {{
   { "WDSW"    , "WDSW (Pink Panther, bad)"    },
   { "X07"     , "X07 (64K AtariAge)"          },
 #if defined(CUSTOM_ARM)
-  { "CUSTOM"  ,   "CUSTOM (ARM)"                  }
+  { "CUSTOM"  , "CUSTOM (ARM)"                }
 #endif
 }};
 

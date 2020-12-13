@@ -74,6 +74,16 @@ HarmonyCartWindow::HarmonyCartWindow(QWidget* parent)
   ui->romBSType->setDisabled(true);
   ui->downloadButton->setDisabled(true);  ui->actDownloadROM->setDisabled(true);
 
+  // Fill bankswitch menu with items from Stella BS list
+  ui->romBSType->addItem("Custom (Unknown)", "CUSTOM");
+  for(const auto& entry: Bankswitch::BSList)
+  {
+    if(!BSPF::equalsIgnoreCase(entry.name, "AUTO") &&    // handled manually above
+       !BSPF::equalsIgnoreCase(entry.name, "CUSTOM") &&  // handled manually above
+       !BSPF::equalsIgnoreCase(entry.name, "2K"))        // handled by 4K directly
+      ui->romBSType->addItem(entry.desc, entry.name);
+  }
+
   // Initialize settings
   QCoreApplication::setApplicationName("HarmonyCart");
 #ifdef BSPF_MACOS
@@ -174,8 +184,9 @@ void HarmonyCartWindow::setupConnections()
   connect(myQPGroup, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked),
     [=](QAbstractButton* b){ qpButtonClicked(b, myQPGroup->id(b)); });
 
-  // Other
-//  connect(ui->romBSType, SIGNAL(activated(int)), this, SLOT(slotBSTypeChanged(int)));
+  // Debugging
+//  connect(ui->romBSType, QOverload<int>::of(&QComboBox::currentIndexChanged),
+//    [=](int){ cerr << ui->romBSType->currentData().toString().toStdString() << endl; });
 
   connect(myFindHarmonyThread, SIGNAL(finished()), this, SLOT(slotUpdateFindHarmonyStatus()));
 }
@@ -441,10 +452,8 @@ void HarmonyCartWindow::slotDownloadROM()
 
   if(myManager.openCartPort())
   {
-    QRegExp regex("([a-zA-Z0-9+]*)");
-    regex.indexIn(ui->romBSType->currentText());
-    QString t = regex.cap();
-    Bankswitch::Type type = Bankswitch::nameToType(regex.cap().toStdString());
+    const string& name = ui->romBSType->currentData().toString().toStdString();
+    Bankswitch::Type type = Bankswitch::nameToType(name);
 
     myLog.str("");
     string result = myCart.downloadROM(myManager.port(), armpath.toStdString(),
@@ -724,7 +733,7 @@ void HarmonyCartWindow::loadROM(const QString& filename)
   // Set autodetected bankswitch type
   Bankswitch::Type type = CartDetectorHC::autodetectType(filename.toStdString());
   QString bstype = Bankswitch::typeToName(type).c_str();
-  int match = ui->romBSType->findText(bstype, Qt::MatchStartsWith);
+  int match = ui->romBSType->findData(bstype);
   ui->romBSType->setCurrentIndex(match < ui->romBSType->count() && match >= 0 ? match : 0);
   ui->romBSType->setDisabled(false);
   ui->downloadButton->setDisabled(false);  ui->actDownloadROM->setDisabled(false);
