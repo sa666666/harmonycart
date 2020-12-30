@@ -103,7 +103,8 @@ void runCommandlineApp(HarmonyCartWindow& win, int ac, char* av[])
     if(manager.openCartPort())
     {
       // Download the BIOS, but don't show a graphical progress indicator
-      cart.downloadBIOS(manager.port(), datafile, win.verifyDownload(), false);
+      cart.downloadBIOS(manager.port(), datafile, win.verifyDownload(),
+                        false, win.continueOnErrors());
       manager.closeCartPort();
     }
     else
@@ -122,7 +123,8 @@ void runCommandlineApp(HarmonyCartWindow& win, int ac, char* av[])
     {
       // Download the ROM, but don't show a graphical progress indicator
       cart.downloadROM(manager.port(), win.armPath(), datafile,
-                       bstype, win.verifyDownload(), false);
+                       bstype, win.verifyDownload(),
+                       false, win.continueOnErrors());
       manager.closeCartPort();
     }
     else

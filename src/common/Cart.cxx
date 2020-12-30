@@ -67,18 +67,25 @@ string Cart::autodetectHarmony(SerialPort& port)
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 string Cart::downloadBIOS(SerialPort& port, const string& filename,
-                          bool verify, bool showprogress)
+                          bool verify, bool showprogress, bool continueOnError)
 {
   string result = "";
 
   // Read the file into a buffer
   size_t size = 0;
   ByteBuffer bios = readFile(filename, size);
-  if(size > 0)
-    result = lpc_NxpDownload(port, bios.get(), static_cast<uInt32>(size),
-                             verify, showprogress);
-  else
-    result = "Couldn't open BIOS file";
+  try
+  {
+    if(size > 0)
+      result = lpc_NxpDownload(port, bios.get(), static_cast<uInt32>(size),
+                               verify, showprogress, continueOnError);
+    else
+      result = "Couldn't open BIOS file";
+  }
+  catch(const runtime_error& e)
+  {
+    result = e.what();
+  }
 
   return result;
 }
@@ -86,7 +93,7 @@ string Cart::downloadBIOS(SerialPort& port, const string& filename,
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 string Cart::downloadROM(SerialPort& port, const string& armpath,
                          const string& filename, Bankswitch::Type type,
-                         bool verify, bool showprogress)
+                         bool verify, bool showprogress, bool continueOnError)
 {
   string result = "";
   bool autodetect = type == Bankswitch::Type::_AUTO;
@@ -283,8 +290,8 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
       {
         // Minimum buffer size is 6K + 256 bytes
         ByteBuffer tmp = make_unique<uInt8[]>(6144+256);
-        memcpy(tmp.get(), rombuf.get(), 6144);          // copy ROM
-        memcpy(tmp.get()+6144, ourARHeader, 256); // copy missing header
+        memcpy(tmp.get(), rombuf.get(), 6144);     // copy ROM
+        memcpy(tmp.get()+6144, ourARHeader, 256);  // copy missing header
 
         rombuf = std::move(tmp);
         romsize = 6144 + 256;
@@ -372,7 +379,15 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
     size = romsize + armsize;
   }
 
-  result = lpc_NxpDownload(port, binary, static_cast<uInt32>(size), verify, showprogress);
+  try
+  {
+    result = lpc_NxpDownload(port, binary, static_cast<uInt32>(size),
+                             verify, showprogress, continueOnError);
+  }
+  catch(const runtime_error& e)
+  {
+    result = e.what();
+  }
 
 cleanup:
   return result;
@@ -741,8 +756,21 @@ string Cart::lpc_NxpChipVersion(SerialPort& port)
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
-                             bool verify, bool showprogress)
+                             bool verify, bool showprogress, bool continueOnError)
 {
+  auto handleError = [&](const string& result, bool fatalError = false)
+  {
+    if(!continueOnError || fatalError)
+    {
+      if(showprogress)
+        finalizeProgress();
+
+      throw std::runtime_error(result);
+    }
+    else
+      *myLog << result << endl;
+  };
+
   char Answer[128], ExpectedAnswer[128], temp[128];
   char *strippedAnswer, *endPtr;
   int strippedsize;
@@ -823,10 +851,7 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
   } // end for
 
   if(!found)
-  {
-    result << "ERROR: no answer on '?'";
-    goto cleanup;
-  }
+    handleError("ERROR: no answer on '?'", true);
 
   *myLog << " OK\n";
 
@@ -835,10 +860,7 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
 
   lpc_FormatCommand(Answer, Answer);
   if (strcmp(Answer, "Synchronized\nOK\n") != 0)
-  {
-    result << "ERROR: No answer on 'Synchronized'";
-    goto cleanup;
-  }
+    handleError("ERROR: No answer on 'Synchronized'", true);
 
   sprintf(temp, "%s\r\n", myOscillator.c_str());
   port.send(temp);
@@ -847,16 +869,13 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
   sprintf(temp, "%s\nOK\n", myOscillator.c_str());
   lpc_FormatCommand(Answer, Answer);
   if (strcmp(Answer, temp) != 0)
-  {
-    result << "ERROR: No answer on Oscillator-Command";
-    goto cleanup;
-  }
+    handleError("ERROR: No answer on Oscillator-Command", true);
 
   cmdstr = "U 23130\r\n";
   if (!lpc_SendAndVerify(port, cmdstr, Answer, sizeof Answer))
   {
     result << "ERROR: Unlock-Command: " << lpc_GetAndReportErrorNumber(Answer);
-    goto cleanup;
+    handleError(result.str(), true);
   }
 
   *myLog << "Read bootcode version: ";
@@ -868,10 +887,7 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
   lpc_FormatCommand(cmdstr, temp);
   lpc_FormatCommand(Answer, Answer);
   if (strncmp(Answer, temp, strlen(temp)) != 0)
-  {
-    result << "ERROR: no answer on Read Boot Code Version";
-    goto cleanup;
-  }
+    handleError("ERROR: no answer on Read Boot Code Version", true);
 
   if (strncmp(Answer + strlen(temp), "0\n", 2) == 0)
   {
@@ -890,10 +906,7 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
   lpc_FormatCommand(cmdstr, temp);
   lpc_FormatCommand(Answer, Answer);
   if (strncmp(Answer, temp, strlen(temp)) != 0)
-  {
-    result << "ERROR: no answer on Read Part Id";
-    goto cleanup;
-  }
+    handleError("ERROR: no answer on Read Part Id", true);
 
   strippedAnswer = (strncmp(Answer, "J\n0\n", 4) == 0) ? Answer + 4 : Answer;
 
@@ -918,10 +931,7 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
 
     lpc_FormatCommand(endPtr, endPtr);
     if ((*endPtr == '\0') || (*endPtr == '\n'))
-    {
-      result << "ERROR: incomplete answer on Read Part Id (second configuration word missing)";
-      goto cleanup;
-    }
+      handleError("ERROR: incomplete answer on Read Part Id (second configuration word missing)", true);
 
     Id[1] = strtoul(endPtr, &endPtr, 10);
     *endPtr = '\0'; /* delete \r\n */
@@ -954,10 +964,7 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
 
   // Make sure the data can fit in the flash we have available
   if(size > LPCtypes[myDetectedDevice].FlashSize * 1024)
-  {
-    result << "ERROR: Data to large for available flash";
-    goto cleanup;
-  }
+    handleError("ERROR: Data to large for available flash", true);
 
   if (true /*!IspEnvironment->DetectOnly*/)
   {
@@ -1021,7 +1028,7 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
     {
       result << "ERROR: wrong chip variant " << LPCtypes[myDetectedDevice].ChipVariant
              << " (detected device "<< myDetectedDevice << ")\n";
-      goto cleanup;
+      handleError(result.str(), true);
     }
   }
 
@@ -1077,7 +1084,7 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
   if (!lpc_SendAndVerify(port, tmpString, Answer, sizeof Answer))
   {
     result << "ERROR: Wrong answer on Prepare-Command " << lpc_GetAndReportErrorNumber(Answer);
-    goto cleanup;
+    handleError(result.str());
   }
 
   if (auto type = LPCtypes[myDetectedDevice].ChipVariant;
@@ -1092,18 +1099,16 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
   if (!lpc_SendAndVerify(port, tmpString, Answer, sizeof Answer))
   {
     result << "ERROR: Wrong answer on Erase-Command " << lpc_GetAndReportErrorNumber(Answer);
-    goto cleanup;
+    handleError(result.str());
   }
+
   *myLog << "OK \n";
 
   // OK, the main loop where we start writing to the cart
   while (1)
   {
     if (Sector >= LPCtypes[myDetectedDevice].FlashSectors)
-    {
-      result << "ERROR: Program too large; running out of Flash sectors";
-      goto cleanup;
-    }
+      handleError("ERROR: Program too large; running out of Flash sectors", true);
 
     *myLog << "Sector " << Sector << std::flush;
     if(showprogress)
@@ -1125,7 +1130,7 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
       {
         result << "ERROR: Wrong answer on Prepare-Command (1) (Sector " << Sector << ") "
                << lpc_GetAndReportErrorNumber(Answer);
-        goto cleanup;
+        handleError(result.str());
       }
 
       *myLog << "." << std::flush;
@@ -1145,7 +1150,7 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
         {
           result << "ERROR: Wrong answer on Erase-Command (Sector " << Sector << ") "
                  << lpc_GetAndReportErrorNumber(Answer);
-          goto cleanup;
+          handleError(result.str());
         }
 
         *myLog << "." << std::flush;
@@ -1202,7 +1207,7 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
       if (!lpc_SendAndVerify(port, tmpString, Answer, sizeof Answer))
       {
         result << "ERROR: Wrong answer on Write-Command " << lpc_GetAndReportErrorNumber(Answer);
-        goto cleanup;
+        handleError(result.str());
       }
 
       *myLog << "." << std::flush;
@@ -1225,10 +1230,7 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
             if(showprogress)
             {
               if(!updateProgressValue(++progressStep))
-              {
-                result << "Cancelled download";
-                goto cleanup;
-              }
+                handleError("Cancelled download", true);
             }
 
             // Uuencode one 45 byte block
@@ -1269,10 +1271,7 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
             lpc_FormatCommand(sendbuf[Line], tmpString);
             lpc_FormatCommand(Answer, Answer);
             if (strncmp(Answer, tmpString, strlen(tmpString)) != 0)
-            {
-              result << "Error on writing data (1)";
-              goto cleanup;
-            }
+              handleError("Error on writing data (1)");
 
             Line++;
             if (Line == 20)
@@ -1301,8 +1300,9 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
               if (repeat >= myRetry)
               {
                 result << "ERROR: writing block_CRC (1), retries = " << repeat;
-                goto cleanup;
+                handleError(result.str(), true);
               }
+
               Line = 0;
               block_CRC = 0;
             }
@@ -1335,7 +1335,7 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
           if (repeat >= myRetry)
           {
             result << "ERROR: writing block_CRC (3), retries = " << repeat;
-            goto cleanup;
+            handleError(result.str(), true);
           }
         }
       }
@@ -1361,16 +1361,10 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
           port.send(data, CopyLengthPartialRemainingBytes);
 
           if (port.receiveCompleteBlock(&BigAnswer, CopyLengthPartialRemainingBytes, 10000) != 0)
-          {
-            result << "ERROR_WRITE_DATA";
-            goto cleanup;
-          }
+            handleError("ERROR_WRITE_DATA");
 
           if(std::memcmp(binaryContent.get() + (SectorStart + SectorOffset + CopyLengthPartialOffset), BigAnswer, CopyLengthPartialRemainingBytes))
-          {
-            result << "ERROR_WRITE_DATA";
-            goto cleanup;
-          }
+            handleError("ERROR_WRITE_DATA");
 
           CopyLengthPartialOffset += CopyLengthPartialRemainingBytes;
         }
@@ -1391,9 +1385,9 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
 
         if (!lpc_SendAndVerify(port, tmpString, Answer, sizeof Answer))
         {
-          result << "ERROR: Wrong answer on Prepare-Command (2) (Sector " << Sector << ") "
-                 << lpc_GetAndReportErrorNumber(Answer);
-          goto cleanup;
+          result << "ERROR: Wrong answer on Prepare-Command (2) (Sector "
+                 << Sector << ") " << lpc_GetAndReportErrorNumber(Answer);
+          handleError(result.str());
         }
 
         // Round CopyLength up to one of the following values: 512, 1024,
@@ -1416,7 +1410,7 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
         if (!lpc_SendAndVerify(port, tmpString, Answer, sizeof Answer))
         {
           result << "ERROR: Wrong answer on Copy-Command " << lpc_GetAndReportErrorNumber(Answer);
-          goto cleanup;
+          handleError(result.str());
         }
 
         if (verify)
@@ -1434,7 +1428,7 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
           if (!lpc_SendAndVerify(port, tmpString, Answer, sizeof Answer))
           {
             result << "ERROR: Wrong answer on Compare-Command " << lpc_GetAndReportErrorNumber(Answer);
-            goto cleanup;
+            handleError(result.str());
           }
         }
       }
@@ -1458,11 +1452,12 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
     }
   }
 
+  ostringstream returnVal;
   tDoneUpload = time(NULL);
   if (verify)
-    result << "Download Finished and Verified correct... taking " << int(tDoneUpload - tStartUpload) << " seconds";
+    returnVal << "Download Finished and Verified correct... taking " << int(tDoneUpload - tStartUpload) << " seconds";
   else
-    result << "Download Finished... taking " << int(tDoneUpload - tStartUpload) << " seconds";
+    returnVal << "Download Finished... taking " << int(tDoneUpload - tStartUpload) << " seconds";
 
   // For LPC18xx set boot bank to 0
   if (auto type = LPCtypes[myDetectedDevice].ChipVariant;
@@ -1471,7 +1466,7 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
     if (!lpc_SendAndVerify(port, "S 0\r\n", Answer, sizeof Answer))
     {
       result << "Wrong answer on SetActiveBootFlashBank-Command " << lpc_GetAndReportErrorNumber(Answer);
-      goto cleanup;
+      handleError(result.str());
     }
   }
 
@@ -1488,10 +1483,7 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
     else if(type == CHIP_VARIANT_LPC8XX)
       sprintf(tmpString, "G 0 T\r\n");
     else
-    {
-      result << "Internal Error";
-      goto cleanup;
-    }
+      handleError("Internal Error", true);
 
     port.send(tmpString);  //goto 0 : run this fresh new downloaded code code
     if (BinaryOffset < lpc_ReturnValueLpcRamStart() ||
@@ -1516,28 +1508,24 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
       else if(type == CHIP_VARIANT_LPC8XX)
         sprintf(ExpectedAnswer, "G 0 T\n0");
       else
-      {
-        result << "Internal Error";
-        goto cleanup;
-      }
+        handleError("Internal Error", true);
 
       lpc_FormatCommand(Answer, Answer);
       if (realsize == 0 || strncmp((const char *)Answer, /*cmdstr*/ExpectedAnswer, strlen(/*cmdstr*/ExpectedAnswer)) != 0)
       {
         result << "Failed to run the new downloaded code: " << lpc_GetAndReportErrorNumber(Answer);
-        goto cleanup;
+        handleError(result.str());
       }
     }
 
     *myLog << std::flush;
   }
 
-cleanup:
   if(showprogress)
     finalizeProgress();
 
-  *myLog << result.str().c_str() << endl;
-  return result.str();
+  *myLog << returnVal.str() << endl;
+  return returnVal.str();
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

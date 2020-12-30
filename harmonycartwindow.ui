@@ -999,9 +999,9 @@ Double-click to store a different ROM.</string>
      <property name="title">
       <string>Number of retries on write failure</string>
      </property>
-     <addaction name="actRetry1"/>
-     <addaction name="actRetry5"/>
-     <addaction name="actRetry20"/>
+     <addaction name="actionRetry1"/>
+     <addaction name="actionRetry5"/>
+     <addaction name="actionRetry20"/>
     </widget>
     <widget class="QMenu" name="menuConnectAttempts">
      <property name="enabled">
@@ -1017,11 +1017,12 @@ Double-click to store a different ROM.</string>
      <addaction name="actionConnect20"/>
      <addaction name="actionConnect100"/>
     </widget>
-    <addaction name="actAutoDownFileSelect"/>
-    <addaction name="actAutoVerifyDownload"/>
-    <addaction name="actShowLogAfterDownload"/>
-    <addaction name="actF4CompressionNoBank0"/>
+    <addaction name="actionAutoDownFileSelect"/>
+    <addaction name="actionAutoVerifyDownload"/>
+    <addaction name="actionShowLogAfterDownload"/>
+    <addaction name="actionF4CompressionNoBank0"/>
     <addaction name="actionAddDelayAfterWrites"/>
+    <addaction name="actionContinueOnFatalErrors"/>
     <addaction name="menuConnectAttempts"/>
     <addaction name="menuRetryCount"/>
    </widget>
@@ -1082,7 +1083,7 @@ Double-click to store a different ROM.</string>
     <string>Connect</string>
    </property>
   </action>
-  <action name="actAutoDownFileSelect">
+  <action name="actionAutoDownFileSelect">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -1090,7 +1091,7 @@ Double-click to store a different ROM.</string>
     <string>Auto download after file select</string>
    </property>
   </action>
-  <action name="actAutoVerifyDownload">
+  <action name="actionAutoVerifyDownload">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -1109,7 +1110,7 @@ Double-click to store a different ROM.</string>
     <string>Incremental Download</string>
    </property>
   </action>
-  <action name="actRetry1">
+  <action name="actionRetry1">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -1123,7 +1124,7 @@ Double-click to store a different ROM.</string>
     <bool>false</bool>
    </property>
   </action>
-  <action name="actRetry5">
+  <action name="actionRetry5">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -1134,7 +1135,7 @@ Double-click to store a different ROM.</string>
     <bool>false</bool>
    </property>
   </action>
-  <action name="actRetry20">
+  <action name="actionRetry20">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -1145,7 +1146,7 @@ Double-click to store a different ROM.</string>
     <bool>false</bool>
    </property>
   </action>
-  <action name="actRetry3">
+  <action name="actionRetry3">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -1180,7 +1181,7 @@ Double-click to store a different ROM.</string>
     <string>Update BIOS</string>
    </property>
   </action>
-  <action name="actShowLogAfterDownload">
+  <action name="actionShowLogAfterDownload">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -1188,7 +1189,7 @@ Double-click to store a different ROM.</string>
     <string>Show log after download</string>
    </property>
   </action>
-  <action name="actF4CompressionNoBank0">
+  <action name="actionF4CompressionNoBank0">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -1229,6 +1230,14 @@ Double-click to store a different ROM.</string>
    </property>
    <property name="text">
     <string>Add delay after writes (bad UARTs)</string>
+   </property>
+  </action>
+  <action name="actionContinueOnFatalErrors">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Continue on fatal errors (*)</string>
    </property>
   </action>
  </widget>

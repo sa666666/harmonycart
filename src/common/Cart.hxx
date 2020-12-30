@@ -55,7 +55,7 @@ class Cart
       The filename should exist and be readable.
     */
     string downloadBIOS(SerialPort& port, const string& filename,
-                        bool verify, bool showprogress = true);
+                        bool verify, bool showprogress, bool continueOnError);
 
     /**
       Loads ROM cartridge data from the given filename, creating a cart.
@@ -64,7 +64,7 @@ class Cart
     */
     string downloadROM(SerialPort& port, const string& armpath,
                        const string& filename, Bankswitch::Type type,
-                       bool verify, bool showprogress = true);
+                       bool verify, bool showprogress, bool continueOnError);
 
     /** Set number of write retries before bailing out. */
     void setConnectionAttempts(uInt32 attempt) { myConnectionAttempts = attempt; }
@@ -132,7 +132,7 @@ class Cart
     */
     string lpc_NxpChipVersion(SerialPort& port);
     string lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
-                           bool verify = false, bool showprogress = false);
+                           bool verify, bool showprogress, bool continueOnError);
     uInt32 lpc_ReturnValueLpcRamStart();
     uInt32 lpc_ReturnValueLpcRamBase();
 

@@ -53,8 +53,9 @@ Q_OBJECT
     Cart& cart() { return myCart; }
     SerialPortManager& portManager() { return myManager; }
     void connectHarmonyCart() { slotConnectHarmonyCart(); }
-    string armPath() { return ui->armpathFileEdit->text().toStdString(); }
-    bool verifyDownload() { return ui->actAutoVerifyDownload->isChecked(); }
+    string armPath() const { return ui->armpathFileEdit->text().toStdString(); }
+    bool verifyDownload() const { return ui->actionAutoVerifyDownload->isChecked(); }
+    bool continueOnErrors() const { return ui->actionContinueOnFatalErrors->isChecked(); }
 
   protected:
     void closeEvent(QCloseEvent* event) override;

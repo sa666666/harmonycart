@@ -127,14 +127,14 @@ void HarmonyCartWindow::setupConnections()
 
   QActionGroup* group2 = new QActionGroup(this);
   group2->setExclusive(true);
-  group2->addAction(ui->actRetry1);
-  group2->addAction(ui->actRetry5);
-  group2->addAction(ui->actRetry20);
+  group2->addAction(ui->actionRetry1);
+  group2->addAction(ui->actionRetry5);
+  group2->addAction(ui->actionRetry20);
   connect(group2, SIGNAL(triggered(QAction*)), this, SLOT(slotRetry(QAction*)));
 
-  connect(ui->actShowLogAfterDownload, &QAction::toggled, this,
+  connect(ui->actionShowLogAfterDownload, &QAction::toggled, this,
       [=](bool checked){ showLog(checked); });
-  connect(ui->actF4CompressionNoBank0, &QAction::toggled, this,
+  connect(ui->actionF4CompressionNoBank0, &QAction::toggled, this,
       [=](bool checked){ myCart.skipF4CompressionOnBank0(checked); });
   connect(ui->actionAddDelayAfterWrites, &QAction::toggled, this,
       [=](bool checked){ myManager.port().addDelayAfterWrite(checked); });
@@ -210,22 +210,23 @@ void HarmonyCartWindow::readSettings()
     int retrycount = s.value("retrycount", 1).toInt();
     switch(retrycount)
     {
-      case  1:  ui->actRetry1->setChecked(true);  break;
-      case  5:  ui->actRetry5->setChecked(true);  break;
-      case 20:  ui->actRetry20->setChecked(true); break;
-      default: ui->actRetry1->setChecked(true);   break;
+      case  1:  ui->actionRetry1->setChecked(true);  break;
+      case  5:  ui->actionRetry5->setChecked(true);  break;
+      case 20:  ui->actionRetry20->setChecked(true); break;
+      default: ui->actionRetry1->setChecked(true);   break;
     }
-    ui->actAutoDownFileSelect->setChecked(s.value("autodownload", false).toBool());
-    ui->actAutoVerifyDownload->setChecked(s.value("autoverify", false).toBool());
-    ui->actShowLogAfterDownload->setChecked(s.value("showlog", false).toBool());
-    ui->actF4CompressionNoBank0->setChecked(s.value("f4compressbank0skip", false).toBool());
+    ui->actionAutoDownFileSelect->setChecked(s.value("autodownload", false).toBool());
+    ui->actionAutoVerifyDownload->setChecked(s.value("autoverify", false).toBool());
+    ui->actionShowLogAfterDownload->setChecked(s.value("showlog", false).toBool());
+    ui->actionF4CompressionNoBank0->setChecked(s.value("f4compressbank0skip", false).toBool());
     ui->actionAddDelayAfterWrites->setChecked(s.value("delayafterwrites", false).toBool());
+    ui->actionContinueOnFatalErrors->setChecked(s.value("continueonfatal", false).toBool());
     int activetab = s.value("activetab", 0).toInt();
     if(activetab < 0 || activetab > 1)  activetab = 0;
     ui->tabWidget->setCurrentIndex(activetab);
   s.endGroup();
 
-  showLog(ui->actShowLogAfterDownload->isChecked());
+  showLog(ui->actionShowLogAfterDownload->isChecked());
   myManager.port().addDelayAfterWrite(ui->actionAddDelayAfterWrites->isChecked());
   myCart.setConnectionAttempts(connections);
   myCart.setRetry(retrycount);
@@ -299,15 +300,16 @@ void HarmonyCartWindow::closeEvent(QCloseEvent* event)
     else if(ui->actionConnect100->isChecked())  connections = 100;
     s.setValue("connectionattempts", connections);
     int retrycount = 1;
-    if(ui->actRetry1->isChecked())       retrycount = 1;
-    else if(ui->actRetry5->isChecked())  retrycount = 5;
-    else if(ui->actRetry20->isChecked()) retrycount = 20;
+    if(ui->actionRetry1->isChecked())       retrycount = 1;
+    else if(ui->actionRetry5->isChecked())  retrycount = 5;
+    else if(ui->actionRetry20->isChecked()) retrycount = 20;
     s.setValue("retrycount", retrycount);
-    s.setValue("autodownload", ui->actAutoDownFileSelect->isChecked());
-    s.setValue("autoverify", ui->actAutoVerifyDownload->isChecked());
-    s.setValue("showlog", ui->actShowLogAfterDownload->isChecked());
-    s.setValue("f4compressbank0skip", ui->actF4CompressionNoBank0->isChecked());
+    s.setValue("autodownload", ui->actionAutoDownFileSelect->isChecked());
+    s.setValue("autoverify", ui->actionAutoVerifyDownload->isChecked());
+    s.setValue("showlog", ui->actionShowLogAfterDownload->isChecked());
+    s.setValue("f4compressbank0skip", ui->actionF4CompressionNoBank0->isChecked());
     s.setValue("delayafterwrites", ui->actionAddDelayAfterWrites->isChecked());
+    s.setValue("continueonfatal", ui->actionContinueOnFatalErrors->isChecked());
     s.setValue("activetab", ui->tabWidget->currentIndex());
   s.endGroup();
 
@@ -384,12 +386,13 @@ void HarmonyCartWindow::slotDownloadBIOS()
   {
     myLog.str("");
     string result = myCart.downloadBIOS(myManager.port(), biosfile.toStdString(),
-                      ui->actAutoVerifyDownload->isChecked());
+                    ui->actionAutoVerifyDownload->isChecked(), true,
+                    ui->actionContinueOnFatalErrors->isChecked());
     statusMessage(QString(result.c_str()));
 
     myManager.closeCartPort();
 
-    if(ui->actShowLogAfterDownload->isChecked())
+    if(ui->actionShowLogAfterDownload->isChecked())
       QMessageBox::information(this, "Download BIOS", QString(myLog.str().c_str()));
   }
   else
@@ -457,13 +460,14 @@ void HarmonyCartWindow::slotDownloadROM()
 
     myLog.str("");
     string result = myCart.downloadROM(myManager.port(), armpath.toStdString(),
-      romfile.toStdString(), type, ui->actAutoVerifyDownload->isChecked());
+                    romfile.toStdString(), type, ui->actionAutoVerifyDownload->isChecked(),
+                    true, ui->actionContinueOnFatalErrors->isChecked());
     statusMessage(QString(result.c_str()));
     ui->downloadButton->setEnabled(true);
 
     myManager.closeCartPort();
 
-    if(ui->actShowLogAfterDownload->isChecked())
+    if(ui->actionShowLogAfterDownload->isChecked())
       QMessageBox::information(this, "Download ROM", QString(myLog.str().c_str()));
   }
   else
@@ -519,9 +523,9 @@ void HarmonyCartWindow::slotConnectAttempt(QAction* action)
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void HarmonyCartWindow::slotRetry(QAction* action)
 {
-  if(action == ui->actRetry1)       myCart.setRetry(1);
-  else if(action == ui->actRetry5)  myCart.setRetry(5);
-  else if(action == ui->actRetry20) myCart.setRetry(20);
+  if(action == ui->actionRetry1)       myCart.setRetry(1);
+  else if(action == ui->actionRetry5)  myCart.setRetry(5);
+  else if(action == ui->actionRetry20) myCart.setRetry(20);
   else                              myCart.setRetry(1);
 }
 
@@ -739,7 +743,7 @@ void HarmonyCartWindow::loadROM(const QString& filename)
   ui->downloadButton->setDisabled(false);  ui->actDownloadROM->setDisabled(false);
 
   // See if we should automatically download
-  if(ui->actAutoDownFileSelect->isChecked())
+  if(ui->actionAutoDownFileSelect->isChecked())
     slotDownloadROM();
 }
 
