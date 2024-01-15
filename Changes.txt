@@ -10,7 +10,7 @@
                              Release History
 ===========================================================================
 
-2.0: (Dec. xx, 2020)
+2.0: (Feb. xx, 2024)
 
   * Updated lpc21isp code to version 1.97 (last released version
     since 2015).
@@ -34,7 +34,7 @@
 
   * Included NTSC HBIOS 1.06.
 
-  * Updated bankswitch autodetection code to latest from Stella 6.4.
+  * Updated bankswitch autodetection code to latest from Stella 6.7.
 
   * Codebase ported to (and now requires) Qt 5.15.
 

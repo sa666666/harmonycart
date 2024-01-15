@@ -8,7 +8,7 @@
 //  SS  SS   tt   ee      ll   ll  aa  aa
 //   SSSS     ttt  eeeee llll llll  aaaaa
 //
-// Copyright (c) 1995-2020 by Bradford W. Mott, Stephen Anthony
+// Copyright (c) 1995-2024 by Bradford W. Mott, Stephen Anthony
 // and the Stella Team
 //
 // See the file "License.txt" for information on usage and redistribution of
@@ -39,80 +39,61 @@
 #endif
 
 /*
- * Implementation of the Stella file system API based on POSIX (for Linux and macOS)
+ * Implementation of the Stella file system API based on POSIX (for Linux
+ * and macOS)
  *
- * Parts of this class are documented in the base interface class, AbstractFSNode.
+ * Parts of this class are documented in the base interface class,
+ * AbstractFSNode.
  */
-class FilesystemNodePOSIX : public AbstractFSNode
+class FSNodePOSIX : public AbstractFSNode
 {
   public:
     /**
-     * Creates a FilesystemNodePOSIX with the root node as path.
+     * Creates a FSNodePOSIX with the root node as path.
      */
-    FilesystemNodePOSIX();
+    FSNodePOSIX();
 
     /**
-     * Creates a FilesystemNodePOSIX for a given path.
+     * Creates a FSNodePOSIX for a given path.
      *
      * @param path    String with the path the new node should point to.
      * @param verify  true if the isValid and isDirectory/isFile flags should
      *                be verified during the construction.
      */
-    FilesystemNodePOSIX(const string& path, bool verify = true);
+    explicit FSNodePOSIX(string_view path, bool verify = true);
 
     bool exists() const override { return access(_path.c_str(), F_OK) == 0; }
-    const string& getName() const override    { return _displayName; }
-    void setName(const string& name) override { _displayName = name; }
+    const string& getName() const override  { return _displayName; }
+    void setName(string_view name) override { _displayName = name; }
     const string& getPath() const override { return _path; }
     string getShortPath() const override;
-    bool hasParent() const override;
     bool isDirectory() const override { return _isDirectory; }
     bool isFile() const override      { return _isFile;      }
     bool isReadable() const override  { return access(_path.c_str(), R_OK) == 0; }
     bool isWritable() const override  { return access(_path.c_str(), W_OK) == 0; }
     bool makeDir() override;
-    bool rename(const string& newfile) override;
+    bool rename(string_view newfile) override;
 
-    bool getChildren(AbstractFSList& list, ListMode mode) const override;
+    size_t getSize() const override;
+    bool hasParent() const override;
     AbstractFSNodePtr getParent() const override;
-
-  protected:
-    string _path;
-    string _displayName;
-    bool _isValid{true};
-    bool _isFile{false};
-    bool _isDirectory{true};
+    bool getChildren(AbstractFSList& list, ListMode mode) const override;
 
   private:
     /**
-     * Tests and sets the _isValid and _isDirectory/_isFile flags,
-     * using the stat() function.
-     */
-    void setFlags();
-
-    /**
-     * Returns the last component of a given path.
+     * Set the _isDirectory/_isFile/_size flags using stat().
      *
-     * Examples:
-     *			/foo/bar.txt would return /bar.txt
-     *			/foo/bar/    would return /bar/
-     *
-     * @param str String containing the path.
-     * @return Pointer to the first char of the last component inside str.
+     * @return  Success/failure of stat() function
      */
-    static const char* lastPathComponent(const string& str)
-    {
-      if(str.empty())
-        return "";
+    bool setFlags();
 
-      const char* start = str.c_str();
-      const char* cur = start + str.size() - 2;
+  private:
+    string _path, _displayName;
+    bool _isFile{false}, _isDirectory{true};
+    mutable size_t _size{0};
 
-      while (cur >= start && *cur != '/')
-        --cur;
-
-      return cur + 1;
-    }
+    static const char* const ourHomeDir;
+    static std::array<char, MAXPATHLEN> ourBuf;
 };
 
 #endif

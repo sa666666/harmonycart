@@ -8,7 +8,7 @@
 //  SS  SS   tt   ee      ll   ll  aa  aa
 //   SSSS     ttt  eeeee llll llll  aaaaa
 //
-// Copyright (c) 1995-2020 by Bradford W. Mott, Stephen Anthony
+// Copyright (c) 1995-2024 by Bradford W. Mott, Stephen Anthony
 // and the Stella Team
 //
 // See the file "License.txt" for information on usage and redistribution of
@@ -19,6 +19,7 @@
 #define CARTRIDGE_DETECTOR_HXX
 
 #include "Bankswitch.hxx"
+#include "FSNode.hxx"
 #include "bspf.hxx"
 
 /**
@@ -39,6 +40,17 @@ class CartDetector
       @return The "best guess" for the cartridge type
     */
     static Bankswitch::Type autodetectType(const ByteBuffer& image, size_t size);
+
+    /**
+      MVC cartridges are of arbitary large length
+      Returns size of frame if stream is probably an MVC movie cartridge
+    */
+    static size_t isProbablyMVC(const FSNode& rom);
+
+    /**
+      Returns true if the image is probably a HSC PlusROM
+    */
+    static bool isProbablyPlusROM(const ByteBuffer& image, size_t size);
 
   private:
     /**
@@ -75,9 +87,19 @@ class CartDetector
     static bool isProbablyARM(const ByteBuffer& image, size_t size);
 
     /**
+      Returns true if the image is probably a 03E0 bankswitching cartridge
+    */
+    static bool isProbably03E0(const ByteBuffer& image, size_t size);
+
+    /**
       Returns true if the image is probably a 0840 bankswitching cartridge
     */
     static bool isProbably0840(const ByteBuffer& image, size_t size);
+
+    /**
+      Returns true if the image is probably a Brazilian 0FA0 bankswitching cartridge
+    */
+    static bool isProbably0FA0(const ByteBuffer& image, size_t size);
 
     /**
       Returns true if the image is probably a 3E bankswitching cartridge
@@ -185,9 +207,19 @@ class CartDetector
     static bool isProbablyFE(const ByteBuffer& image, size_t size);
 
     /**
+      Returns true if the image is probably a GameLine cartridge
+    */
+    static bool isProbablyGL(const ByteBuffer& image, size_t size);
+
+    /**
       Returns true if the image is probably a MDM bankswitching cartridge
     */
     static bool isProbablyMDM(const ByteBuffer& image, size_t size);
+
+    /**
+      Returns true if the image is probably an MVC movie cartridge
+    */
+    static bool isProbablyMVC(const ByteBuffer& image, size_t size);
 
     /**
       Returns true if the image is probably a SB bankswitching cartridge

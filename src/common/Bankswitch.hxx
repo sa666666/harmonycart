@@ -8,7 +8,7 @@
 //  SS  SS   tt   ee      ll   ll  aa  aa
 //   SSSS     ttt  eeeee llll llll  aaaaa
 //
-// Copyright (c) 1995-2020 by Bradford W. Mott, Stephen Anthony
+// Copyright (c) 1995-2024 by Bradford W. Mott, Stephen Anthony
 // and the Stella Team
 //
 // See the file "License.txt" for information on usage and redistribution of
@@ -38,41 +38,51 @@ class Bankswitch
   public:
     // Currently supported bankswitch schemes
     enum class Type {
-      _AUTO,  _0840,   _2IN1,  _4IN1,  _8IN1,  _16IN1, _32IN1,
-      _64IN1, _128IN1, _2K,    _3E,    _3EX,   _3EP,   _3F,
-      _4A50,  _4K,     _4KSC,  _AR,    _BF,    _BFSC,  _BUS,
-      _CDF,   _CM,     _CTY,   _CV,    _DF,    _DFSC,  _DPC,
-      _DPCP,  _E0,     _E7,    _E78K,  _EF,    _EFSC,  _F0,
-      _F4,    _F4SC,   _F6,    _F6SC,  _F8,    _F8SC,  _FA,
-      _FA2,   _FC,     _FE,    _MDM,   _SB,    _TVBOY, _UA,
-      _UASW,  _WD,     _WDSW,  _X07,
+      _AUTO,  _03E0,  _0840,   _0FA0, _2IN1, _4IN1, _8IN1, _16IN1,
+      _32IN1, _64IN1, _128IN1, _2K,   _3E,   _3EX,  _3EP,  _3F,
+      _4A50,  _4K,    _4KSC,   _AR,   _BF,   _BFSC, _BUS,  _CDF,
+      _CM,    _CTY,   _CV,     _DF,   _DFSC, _DPC,  _DPCP, _E0,
+      _E7,    _EF,    _EFSC,   _F0,   _F4,   _F4SC, _F6,   _F6SC,
+      _F8,    _F8SC,  _FA,     _FA2,  _FC,   _FE,   _GL,   _MDM,
+      _MVC,   _SB,    _TVBOY,  _UA,   _UASW, _WD,   _WDSW, _X07,
     #ifdef CUSTOM_ARM
       _CUSTOM,
     #endif
-      NumSchemes
+      NumSchemes,
+      NumMulti = _128IN1 - _2IN1 + 1,
     };
+
+    struct SizesType {
+      size_t minSize{0};
+      size_t maxSize{0};
+    };
+    static constexpr size_t any_KB = 0;
+
+    static const std::array<SizesType,
+                            static_cast<uInt32>(Type::NumSchemes)> Sizes;
 
     // Info about the various bankswitch schemes, useful for displaying
     // in GUI dropdown boxes, etc
     struct Description {
-      const char* const name;
-      const char* const desc;
+      string_view name;
+      string_view desc;
     };
-    static const std::array<Description, static_cast<int>(Type::NumSchemes)> BSList;
+    static const std::array<Description,
+                            static_cast<uInt32>(Type::NumSchemes)> BSList;
 
   public:
     // Convert BSType enum to string
     static string typeToName(Bankswitch::Type type);
 
     // Convert string to BSType enum
-    static Bankswitch::Type nameToType(const string& name);
+    static Bankswitch::Type nameToType(string_view name);
 
     // Convert BSType enum to description string
     static string typeToDesc(Bankswitch::Type type);
 
     // Determine bankswitch type by filename extension
     // Use '_AUTO' if unknown
-    static Bankswitch::Type typeFromExtension(const FilesystemNode& file);
+    static Bankswitch::Type typeFromExtension(const FSNode& file);
 
     /**
       Is this a valid ROM filename (does it have a valid extension?).
@@ -80,14 +90,22 @@ class Bankswitch
       @param name  Filename of potential ROM file
       @param ext   The extension extracted from the given file
      */
-    static bool isValidRomName(const string& name, string& ext);
+    static bool isValidRomName(string_view name, string& ext);
 
     /**
       Convenience functions for different parameter types.
      */
-    static bool isValidRomName(const FilesystemNode& name, string& ext);
-    static bool isValidRomName(const FilesystemNode& name);
-    static bool isValidRomName(const string& name);
+    static inline bool isValidRomName(const FSNode& name, string& ext) {
+      return isValidRomName(name.getPath(), ext);
+    }
+    static inline bool isValidRomName(const FSNode& name) {
+      string ext;  // extension not used
+      return isValidRomName(name.getPath(), ext);
+    }
+    static inline bool isValidRomName(string_view name) {
+      string ext;  // extension not used
+      return isValidRomName(name, ext);
+    }
 
     // Output operator
     friend ostream& operator<<(ostream& os, const Bankswitch::Type& t) {
@@ -96,14 +114,16 @@ class Bankswitch
 
   private:
     struct TypeComparator {
-      bool operator() (const string& a, const string& b) const {
+      bool operator() (string_view a, string_view b) const {
         return BSPF::compareIgnoreCase(a, b) < 0;
       }
     };
-    using ExtensionMap = const std::map<string, Bankswitch::Type, TypeComparator>;
+    using ExtensionMap = const std::map<string_view, Bankswitch::Type,
+                                        TypeComparator>;
     static ExtensionMap ourExtensions;
 
-    using NameToTypeMap = const std::map<string, Bankswitch::Type, TypeComparator>;
+    using NameToTypeMap = const std::map<string_view, Bankswitch::Type,
+                                         TypeComparator>;
     static NameToTypeMap ourNameToTypes;
 
   private:

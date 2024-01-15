@@ -8,7 +8,7 @@
 //  SS  SS   tt   ee      ll   ll  aa  aa
 //   SSSS     ttt  eeeee llll llll  aaaaa
 //
-// Copyright (c) 1995-2020 by Bradford W. Mott, Stephen Anthony
+// Copyright (c) 1995-2024 by Bradford W. Mott, Stephen Anthony
 // and the Stella Team
 //
 // See the file "License.txt" for information on usage and redistribution of
@@ -38,28 +38,28 @@ class AbstractFSNode;
 
   @author  Stephen Anthony
 */
-class FilesystemNodeFactory
+class FSNodeFactory
 {
   public:
     enum class Type { SYSTEM, ZIP };
 
   public:
-    static unique_ptr<AbstractFSNode> create(const string& path, Type type)
+    static unique_ptr<AbstractFSNode> create(string_view path, Type type)
     {
       switch(type)
       {
         case Type::SYSTEM:
         #if defined(BSPF_UNIX) || defined(BSPF_MACOS)
-          return make_unique<FilesystemNodePOSIX>(path);
+          return make_unique<FSNodePOSIX>(path);
         #elif defined(BSPF_WINDOWS)
-          return make_unique<FilesystemNodeWINDOWS>(path);
+          return make_unique<FSNodeWINDOWS>(path);
         #elif defined(__LIB_RETRO__)
-          return make_unique<FilesystemNodeLIBRETRO>(path);
+          return make_unique<FSNodeLIBRETRO>(path);
         #endif
           break;
         case Type::ZIP:
         #if defined(ZIP_SUPPORT)
-          return make_unique<FilesystemNodeZIP>(path);
+          return make_unique<FSNodeZIP>(path);
         #endif
           break;
       }
@@ -68,11 +68,11 @@ class FilesystemNodeFactory
 
   private:
     // Following constructors and assignment operators not supported
-    FilesystemNodeFactory() = delete;
-    FilesystemNodeFactory(const FilesystemNodeFactory&) = delete;
-    FilesystemNodeFactory(FilesystemNodeFactory&&) = delete;
-    FilesystemNodeFactory& operator=(const FilesystemNodeFactory&) = delete;
-    FilesystemNodeFactory& operator=(FilesystemNodeFactory&&) = delete;
+    FSNodeFactory() = delete;
+    FSNodeFactory(const FSNodeFactory&) = delete;
+    FSNodeFactory(FSNodeFactory&&) = delete;
+    FSNodeFactory& operator=(const FSNodeFactory&) = delete;
+    FSNodeFactory& operator=(FSNodeFactory&&) = delete;
 };
 
 #endif

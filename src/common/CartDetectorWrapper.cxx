@@ -6,7 +6,7 @@
 //  H   H  A   A  R R    M   M  O   O  N  NN    Y
 //  H   H  A   A  R  R   M   M   OOO   N   N    Y
 //
-// Copyright (c) 2009-2020 by Stephen Anthony <sa666666@gmail.com>
+// Copyright (c) 2009-2024 by Stephen Anthony <sa666666@gmail.com>
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -59,7 +59,7 @@ Bankswitch::Type CartDetectorHC::autodetectType(const string& rom)
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Bankswitch::Type CartDetectorHC::autodetectTypeByExtension(const string& rom)
 {
-  FilesystemNode file(rom);
+  FSNode file(rom);
   return Bankswitch::typeFromExtension(file);
 }
 

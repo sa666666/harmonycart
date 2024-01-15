@@ -6,7 +6,7 @@
 //  H   H  A   A  R R    M   M  O   O  N  NN    Y
 //  H   H  A   A  R  R   M   M   OOO   N   N    Y
 //
-// Copyright (c) 2009-2020 by Stephen Anthony <sa666666@gmail.com>
+// Copyright (c) 2009-2024 by Stephen Anthony <sa666666@gmail.com>
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -18,8 +18,6 @@
 #include <QString>
 #include <QDir>
 #include <cstring>
-#include <fstream>
-#include <sstream>
 #include <ostream>
 #include <time.h>
 
@@ -58,7 +56,7 @@ string Cart::autodetectHarmony(SerialPort& port)
   string result = lpc_NxpChipVersion(port);
   if (strncmp(result.c_str(), "ERROR:", 6) == 0)
   {
-    *myLog << result.c_str() << endl;
+    *myLog << result.c_str() << '\n';
     return result;
   }
 
@@ -116,12 +114,12 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
   if(autodetect || type == CartDetectorHC::autodetectType(filename, rombuf, romsize))
   {
     *myLog << "Bankswitch type: " << Bankswitch::typeToName(type).c_str()
-          << " (auto-detected)" << endl;
+           << " (auto-detected)\n";
   }
   else
   {
     *myLog << "Bankswitch type: " << Bankswitch::typeToName(type).c_str()
-          << " (WARNING: overriding auto-detection)" << endl;
+           << " (WARNING: overriding auto-detection)\n";
   }
 
   // First determine the name of the bankswitch file to use
@@ -150,7 +148,7 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
     case Bankswitch::Type::_CUSTOM:                         break;
     default:
       result = "Bankswitch type \'" + Bankswitch::typeToName(type) + "\' not supported.";
-      *myLog << "ERROR: " << result.c_str() << endl;
+      *myLog << "ERROR: " << result.c_str() << '\n';
       goto cleanup;
   }
 
@@ -233,7 +231,7 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
         catch(const char* msg)
         {
           result = msg;
-          *myLog << "ERROR: " << result.c_str() << endl;
+          *myLog << "ERROR: " << result.c_str() << '\n';
           goto cleanup;
         }
         if(romsize+armsize < 32760)
@@ -243,7 +241,7 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
       if(i == 8)
       {
         result = "Cannot compress F4 binary";
-        *myLog << "ERROR: " << result.c_str() << endl;
+        *myLog << "ERROR: " << result.c_str() << '\n';
         goto cleanup;
       }
 
@@ -399,7 +397,7 @@ ByteBuffer Cart::readFile(const string& filename, size_t& size)
   *myLog << "Reading from file: \'" << filename.c_str() << "\' ... ";
 
   // Read file into buffer
-  FilesystemNode file(filename);
+  FSNode file(filename);
   ByteBuffer buffer;  size = 0;
 
   if(filename == "" || !file.exists())
@@ -407,7 +405,7 @@ ByteBuffer Cart::readFile(const string& filename, size_t& size)
   else if((size = file.read(buffer)) == 0)
     *myLog << "ERROR: file not found\n";
   else
-    *myLog << "read in " << size << " bytes" << endl;
+    *myLog << "read in " << size << " bytes\n";
 
   return buffer;
 }
@@ -768,7 +766,7 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
       throw std::runtime_error(result);
     }
     else
-      *myLog << result << endl;
+      *myLog << result << '\n';
   };
 
   char Answer[128], ExpectedAnswer[128], temp[128];
@@ -1524,7 +1522,7 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
   if(showprogress)
     finalizeProgress();
 
-  *myLog << returnVal.str() << endl;
+  *myLog << returnVal.str() << '\n';
   return returnVal.str();
 }
 

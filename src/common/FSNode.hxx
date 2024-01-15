@@ -8,7 +8,7 @@
 //  SS  SS   tt   ee      ll   ll  aa  aa
 //   SSSS     ttt  eeeee llll llll  aaaaa
 //
-// Copyright (c) 1995-2020 by Bradford W. Mott, Stephen Anthony
+// Copyright (c) 1995-2024 by Bradford W. Mott, Stephen Anthony
 // and the Stella Team
 //
 // See the file "License.txt" for information on usage and redistribution of
@@ -31,7 +31,7 @@
  * paths (and it's left to them whether / or \ or : is the path separator :-).
  */
 
-class FilesystemNode;
+class FSNode;
 class AbstractFSNode;
 using AbstractFSNodePtr = shared_ptr<AbstractFSNode>;
 
@@ -40,14 +40,21 @@ using AbstractFSNodePtr = shared_ptr<AbstractFSNode>;
  * This is subclass instead of just a typedef so that we can use forward
  * declarations of it in other places.
  */
-class FSList : public vector<FilesystemNode> { };
+class FSList : public vector<FSNode> { };
 
 /**
  * This class acts as a wrapper around the AbstractFSNode class defined
  * in backends/fs.
  */
-class FilesystemNode
+class FSNode
 {
+  public:
+  #ifdef BSPF_WINDOWS
+    static constexpr char PATH_SEPARATOR = '\\';
+  #else
+    static constexpr char PATH_SEPARATOR = '/';
+  #endif
+
   public:
     /**
      * Flag to tell listDir() which kind of files to list.
@@ -56,17 +63,19 @@ class FilesystemNode
 
     /** Function used to filter the file listing.  Returns true if the filename
         should be included, else false.*/
-    using NameFilter = std::function<bool(const FilesystemNode& node)>;
+    using NameFilter = std::function<bool(const FSNode& node)>;
+    using CancelCheck = std::function<bool()> const;
 
     /**
-     * Create a new pathless FilesystemNode. Since there's no path associated
+     * Create a new pathless FSNode. Since there's no path associated
      * with this node, path-related operations (i.e. exists(), isDirectory(),
      * getPath()) will always return false or raise an assertion.
      */
-    FilesystemNode() = default;
+    FSNode() = default;
+    ~FSNode() = default;
 
     /**
-     * Create a new FilesystemNode referring to the specified path. This is
+     * Create a new FSNode referring to the specified path. This is
      * the counterpart to the path() method.
      *
      * If path is empty or equals '~', then a node representing the
@@ -74,19 +83,21 @@ class FilesystemNode
      * operating system doesn't support the concept), some other directory is
      * used (usually the root directory).
      */
-    explicit FilesystemNode(const string& path);
+    explicit FSNode(string_view path);
 
     /**
      * Assignment operators.
      */
-    FilesystemNode(const FilesystemNode&) = default;
-    FilesystemNode& operator=(const FilesystemNode&) = default;
+    FSNode(const FSNode&) = default;
+    FSNode& operator=(const FSNode&) = default;
+    FSNode& operator=(FSNode&&) = default;
+    FSNode(FSNode&&) = default;
 
     /**
      * Compare the name of this node to the name of another, testing for
      * equality.
      */
-    inline bool operator==(const FilesystemNode& node) const
+    inline bool operator==(const FSNode& node) const
     {
       return BSPF::compareIgnoreCase(getName(), node.getName()) == 0;
     }
@@ -95,13 +106,13 @@ class FilesystemNode
      * Append the given path to the node, adding a directory separator
      * when necessary.  Modelled on the C++17 fs::path API.
      */
-    FilesystemNode& operator/=(const string& path);
+    FSNode& operator/=(string_view path);
 
     /**
      * By default, the output operator simply outputs the fully-qualified
      * pathname of the node.
      */
-    friend ostream& operator<<(ostream& os, const FilesystemNode& node)
+    friend ostream& operator<<(ostream& os, const FSNode& node)
     {
       return os << node.getPath();
     }
@@ -115,6 +126,18 @@ class FilesystemNode
     bool exists() const;
 
     /**
+     * Return a list of child nodes of this and all sub-directories. If called on a node
+     * that does not represent a directory, false is returned.
+     *
+     * @return true if successful, false otherwise (e.g. when the directory
+     *         does not exist).
+     */
+    bool getAllChildren(FSList& fslist, ListMode mode = ListMode::DirectoriesOnly,
+                        const NameFilter& filter = [](const FSNode&) { return true; },
+                        bool includeParentDirectory = true,
+                        const CancelCheck& isCancelled = []() { return false; }) const;
+
+    /**
      * Return a list of child nodes of this directory node. If called on a node
      * that does not represent a directory, false is returned.
      *
@@ -122,8 +145,10 @@ class FilesystemNode
      *         does not exist).
      */
     bool getChildren(FSList& fslist, ListMode mode = ListMode::DirectoriesOnly,
-                     const NameFilter& filter = [](const FilesystemNode&){ return true; },
-                     bool includeParentDirectory = true) const;
+                     const NameFilter& filter = [](const FSNode&){ return true; },
+                     bool includeChildDirectories = false,
+                     bool includeParentDirectory = true,
+                     const CancelCheck& isCancelled = []() { return false; }) const;
 
     /**
      * Set/get a string representation of the name of the file. This is can be
@@ -134,7 +159,7 @@ class FilesystemNode
      * @return the file name
      */
     const string& getName() const;
-    void setName(const string& name);
+    void setName(string_view name);
 
     /**
      * Return a string representation of the file which can be passed to fopen().
@@ -163,7 +188,7 @@ class FilesystemNode
      * Get the parent node of this node. If this node has no parent node,
      * then it returns a duplicate of this node.
      */
-    FilesystemNode getParent() const;
+    FSNode getParent() const;
 
     /**
      * Indicates whether the path refers to a directory or not.
@@ -216,18 +241,26 @@ class FilesystemNode
      *
      * @return bool true if the node was renamed, false otherwise.
      */
-    bool rename(const string& newfile);
+    bool rename(string_view newfile);
+
+    /**
+     * Get the size of the current node path.
+     *
+     * @return  Size (in bytes) of the current node path.
+     */
+    size_t getSize() const;
 
     /**
      * Read data (binary format) into the given buffer.
      *
      * @param buffer  The buffer to contain the data (allocated in this method).
+     * @param size    The amount of data to read (0 means read all data).
      *
      * @return  The number of bytes read (0 in the case of failure)
      *          This method can throw exceptions, and should be used inside
      *          a try-catch block.
      */
-    size_t read(ByteBuffer& buffer) const;
+    size_t read(ByteBuffer& buffer, size_t size = 0) const;
 
     /**
      * Read data (text format) into the given stream.
@@ -269,13 +302,13 @@ class FilesystemNode
      * and replace the extension (if present) with the given one.  If no
      * extension is present, the given one is appended instead.
      */
-    string getNameWithExt(const string& ext) const;
-    string getPathWithExt(const string& ext) const;
+    string getNameWithExt(string_view ext = "") const;
+    string getPathWithExt(string_view ext = "") const;
 
   private:
+    explicit FSNode(const AbstractFSNodePtr& realNode);
     AbstractFSNodePtr _realNode;
-    explicit FilesystemNode(const AbstractFSNodePtr& realNode);
-    void setPath(const string& path);
+    void setPath(string_view path);
 };
 
 
@@ -293,9 +326,9 @@ using AbstractFSList = vector<AbstractFSNodePtr>;
 class AbstractFSNode
 {
   protected:
-    friend class FilesystemNode;
-    using ListMode = FilesystemNode::ListMode;
-    using NameFilter = FilesystemNode::NameFilter;
+    friend class FSNode;
+    using ListMode = FSNode::ListMode;
+    using NameFilter = FSNode::NameFilter;
 
   public:
     /**
@@ -303,9 +336,9 @@ class AbstractFSNode
      */
     AbstractFSNode() = default;
     AbstractFSNode(const AbstractFSNode&) = default;
-//    AbstractFSNode(AbstractFSNode&&) = default;
+    AbstractFSNode(AbstractFSNode&&) = delete;
     AbstractFSNode& operator=(const AbstractFSNode&) = default;
-//    AbstractFSNode& operator=(AbstractFSNode&&) = default;
+    AbstractFSNode& operator=(AbstractFSNode&&) = delete;
     virtual ~AbstractFSNode() = default;
 
     /*
@@ -327,7 +360,7 @@ class AbstractFSNode
     virtual bool getChildren(AbstractFSList& list, ListMode mode) const = 0;
 
     /**
-     * Returns the last component of the path pointed by this FilesystemNode.
+     * Returns the last component of the path pointed by this FSNode.
      *
      * Examples (POSIX):
      *			/foo/bar.txt would return /bar.txt
@@ -337,7 +370,7 @@ class AbstractFSNode
      *       implementation for more information.
      */
     virtual const string& getName() const = 0;
-    virtual void setName(const string& name) = 0;
+    virtual void setName(string_view name) = 0;
 
     /**
      * Returns the 'path' of the current node, usable in fopen().
@@ -410,18 +443,26 @@ class AbstractFSNode
      *
      * @return bool true if the node was renamed, false otherwise.
      */
-    virtual bool rename(const string& newfile) = 0;
+    virtual bool rename(string_view newfile) = 0;
+
+    /**
+     * Get the size of the current node path.
+     *
+     * @return  Size (in bytes) of the current node path.
+     */
+    virtual size_t getSize() const { return 0; }
 
     /**
      * Read data (binary format) into the given buffer.
      *
      * @param buffer  The buffer to contain the data (allocated in this method).
+     * @param size    The amount of data to read (0 means read all data).
      *
      * @return  The number of bytes read (0 in the case of failure)
      *          This method can throw exceptions, and should be used inside
      *          a try-catch block.
      */
-    virtual size_t read(ByteBuffer& buffer) const { return 0; }
+    virtual size_t read(ByteBuffer& buffer, size_t size) const { return 0; }
 
     /**
      * Read data (text format) into the given stream.
@@ -456,6 +497,33 @@ class AbstractFSNode
      *          a try-catch block.
      */
     virtual size_t write(const stringstream& buffer) const { return 0; }
+
+  protected:
+    /**
+     * Returns the last component of a given path.
+     *
+     * @param s  String containing the path.
+     * @return   View of the last component inside s.
+     */
+    static constexpr string_view lastPathComponent(string_view s)
+    {
+      if(s.empty())  return EmptyString;
+      const auto pos = s.find_last_of("/\\", s.size() - 2);
+      return s.substr(pos + 1);
+    }
+
+    /**
+     * Returns the part *before* the last component of a given path.
+     *
+     * @param s  String containing the path.
+     * @return   View of the preceding (before the last) component inside s.
+     */
+    static constexpr string_view stemPathComponent(string_view s)
+    {
+      if(s.empty())  return EmptyString;
+      const auto pos = s.find_last_of("/\\", s.size() - 2);
+      return s.substr(0, pos + 1);
+    }
 };
 
 #endif

@@ -10,6 +10,7 @@ SOURCES += src/common/main.cxx \
     src/common/CartDetector.cxx \
     src/common/CartDetectorWrapper.cxx \
     src/common/FSNode.cxx \
+    src/common/Logger.cxx \
     src/common/SerialPortManager.cxx \
     src/common/AboutDialog.cxx
 HEADERS += src/common/HarmonyCartWindow.hxx \
@@ -20,6 +21,7 @@ HEADERS += src/common/HarmonyCartWindow.hxx \
     src/common/CartDetector.hxx \
     src/common/CartDetectorWrapper.hxx \
     src/common/FSNode.hxx \
+    src/common/Logger.hxx \
     src/common/OSystem.hxx \
     src/common/SerialPortManager.hxx \
     src/common/SerialPort.hxx \

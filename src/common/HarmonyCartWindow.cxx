@@ -6,7 +6,7 @@
 //  H   H  A   A  R R    M   M  O   O  N  NN    Y
 //  H   H  A   A  R  R   M   M   OOO   N   N    Y
 //
-// Copyright (c) 2009-2020 by Stephen Anthony <sa666666@gmail.com>
+// Copyright (c) 2009-2024 by Stephen Anthony <sa666666@gmail.com>
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -28,7 +28,6 @@
 #include <QTimer>
 #include <QFile>
 
-#include <iostream>
 #include <sstream>
 #include <sstream>
 
@@ -49,8 +48,8 @@ HarmonyCartWindow::HarmonyCartWindow(QWidget* parent)
   setWindowTitle("Harmony Programming Tool " + QString(HARMONY_VERSION));
 
   // Fix BIOS and HBIOS buttons; make sure they're the same size
-  int w = std::max(ui->updateBIOSButton->width(), ui->copyHBIOSButton->width());
-  int h = std::max(ui->updateBIOSButton->height(), ui->copyHBIOSButton->height());
+  const int w = std::max(ui->updateBIOSButton->width(), ui->copyHBIOSButton->width());
+  const int h = std::max(ui->updateBIOSButton->height(), ui->copyHBIOSButton->height());
   ui->updateBIOSButton->setFixedSize(w, h);
   ui->copyHBIOSButton->setFixedSize(w, h);
 
@@ -81,7 +80,8 @@ HarmonyCartWindow::HarmonyCartWindow(QWidget* parent)
     if(!BSPF::equalsIgnoreCase(entry.name, "AUTO") &&    // handled manually above
        !BSPF::equalsIgnoreCase(entry.name, "CUSTOM") &&  // handled manually above
        !BSPF::equalsIgnoreCase(entry.name, "2K"))        // handled by 4K directly
-      ui->romBSType->addItem(entry.desc, entry.name);
+      ui->romBSType->addItem(QString::fromStdString(std::string(entry.desc)),  // ugly conversions :(
+                             QString::fromStdString(std::string(entry.name)));
   }
 
   // Initialize settings
@@ -535,7 +535,7 @@ void HarmonyCartWindow::slotAbout()
   ostringstream about;
   about << "<center>"
         << "<p><b>Harmony Programming Tool v" << HARMONY_VERSION << "</b></p>"
-        << "<p>Copyright &copy; 2009-2020 <a href=\"mailto:sa666666@gmail.com\">Stephen Anthony</a><br>"
+        << "<p>Copyright &copy; 2009-2024 <a href=\"mailto:sa666666@gmail.com\">Stephen Anthony</a><br>"
         << "Check for updates at <a href=\"https://github.com/sa666666/harmonycart\">https://github.com/sa666666/harmonycart</a><p>"
         << "</center>"
         << "<p>This software is released under the GNU GPLv3, and includes items from the following projects:</p>"
@@ -545,7 +545,7 @@ void HarmonyCartWindow::slotAbout()
         << "<li><a href=\"http://stella-emu.github.io\">Stella</a>: bankswitch autodetection code and various other classes</li>"
         << "</ul></p>"
 
-        << "<p>Version 2.0 (Dec. xx, 2020):</p>"
+        << "<p>Version 2.0 (Feb. xx, 2024):</p>"
         << "<ul>"
         << "<li>Updated lpc21isp code to version 1.97 (last released version since 2015).</li>"
         << "<li>Completely reworked serial port autodetection for Mac and Windows ports.</li>"

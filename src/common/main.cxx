@@ -6,7 +6,7 @@
 //  H   H  A   A  R R    M   M  O   O  N  NN    Y
 //  H   H  A   A  R  R   M   M   OOO   N   N    Y
 //
-// Copyright (c) 2009-2020 by Stephen Anthony <sa666666@gmail.com>
+// Copyright (c) 2009-2024 by Stephen Anthony <sa666666@gmail.com>
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -14,35 +14,35 @@
 
 #include <QApplication>
 #include <QFile>
-#include "ui_harmonycartwindow.h"
+//#include "ui_harmonycartwindow.h"
 
 #include "bspf.hxx"
 #include "Bankswitch.hxx"
 #include "Cart.hxx"
-#include "SerialPort.hxx"
+//#include "SerialPort.hxx"
 #include "SerialPortManager.hxx"
 #include "HarmonyCartWindow.hxx"
 #include "Version.hxx"
 
 void usage()
 {
-  cout << "Harmony Programming Tool version " << HARMONY_VERSION << endl
-       << endl
-       << "Usage: harmonycart [options ...] datafile" << endl
-       << "       Run without any options or datafile to use the graphical frontend" << endl
-       << "       Consult the manual for more in-depth information" << endl
-       << endl
-       << "Valid options are:" << endl
-       << endl
-       << "  -bios       Treat the specified datafile as an EEPROM loader BIOS image" << endl
-       << "              Otherwise, the datafile is treated as a ROM image instead" << endl
-       << "  -bs=[type]  Specify the bankswitching scheme for a ROM image" << endl
-       << "              (default is 'auto')" << endl
-       << "  -help       Displays the message you're now reading" << endl
-       << endl
-       << "This software is Copyright (c) 2009-2020 Stephen Anthony, and is released" << endl
-       << "under the GNU GPL version 3." << endl
-       << endl;
+  cout << "Harmony Programming Tool version " << HARMONY_VERSION << '\n'
+       << '\n'
+       << "Usage: harmonycart [options ...] datafile\n"
+       << "       Run without any options or datafile to use the graphical frontend\n"
+       << "       Consult the manual for more in-depth information\n"
+       << '\n'
+       << "Valid options are:\n"
+       << '\n'
+       << "  -bios       Treat the specified datafile as an EEPROM loader BIOS image\n"
+       << "              Otherwise, the datafile is treated as a ROM image instead\n"
+       << "  -bs=[type]  Specify the bankswitching scheme for a ROM image\n"
+       << "              (default is 'auto')\n"
+       << "  -help       Displays the message you're now reading\n"
+       << '\n'
+       << "This software is Copyright (c) 2009-2024 Stephen Anthony, and is released\n"
+       << "under the GNU GPL version 3.\n"
+       << '\n';
 }
 
 void runCommandlineApp(HarmonyCartWindow& win, int ac, char* av[])
@@ -66,7 +66,7 @@ void runCommandlineApp(HarmonyCartWindow& win, int ac, char* av[])
     else if(BSPF::startsWithIgnoreCase(av[i], "-"))
     {
       // Unknown argument
-      cout << "Unknown argument \'" << av[i] << "\'" << endl << endl;
+      cout << "Unknown argument \'" << av[i] << "\'\n\n";
       usage();
       return;
     }
@@ -82,21 +82,21 @@ void runCommandlineApp(HarmonyCartWindow& win, int ac, char* av[])
   manager.connectHarmonyCart(cart);
   if(manager.harmonyCartAvailable())
   {
-    cout << "Harmony \'" << manager.versionID().c_str() << "\' @ \'" << manager.portName().c_str() << "\'" << endl;
+    cout << "Harmony \'" << manager.versionID().c_str() << "\' @ \'" << manager.portName().c_str() << "\'\n";
   }
   else
   {
-    cout << "Harmony Cart not detected" << endl;
+    cout << "Harmony Cart not detected\n";
     return;
   }
 
   // Are we updating the BIOS or a single-load ROM?
   if(biosupdate)
   {
-    cout << "Downloading BIOS file..." << endl;
+    cout << "Downloading BIOS file...\n";
     if(datafile == "" || !QFile::exists(QString(datafile.c_str())))
     {
-      cout << "Couldn't find BIOS file \'" << datafile.c_str() << "\'" << endl;
+      cout << "Couldn't find BIOS file \'" << datafile.c_str() << "\'\n";
       return;
     }
 
@@ -108,14 +108,14 @@ void runCommandlineApp(HarmonyCartWindow& win, int ac, char* av[])
       manager.closeCartPort();
     }
     else
-      cout << "Couldn't open Harmony Cart" << endl;
+      cout << "Couldn't open Harmony Cart\n";
   }
   else  // Single-load ROM image
   {
-    cout << "Downloading single-load ROM file..." << endl;
+    cout << "Downloading single-load ROM file...\n";
     if(datafile == "" || !QFile::exists(QString(datafile.c_str())))
     {
-      cout << "Couldn't find ROM file \'" << datafile.c_str() << "\'" << endl;
+      cout << "Couldn't find ROM file \'" << datafile.c_str() << "\'\n";
       return;
     }
 
@@ -128,7 +128,7 @@ void runCommandlineApp(HarmonyCartWindow& win, int ac, char* av[])
       manager.closeCartPort();
     }
     else
-      cout << "Couldn't open Harmony Cart" << endl;
+      cout << "Couldn't open Harmony Cart\n";
   }
 }
 

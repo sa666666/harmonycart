@@ -22,7 +22,7 @@ BEGIN
             VALUE "FileDescription", "HarmonyCart"
             VALUE "FileVersion", VER_FILEVERSION_STR
             VALUE "InternalName", "HarmonyCart"
-            VALUE "LegalCopyright", "Copyright (C) 2009-2020 Stephen Anthony"
+            VALUE "LegalCopyright", "Copyright (C) 2009-2024 Stephen Anthony"
             VALUE "OriginalFilename", "HarmonyCart.exe"
             VALUE "ProductName", "HarmonyCart"
             VALUE "ProductVersion", VER_PRODUCTVERSION_STR

@@ -6,7 +6,7 @@
 //  H   H  A   A  R R    M   M  O   O  N  NN    Y
 //  H   H  A   A  R  R   M   M   OOO   N   N    Y
 //
-// Copyright (c) 2009-2020 by Stephen Anthony <sa666666@gmail.com>
+// Copyright (c) 2009-2024 by Stephen Anthony <sa666666@gmail.com>
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -88,7 +88,7 @@ bool SerialPortUNIX::openPort(const string& device)
     case    9600: NEWTERMIOS_SETBAUDRATE(B9600);    break;
     default:
     {
-      cerr << "ERROR: unknown baudrate " << myBaud << endl;
+      cerr << "ERROR: unknown baudrate " << myBaud << '\n';
       return false;
     }
   }
@@ -221,7 +221,7 @@ void SerialPortUNIX::controlModemLines(bool DTR, bool RTS)
 
   int status;
   if(ioctl(myHandle, TIOCMGET, &status) != 0)
-    cerr << "ioctl get failed, status = " << status << endl;
+    cerr << "ioctl get failed, status = " << status << '\n';
 
   if (DTR) status |=  TIOCM_DTR;
   else     status &= ~TIOCM_DTR;
@@ -229,9 +229,9 @@ void SerialPortUNIX::controlModemLines(bool DTR, bool RTS)
   else     status &= ~TIOCM_RTS;
 
   if (ioctl(myHandle, TIOCMSET, &status) != 0)
-    cerr << "ioctl set failed, status = " << status << endl;
+    cerr << "ioctl set failed, status = " << status << '\n';
   if (ioctl(myHandle, TIOCMGET, &status) != 0)
-    cerr << "ioctl get failed, status = " << status << endl;
+    cerr << "ioctl get failed, status = " << status << '\n';
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -272,15 +272,15 @@ const StringList& SerialPortUNIX::getPortNames()
   };
 
   // Get all possible devices in the '/dev' directory
-  FilesystemNode::NameFilter filter = [](const FilesystemNode& node) {
+  FSNode::NameFilter filter = [](const FSNode& node) {
     return BSPF::startsWithIgnoreCase(node.getPath(), "/dev/ttyS") ||
            BSPF::startsWithIgnoreCase(node.getPath(), "/dev/ttyUSB");
   };
   FSList portList;
   portList.reserve(8);
 
-  FilesystemNode dev("/dev/");
-  dev.getChildren(portList, FilesystemNode::ListMode::All, filter, false);
+  FSNode dev("/dev/");
+  dev.getChildren(portList, FSNode::ListMode::All, filter, false);
 
   // Add only those that can be opened
   for(const auto& port: portList)
