@@ -45,7 +45,7 @@ class CartDetector
       MVC cartridges are of arbitary large length
       Returns size of frame if stream is probably an MVC movie cartridge
     */
-    static size_t isProbablyMVC(const FSNode& rom);
+    static size_t isProbablyMVC(const FSNode&);
 
     /**
       Returns true if the image is probably a HSC PlusROM

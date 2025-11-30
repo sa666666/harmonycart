@@ -58,7 +58,7 @@ bool SerialPortUNIX::openPort(const string& device)
 
   tcgetattr(myHandle, &myOldtio); // save current port settings
 
-  bzero(&myNewtio, sizeof(myNewtio));
+  memset(&myNewtio, 0, sizeof(struct termios));
   myNewtio.c_cflag = CS8 | CLOCAL | CREAD;
 
 #if defined(__FreeBSD__) || defined(__OpenBSD__)

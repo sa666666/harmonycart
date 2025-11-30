@@ -221,7 +221,7 @@ string Cart::downloadROM(SerialPort& port, const string& armpath,
         }
 
         memcpy(ptr, rombuf.get()+4096*i, 4096);
-        ptr += 4096;
+        //ptr += 4096;
 
         // Compress last bank
         try
@@ -444,11 +444,8 @@ void Cart::resetTarget(SerialPort& port, TARGET_MODE mode)
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 uInt32 Cart::compressLastBank(uInt8* binary)
 {
-  uInt32 a, b, cb, j, k, r, x, y, len, mode_count;
+  uInt32 a{0}, b{0}, cb{0}, j{0}, k{0}, r{0}, x{0}, y{32768-4096}, len{0};
   uInt8 buflast[4096], buf[40000], bc[10000], dec[10000], bufliteral[200];
-
-  a = b = cb = j = k = r = x = len = mode_count = 0;
-  y = 32768-4096;
 
   memcpy(buf, binary, 32768);
 
@@ -489,11 +486,9 @@ uInt32 Cart::compressLastBank(uInt8* binary)
       bc[cb++] = k-4+128;
       bc[cb++] = j/256;
       bc[cb++] = j%256;
-      mode_count++;
     }
     else
     {
-      mode_count++;
       if (!k)
       {
         k = 1;
@@ -523,7 +518,7 @@ uInt32 Cart::compressLastBank(uInt8* binary)
     bc[cb++] = b;
     for (a = 0; a < b; ++a)
       bc[cb++] = bufliteral[a];
-    b=0;
+    //b=0;
   }
 
 #if 0
@@ -770,28 +765,28 @@ string Cart::lpc_NxpDownload(SerialPort& port, uInt8* data, uInt32 size,
   };
 
   char Answer[128], ExpectedAnswer[128], temp[128];
-  char *strippedAnswer, *endPtr;
-  int strippedsize;
-  int found;
-  uInt32 Sector;
-  uInt32 SectorLength;
-  uInt32 SectorStart, SectorOffset, SectorChunk;
+  char *strippedAnswer{nullptr}, *endPtr{nullptr};
+  int strippedsize{0};
+  int found{0};
+  uInt32 Sector{0};
+  uInt32 SectorLength{0};
+  uInt32 SectorStart{0}, SectorOffset{0}, SectorChunk{0};
   char tmpString[128];
   char uuencode_table[64];
-  int Line;
-  uInt32 tmpStringPos;
-  uInt32 BlockOffset;
-  uInt32 Block;
-  uInt32 Pos;
+  int Line{0};
+  uInt32 tmpStringPos{0};
+  uInt32 BlockOffset{0};
+  uInt32 Block{0};
+  uInt32 Pos{0};
   uInt32 Id[2];
-  uInt32 Id1Masked;
-  uInt32 CopyLength;
-  int c,k=0,i;
-  uInt32 ivt_CRC;          // CRC over interrupt vector table
-  uInt32 block_CRC;
-  time_t tStartUpload=0, tDoneUpload=0;
-  const char* cmdstr;
-  uInt32 repeat = 0;
+  uInt32 Id1Masked{0};
+  uInt32 CopyLength{0};
+  int c{0},k{0},i{0};
+  uInt32 ivt_CRC{0};          // CRC over interrupt vector table
+  uInt32 block_CRC{0};
+  time_t tStartUpload{0}, tDoneUpload{0};
+  const char* cmdstr{nullptr};
+  uInt32 repeat{0};
   ostringstream result;
 
   // Puffer for data to resend after "RESEND\r\n" Target responce
