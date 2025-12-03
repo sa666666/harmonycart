@@ -1,6 +1,8 @@
 TARGET = HarmonyCart
 TEMPLATE = app
+
 CONFIG += c++20
+QMAKE_CXXFLAGS += -std=c++20
 
 SOURCES += src/common/main.cxx \
     src/common/Bankswitch.cxx \
