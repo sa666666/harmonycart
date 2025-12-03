@@ -1,8 +1,6 @@
-# -------------------------------------------------
-# Project created by QtCreator 2009-05-21T12:40:28
-# -------------------------------------------------
 TARGET = HarmonyCart
 TEMPLATE = app
+
 SOURCES += src/common/main.cxx \
     src/common/Bankswitch.cxx \
     src/common/HarmonyCartWindow.cxx \
@@ -31,11 +29,12 @@ HEADERS += src/common/HarmonyCartWindow.hxx \
     src/windows/HomeFinder.hxx
 FORMS += harmonycartwindow.ui \
     aboutdialog.ui
+
 RESOURCES += resources.qrc
-QT += widgets
-CONFIG += c++17
 DEFINES += CUSTOM_ARM
 INCLUDEPATH += src/common
+QT += widgets
+QMAKE_CXXFLAGS += -std=c++20
 
 windows {
 #  Uncomment the following to create a commandline-compatible Windows build
