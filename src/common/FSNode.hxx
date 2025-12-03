@@ -8,7 +8,7 @@
 //  SS  SS   tt   ee      ll   ll  aa  aa
 //   SSSS     ttt  eeeee llll llll  aaaaa
 //
-// Copyright (c) 1995-2024 by Bradford W. Mott, Stephen Anthony
+// Copyright (c) 1995-2025 by Bradford W. Mott, Stephen Anthony
 // and the Stella Team
 //
 // See the file "License.txt" for information on usage and redistribution of
@@ -59,7 +59,7 @@ class FSNode
     /**
      * Flag to tell listDir() which kind of files to list.
      */
-    enum class ListMode { FilesOnly, DirectoriesOnly, All };
+    enum class ListMode: uInt8 { FilesOnly, DirectoriesOnly, All };
 
     /** Function used to filter the file listing.  Returns true if the filename
         should be included, else false.*/
@@ -97,14 +97,13 @@ class FSNode
      * Compare the name of this node to the name of another, testing for
      * equality.
      */
-    inline bool operator==(const FSNode& node) const
-    {
+    bool operator==(const FSNode& node) const {
       return BSPF::compareIgnoreCase(getName(), node.getName()) == 0;
     }
 
     /**
      * Append the given path to the node, adding a directory separator
-     * when necessary.  Modelled on the C++17 fs::path API.
+     * when necessary.
      */
     FSNode& operator/=(string_view path);
 

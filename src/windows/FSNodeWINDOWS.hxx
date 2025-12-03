@@ -8,7 +8,7 @@
 //  SS  SS   tt   ee      ll   ll  aa  aa
 //   SSSS     ttt  eeeee llll llll  aaaaa
 //
-// Copyright (c) 1995-2020 by Bradford W. Mott, Stephen Anthony
+// Copyright (c) 1995-2025 by Bradford W. Mott, Stephen Anthony
 // and the Stella Team
 //
 // See the file "License.txt" for information on usage and redistribution of
@@ -18,12 +18,7 @@
 #ifndef FS_NODE_WINDOWS_HXX
 #define FS_NODE_WINDOWS_HXX
 
-#include <tchar.h>
-
 #include "FSNode.hxx"
-#include "HomeFinder.hxx"
-
-static HomeFinder myHomeFinder;
 
 // TODO - fix isFile() functionality so that it actually determines if something
 //        is a file; for now, it assumes a file if it isn't a directory
@@ -34,19 +29,18 @@ static HomeFinder myHomeFinder;
  * Parts of this class are documented in the base interface class,
  * AbstractFSNode.
  */
-class FilesystemNodeWINDOWS : public AbstractFSNode
+class FSNodeWINDOWS : public AbstractFSNode
 {
   public:
     /**
-     * Creates a FilesystemNodeWINDOWS with the root node as path.
+     * Creates a FSNodeWINDOWS with the root node as path.
      *
      * In regular windows systems, a virtual root path is used "".
-     * In windows CE, the "\" root is used instead.
      */
-    FilesystemNodeWINDOWS();
+    FSNodeWINDOWS() : _isPseudoRoot{true}, _isDirectory{true} { }
 
     /**
-     * Creates a FilesystemNodeWINDOWS for a given path.
+     * Creates a FSNodeWINDOWS for a given path.
      *
      * Examples:
      *   path=c:\foo\bar.txt, currentDir=false -> c:\foo\bar.txt
@@ -55,65 +49,37 @@ class FilesystemNodeWINDOWS : public AbstractFSNode
      *
      * @param path String with the path the new node should point to.
      */
-    explicit FilesystemNodeWINDOWS(const string& path);
+    explicit FSNodeWINDOWS(string_view path);
 
     bool exists() const override;
-    const string& getName() const override    { return _displayName; }
-    void setName(const string& name) override { _displayName = name; }
+    const string& getName() const override  { return _displayName; }
+    void setName(string_view name) override { _displayName = name; }
     const string& getPath() const override { return _path; }
     string getShortPath() const override;
-    bool hasParent() const override { return !_isPseudoRoot; }
     bool isDirectory() const override { return _isDirectory; }
     bool isFile() const override      { return _isFile;      }
     bool isReadable() const override;
     bool isWritable() const override;
     bool makeDir() override;
-    bool rename(const string& newfile) override;
+    bool rename(string_view newfile) override;
 
-    bool getChildren(AbstractFSList& list, ListMode mode) const override;
+    size_t getSize() const override;
+    bool hasParent() const override { return !_isPseudoRoot; }
     AbstractFSNodePtr getParent() const override;
-
-  protected:
-    string _displayName;
-    string _path;
-    bool _isDirectory{true};
-    bool _isFile{false};
-    bool _isPseudoRoot{true};
-    bool _isValid{false};
+    bool getChildren(AbstractFSList& list, ListMode mode) const override;
 
   private:
     /**
-     * Tests and sets the _isValid and _isDirectory/_isFile flags,
-     * using the GetFileAttributes() function.
-     */
-    void setFlags();
-
-    /**
-     * Adds a single FilesystemNodeWINDOWS to a given list.
-     * This method is used by getChildren() to populate the directory entries list.
+     * Set the _isDirectory/_isFile/_size flags using GetFileAttributes().
      *
-     * @param list       List to put the file entry node in.
-     * @param mode       Mode to use while adding the file entry to the list.
-     * @param base       String with the directory being listed.
-     * @param find_data  Describes a file that the FindFirstFile, FindFirstFileEx, or FindNextFile functions find.
+     * @return  Success/failure of GetFileAttributes() function
      */
-    static void addFile(AbstractFSList& list, ListMode mode, const char* base, WIN32_FIND_DATA* find_data);
+    bool setFlags();
 
-    /**
-     * Converts a Unicode string to Ascii format.
-     *
-     * @param str  String to convert from Unicode to Ascii.
-     * @return str in Ascii format.
-     */
-    static char* toAscii(TCHAR *str);
-
-    /**
-     * Converts an Ascii string to Unicode format.
-     *
-     * @param str  String to convert from Ascii to Unicode.
-     * @return str in Unicode format.
-     */
-    static const TCHAR* toUnicode(const char* str);
+  private:
+    string _displayName, _path;
+    bool _isPseudoRoot{false}, _isDirectory{false}, _isFile{false};
+    mutable size_t _size{0};
 };
 
 #endif

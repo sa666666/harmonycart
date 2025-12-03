@@ -13,8 +13,7 @@
 //=========================================================================
 
 #undef UNICODE
-#include <windows.h>
-#include <sstream>
+#include <Windows.hxx>
 #include <cstdio>
 
 #include "SerialPortWINDOWS.hxx"
@@ -67,7 +66,7 @@ bool SerialPortWINDOWS::openPort(const string& device)
 
   if(SetCommState(myHandle, &dcb) == 0)
   {
-    cerr << "ERROR: Can't set baudrate " << myBaud << " " << GetLastError() << endl;
+    cerr << "ERROR: Can't set baudrate " << myBaud << " " << GetLastError() << '\n';
     return false;
   }
 

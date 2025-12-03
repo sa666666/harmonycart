@@ -2,7 +2,6 @@ TARGET = HarmonyCart
 TEMPLATE = app
 
 CONFIG += c++20
-QMAKE_CXXFLAGS += -std=c++20
 
 SOURCES += src/common/main.cxx \
     src/common/Bankswitch.cxx \
@@ -43,11 +42,11 @@ windows {
 #    TARGET = HarmonyCart.com
 #    CONFIG += qt console
     DEFINES -= UNICODE _UNICODE
-    DEFINES += _CRT_SECURE_NO_WARNINGS BSPF_WINDOWS
+    DEFINES += _CRT_SECURE_NO_WARNINGS BSPF_WINDOWS NOMINMAX
     INCLUDEPATH += src/windows
     LIBS += -lAdvapi32 -lShell32 -lWinmm
     SOURCES += src/windows/FSNodeWINDOWS.cxx src/windows/SerialPortWINDOWS.cxx src/windows/OSystemWINDOWS.cxx
-    HEADERS += src/windows/FSNodeWINDOWS.hxx src/windows/SerialPortWINDOWS.hxx src/windows/OSystemWINDOWS.hxx
+    HEADERS += src/windows/FSNodeWINDOWS.hxx src/windows/SerialPortWINDOWS.hxx src/windows/OSystemWINDOWS.hxx src/windows/HomeFinder.hxx src/windows/Windows.hxx
     RC_FILE = src/windows/HarmonyCart.rc
     QMAKE_CXXFLAGS_WARN_ON += -wd4100
 }

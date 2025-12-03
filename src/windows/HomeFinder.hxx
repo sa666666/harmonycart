@@ -8,7 +8,7 @@
 //  SS  SS   tt   ee      ll   ll  aa  aa
 //   SSSS     ttt  eeeee llll llll  aaaaa
 //
-// Copyright (c) 1995-2020 by Bradford W. Mott, Stephen Anthony
+// Copyright (c) 1995-2025 by Bradford W. Mott, Stephen Anthony
 // and the Stella Team
 //
 // See the file "License.txt" for information on usage and redistribution of
@@ -20,6 +20,7 @@
 
 #pragma warning( disable : 4091 )
 #include <shlobj.h>
+#include "bspf.hxx"
 
 /*
  * Used to determine the location of the various Win32 user/system folders.
@@ -31,7 +32,7 @@ class HomeFinder
     ~HomeFinder() = default;
 
     // Return the 'APPDATA' folder, or an empty string if the folder couldn't be determined.
-    const string& getAppDataPath() const
+    static const string& getAppDataPath()
     {
       if(ourAppDataPath == "")
       {
@@ -44,7 +45,7 @@ class HomeFinder
     }
 
     // Return the 'Desktop' folder, or an empty string if the folder couldn't be determined.
-    const string& getDesktopPath() const
+    static const string& getDesktopPath()
     {
       if(ourDesktopPath == "")
       {
@@ -57,7 +58,7 @@ class HomeFinder
     }
 
     // Return the 'My Documents' folder, or an empty string if the folder couldn't be determined.
-    const string& getDocumentsPath() const
+    static const string& getDocumentsPath()
     {
       if(ourDocumentsPath == "")
       {
@@ -70,7 +71,7 @@ class HomeFinder
     }
 
     // Return the 'HOME/User' folder, or an empty string if the folder couldn't be determined.
-    const string& getHomePath() const
+    static const string& getHomePath()
     {
       if(ourHomePath == "")
       {

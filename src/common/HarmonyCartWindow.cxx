@@ -21,7 +21,6 @@
 #include <QAction>
 #include <QActionGroup>
 #include <QButtonGroup>
-#include <QRegExp>
 #include <QSettings>
 #include <QCloseEvent>
 #include <QMessageBox>
