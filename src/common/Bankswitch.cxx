@@ -8,7 +8,7 @@
 //  SS  SS   tt   ee      ll   ll  aa  aa
 //   SSSS     ttt  eeeee llll llll  aaaaa
 //
-// Copyright (c) 1995-2024 by Bradford W. Mott, Stephen Anthony
+// Copyright (c) 1995-2025 by Bradford W. Mott, Stephen Anthony
 // and the Stella Team
 //
 // See the file "License.txt" for information on usage and redistribution of
@@ -109,6 +109,7 @@ Bankswitch::BSList = {{
   { "E7"      , "E7 (8-16K M Network)"        },
   { "EF"      , "EF (64K H. Runner)"          },
   { "EFSC"    , "EFSC (64K H. Runner + RAM)"  },
+  { "ELF"     , "ELF (ARM bus stuffing)"      },
   { "F0"      , "F0 (Dynacom Megaboy)"        },
   { "F4"      , "F4 (32K Atari)"              },
   { "F4SC"    , "F4SC (32K Atari + RAM)"      },
@@ -121,6 +122,7 @@ Bankswitch::BSList = {{
   { "FC"      , "FC (32K Amiga)"              },
   { "FE"      , "FE (8K Activision)"          },
   { "GL"      , "GL (GameLine Master Module)" },
+  { "JANE"    , "JANE (16K Tarzan prototype)" },
   { "MDM"     , "MDM (Menu Driven Megacart)"  },
   { "MVC"     , "MVC (Movie Cart)"            },
   { "SB"      , "SB (128-256K SUPERbank)"     },
@@ -129,8 +131,9 @@ Bankswitch::BSList = {{
   { "UASW"    , "UASW (8K UA swapped banks)"  },
   { "WD"      , "WD (Pink Panther)"           },
   { "WDSW"    , "WDSW (Pink Panther, bad)"    },
+  { "WF8"     , "WF8 (Coleco, white carts)"   },
   { "X07"     , "X07 (64K AtariAge)"          },
-#if defined(CUSTOM_ARM)
+#ifdef CUSTOM_ARM
   { "CUSTOM"  ,   "CUSTOM (ARM)"              }
 #endif
 }};
@@ -173,6 +176,7 @@ Bankswitch::Sizes = {{
   {    8_KB,  16_KB }, // _E7
   {   64_KB,  64_KB }, // _EF
   {   64_KB,  64_KB }, // _EFSC
+  {   Bankswitch::any_KB,  Bankswitch::any_KB }, // _ELF
   {   64_KB,  64_KB }, // _F0
   {   32_KB,  32_KB }, // _F4
   {   32_KB,  32_KB }, // _F4SC
@@ -185,6 +189,7 @@ Bankswitch::Sizes = {{
   {   32_KB,  32_KB }, // _FC
   {    8_KB,   8_KB }, // _FE
   {    4_KB,   6_KB }, // _GL
+  {   16_KB,  16_KB }, // _JANE
   {    8_KB, Bankswitch::any_KB }, // _MDM
   { 1024_KB, Bankswitch::any_KB }, // _MVC
   {  128_KB, 256_KB }, // _SB
@@ -193,8 +198,9 @@ Bankswitch::Sizes = {{
   {    8_KB,   8_KB }, // _UASW
   {    8_KB,   8_KB }, // _WD
   {    8_KB,   8_KB+5 }, // _WDSW
+  {    8_KB,   8_KB }, // _WF8
   {   64_KB,  64_KB }, // _X07
-#if defined(CUSTOM_ARM)
+#ifdef CUSTOM_ARM
   { Bankswitch::any_KB, Bankswitch::any_KB }
 #endif
 }};
@@ -206,7 +212,7 @@ Bankswitch::ExtensionMap Bankswitch::ourExtensions = {
   { "a26"   , Bankswitch::Type::_AUTO   },
   { "bin"   , Bankswitch::Type::_AUTO   },
   { "rom"   , Bankswitch::Type::_AUTO   },
-#if defined(ZIP_SUPPORT)
+#ifdef ZIP_SUPPORT
   { "zip"   , Bankswitch::Type::_AUTO   },
 #endif
   { "cu"    , Bankswitch::Type::_AUTO   },
@@ -262,6 +268,7 @@ Bankswitch::ExtensionMap Bankswitch::ourExtensions = {
   { "EF"    , Bankswitch::Type::_EF     },
   { "EFS"   , Bankswitch::Type::_EFSC   },
   { "EFSC"  , Bankswitch::Type::_EFSC   },
+  { "ELF"   , Bankswitch::Type::_ELF    },
   { "F0"    , Bankswitch::Type::_F0     },
   { "F4"    , Bankswitch::Type::_F4     },
   { "F4S"   , Bankswitch::Type::_F4SC   },
@@ -277,6 +284,8 @@ Bankswitch::ExtensionMap Bankswitch::ourExtensions = {
   { "FC"    , Bankswitch::Type::_FC     },
   { "FE"    , Bankswitch::Type::_FE     },
   { "GL"    , Bankswitch::Type::_GL     },
+  { "JAN"   , Bankswitch::Type::_JANE   },
+  { "JANE"  , Bankswitch::Type::_JANE   },
   { "MDM"   , Bankswitch::Type::_MDM    },
   { "MVC"   , Bankswitch::Type::_MVC    },
   { "SB"    , Bankswitch::Type::_SB     },
@@ -286,7 +295,8 @@ Bankswitch::ExtensionMap Bankswitch::ourExtensions = {
   { "UASW"  , Bankswitch::Type::_UASW   },
   { "WD"    , Bankswitch::Type::_WD     },
   { "WDSW"  , Bankswitch::Type::_WDSW   },
-  { "X07"   , Bankswitch::Type::_X07    }
+  { "WF8"   , Bankswitch::Type::_WF8    },
+  { "X07"   , Bankswitch::Type::_X07    },
 };
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -326,6 +336,7 @@ Bankswitch::NameToTypeMap Bankswitch::ourNameToTypes = {
   { "E7"      , Bankswitch::Type::_E7     },
   { "EF"      , Bankswitch::Type::_EF     },
   { "EFSC"    , Bankswitch::Type::_EFSC   },
+  { "ELF"     , Bankswitch::Type::_ELF    },
   { "F0"      , Bankswitch::Type::_F0     },
   { "F4"      , Bankswitch::Type::_F4     },
   { "F4SC"    , Bankswitch::Type::_F4SC   },
@@ -338,6 +349,7 @@ Bankswitch::NameToTypeMap Bankswitch::ourNameToTypes = {
   { "FC"      , Bankswitch::Type::_FC     },
   { "FE"      , Bankswitch::Type::_FE     },
   { "GL"      , Bankswitch::Type::_GL     },
+  { "JANE"    , Bankswitch::Type::_JANE   },
   { "MDM"     , Bankswitch::Type::_MDM    },
   { "MVC"     , Bankswitch::Type::_MVC    },
   { "SB"      , Bankswitch::Type::_SB     },
@@ -346,5 +358,6 @@ Bankswitch::NameToTypeMap Bankswitch::ourNameToTypes = {
   { "UASW"    , Bankswitch::Type::_UASW   },
   { "WD"      , Bankswitch::Type::_WD     },
   { "WDSW"    , Bankswitch::Type::_WDSW   },
+  { "WF8"     , Bankswitch::Type::_WF8    },
   { "X07"     , Bankswitch::Type::_X07    }
 };

@@ -8,7 +8,7 @@
 //  SS  SS   tt   ee      ll   ll  aa  aa
 //   SSSS     ttt  eeeee llll llll  aaaaa
 //
-// Copyright (c) 1995-2024 by Bradford W. Mott, Stephen Anthony
+// Copyright (c) 1995-2025 by Bradford W. Mott, Stephen Anthony
 // and the Stella Team
 //
 // See the file "License.txt" for information on usage and redistribution of
@@ -16,6 +16,10 @@
 //============================================================================
 
 #include "Logger.hxx"
+
+#ifdef __LIB_RETRO__
+extern void libretro_logger(int log_level, const char *string);
+#endif
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Logger& Logger::instance()
@@ -51,7 +55,11 @@ void Logger::debug(string_view message)
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void Logger::logMessage(string_view message, Level level)
 {
-  const std::lock_guard<std::mutex> lock(mutex);
+  const std::scoped_lock lock(mutex);
+
+#ifdef __LIB_RETRO__
+  libretro_logger(static_cast<int>(level), string{message}.c_str());
+#endif
 
   if(level == Logger::Level::ERR)
   {

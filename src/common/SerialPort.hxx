@@ -6,7 +6,7 @@
 //  H   H  A   A  R R    M   M  O   O  N  NN    Y
 //  H   H  A   A  R  R   M   M   OOO   N   N    Y
 //
-// Copyright (c) 2009-2024 by Stephen Anthony <sa666666@gmail.com>
+// Copyright (c) 2009-2025 by Stephen Anthony <sa666666@gmail.com>
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -151,7 +151,7 @@ class SerialPort
     {
       size_t tmp_realsize = 0;
       uInt32 nr_of_0x0A = 0;
-      uInt32 nr_of_0x0D = 0;
+      //uInt32 nr_of_0x0D = 0;
       int eof = 0;
       uInt8* Answer = (uInt8*) Ans;
       uInt8* endPtr = nullptr;
@@ -193,7 +193,7 @@ class SerialPort
             }
             else if(Answer[p] == 0x0d)
             {
-              nr_of_0x0D++;
+              //nr_of_0x0D++;
               lf = 1;
             }
             else if(((signed char) Answer[p]) < 0)
@@ -203,7 +203,7 @@ class SerialPort
             }
             else if (lf != 0)
             {
-              nr_of_0x0D++;
+              //nr_of_0x0D++;
               nr_of_0x0A++;
               lf = 0;
               if(nr_of_0x0A >= WantedNr0x0A)

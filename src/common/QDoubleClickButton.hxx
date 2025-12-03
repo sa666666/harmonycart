@@ -6,14 +6,14 @@
 //  H   H  A   A  R R    M   M  O   O  N  NN    Y
 //  H   H  A   A  R  R   M   M   OOO   N   N    Y
 //
-// Copyright (c) 2009-2024 by Stephen Anthony <sa666666@gmail.com>
+// Copyright (c) 2009-2025 by Stephen Anthony <sa666666@gmail.com>
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 //=========================================================================
 
-#ifndef Q_LR_PUSHBUTTON_HXX
-#define Q_LR_PUSHBUTTON_HXX
+#ifndef Q_DOUBLECLICK_BUTTON_HXX
+#define Q_DOUBLECLICK_BUTTON_HXX
 
 #include <QPushButton>
 #include <QMouseEvent>
@@ -52,4 +52,4 @@ Q_OBJECT
     Qt::MouseButton myButtonToDetect{Qt::LeftButton};
 };
 
-#endif // Q_DOUBLECLICKBUTTON_HXX
+#endif // Q_DOUBLECLICK_BUTTON_HXX

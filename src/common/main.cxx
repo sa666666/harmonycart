@@ -6,7 +6,7 @@
 //  H   H  A   A  R R    M   M  O   O  N  NN    Y
 //  H   H  A   A  R  R   M   M   OOO   N   N    Y
 //
-// Copyright (c) 2009-2024 by Stephen Anthony <sa666666@gmail.com>
+// Copyright (c) 2009-2025 by Stephen Anthony <sa666666@gmail.com>
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -14,12 +14,10 @@
 
 #include <QApplication>
 #include <QFile>
-//#include "ui_harmonycartwindow.h"
 
 #include "bspf.hxx"
 #include "Bankswitch.hxx"
 #include "Cart.hxx"
-//#include "SerialPort.hxx"
 #include "SerialPortManager.hxx"
 #include "HarmonyCartWindow.hxx"
 #include "Version.hxx"

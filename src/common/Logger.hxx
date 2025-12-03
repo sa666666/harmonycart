@@ -8,7 +8,7 @@
 //  SS  SS   tt   ee      ll   ll  aa  aa
 //   SSSS     ttt  eeeee llll llll  aaaaa
 //
-// Copyright (c) 1995-2024 by Bradford W. Mott, Stephen Anthony
+// Copyright (c) 1995-2025 by Bradford W. Mott, Stephen Anthony
 // and the Stella Team
 //
 // See the file "License.txt" for information on usage and redistribution of
@@ -18,7 +18,6 @@
 #ifndef LOGGER_HXX
 #define LOGGER_HXX
 
-#include <functional>
 #include <mutex>
 
 #include "bspf.hxx"
@@ -27,7 +26,7 @@ class Logger {
 
   public:
 
-    enum class Level {
+    enum class Level: uInt8 {
       ERR = 0, // cannot use ERROR???
       INFO = 1,
       DEBUG = 2,
@@ -55,6 +54,7 @@ class Logger {
 
   protected:
     Logger() = default;
+    ~Logger() = default;
 
   private:
     int myLogLevel{static_cast<int>(Level::MAX)};

@@ -6,7 +6,7 @@
 //  H   H  A   A  R R    M   M  O   O  N  NN    Y
 //  H   H  A   A  R  R   M   M   OOO   N   N    Y
 //
-// Copyright (c) 2009-2024 by Stephen Anthony <sa666666@gmail.com>
+// Copyright (c) 2009-2025 by Stephen Anthony <sa666666@gmail.com>
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -534,7 +534,7 @@ void HarmonyCartWindow::slotAbout()
   ostringstream about;
   about << "<center>"
         << "<p><b>Harmony Programming Tool v" << HARMONY_VERSION << "</b></p>"
-        << "<p>Copyright &copy; 2009-2024 <a href=\"mailto:sa666666@gmail.com\">Stephen Anthony</a><br>"
+        << "<p>Copyright &copy; 2009-2025 <a href=\"mailto:sa666666@gmail.com\">Stephen Anthony</a><br>"
         << "Check for updates at <a href=\"https://github.com/sa666666/harmonycart\">https://github.com/sa666666/harmonycart</a><p>"
         << "</center>"
         << "<p>This software is released under the GNU GPLv3, and includes items from the following projects:</p>"
@@ -544,7 +544,7 @@ void HarmonyCartWindow::slotAbout()
         << "<li><a href=\"http://stella-emu.github.io\">Stella</a>: bankswitch autodetection code and various other classes</li>"
         << "</ul></p>"
 
-        << "<p>Version 2.0 (Feb. xx, 2024):</p>"
+        << "<p>Version 2.0 (Dec. xx, 2025):</p>"
         << "<ul>"
         << "<li>Updated lpc21isp code to version 1.97 (last released version since 2015).</li>"
         << "<li>Completely reworked serial port autodetection for Mac and Windows ports.</li>"
@@ -558,8 +558,8 @@ void HarmonyCartWindow::slotAbout()
         << "<li>Added option to delay after each write, to help with bad UARTs.</li>"
         << "<li>Added option to specify the number of connection attempts.</li>"
         << "<li>Included NTSC HBIOS 1.06.</li>"
-        << "<li>Updated bankswitch autodetection code to latest from Stella 6.4.</li>"
-        << "<li>Codebase ported to (and now requires) Qt 5.15.</li>"
+        << "<li>Updated bankswitch autodetection code to latest from Stella 7.0.</li>"
+        << "<li>Codebase ported to (and now requires at least) Qt 5.15.</li>"
         << "</ul>"
         << "<p>Version 1.3 (Aug. 13, 2013):</p>"
         << "<ul>"

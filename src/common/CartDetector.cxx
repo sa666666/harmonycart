@@ -8,7 +8,7 @@
 //  SS  SS   tt   ee      ll   ll  aa  aa
 //   SSSS     ttt  eeeee llll llll  aaaaa
 //
-// Copyright (c) 1995-2024 by Bradford W. Mott, Stephen Anthony
+// Copyright (c) 1995-2025 by Bradford W. Mott, Stephen Anthony
 // and the Stella Team
 //
 // See the file "License.txt" for information on usage and redistribution of
@@ -18,6 +18,7 @@
 #include "bspf.hxx"
 #include "Logger.hxx"
 
+//#include "ElfParser.hxx"
 #include "CartDetector.hxx"
 //#include "CartMVC.hxx"
 
@@ -27,7 +28,10 @@ Bankswitch::Type CartDetector::autodetectType(const ByteBuffer& image, size_t si
   // Guess type based on size
   Bankswitch::Type type = Bankswitch::Type::_AUTO;
 
-  if((size % 8448) == 0 || size == 6_KB)
+  if (isProbablyELF(image, size)) {
+    type =Bankswitch::Type::_ELF;
+  }
+  else if ((size % 8448) == 0 || size == 6_KB)
   {
     if(size == 6_KB && isProbablyGL(image, size))
       type = Bankswitch::Type::_GL;
@@ -110,20 +114,22 @@ Bankswitch::Type CartDetector::autodetectType(const ByteBuffer& image, size_t si
   }
   else if(size == 16_KB)
   {
-    if(isProbablySC(image, size))
+    if (isProbablySC(image, size))
       type = Bankswitch::Type::_F6SC;
-    else if(isProbablyE7(image, size))
+    else if (isProbablyE7(image, size))
       type = Bankswitch::Type::_E7;
     else if (isProbablyFC(image, size))
       type = Bankswitch::Type::_FC;
-    else if(isProbably3EX(image, size))
+    else if (isProbably3EX(image, size))
       type = Bankswitch::Type::_3EX;
-    else if(isProbably3E(image, size))
+    else if (isProbably3E(image, size))
       type = Bankswitch::Type::_3E;
   /* no known 16K 3F ROMS
     else if(isProbably3F(image, size))
       type = Bankswitch::Type::_3F;
   */
+    else if (isProbablyJANE(image, size))
+      type = Bankswitch::Type::_JANE;
     else
       type = Bankswitch::Type::_F6;
   }
@@ -258,7 +264,7 @@ Bankswitch::Type CartDetector::autodetectType(const ByteBuffer& image, size_t si
 
   ostringstream ss;
   ss << "Bankswitching type '" << Bankswitch::typeToDesc(type) << "' detected";
-  Logger::debug(ss.str());
+  Logger::debug(ss.view());
 
   return type;
 }
@@ -725,6 +731,14 @@ bool CartDetector::isProbablyFE(const ByteBuffer& image, size_t size)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+bool CartDetector::isProbablyJANE(const ByteBuffer& image, size_t size)
+{
+  static constexpr uInt8 signature[] = { 0xad, 0xf1, 0xff, 0x60 };  // LDA $0CB8
+
+  return searchForBytes(image, size, signature, sizeof(signature));
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 bool CartDetector::isProbablyGL(const ByteBuffer& image, size_t size)
 {
   static constexpr uInt8 signature[] = { 0xad, 0xb8, 0x0c };  // LDA $0CB8
@@ -750,7 +764,7 @@ bool CartDetector::isProbablyMVC(const ByteBuffer& image, size_t size)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-size_t CartDetector::isProbablyMVC(const FSNode&)
+size_t CartDetector::isProbablyMVC(const FSNode& rom)
 {
 #if 0
   constexpr size_t frameSize = 2 * CartridgeMVC::MVC_FIELD_SIZE;
@@ -848,10 +862,35 @@ bool CartDetector::isProbablyX07(const ByteBuffer& image, size_t size)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+bool CartDetector::isProbablyELF(const ByteBuffer& image, size_t size)
+{
+#if 0
+  // Min ELF header size
+  if (size < 52) return false;
+
+  // Must start with ELF magic
+  static constexpr uInt8 signature[] = { 0x7f, 'E', 'L', 'F' };
+  if (!searchForBytes(image, 2 * sizeof(signature), signature, sizeof(signature), 1)) return false;
+
+  // We require little endian
+  if (image[0x05] != ElfParser::ENDIAN_LITTLE_ENDIAN) return false;
+
+  // Type must be ET_REL (relocatable ELF)
+  if (image[0x10] != ElfParser::ET_REL) return false;
+
+  // Arch must be ARM
+  if (image[0x12] != ElfParser::ARCH_ARM32) return false;
+
+  return true;
+#endif
+  return false;
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 bool CartDetector::isProbablyPlusROM(const ByteBuffer& image, size_t size)
 {
   // PlusCart uses this pattern to detect a PlusROM
-  static constexpr uInt8 signature[3] = { 0x8d, 0xf0, 0x1f };  // STA $1FF0
+  static constexpr uInt8 signature[3] = { 0x8d, 0xf1, 0x1f };  // STA $1FF1
 
   return searchForBytes(image, size, signature, 3);
 }

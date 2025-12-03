@@ -6,7 +6,7 @@
 //  H   H  A   A  R R    M   M  O   O  N  NN    Y
 //  H   H  A   A  R  R   M   M   OOO   N   N    Y
 //
-// Copyright (c) 2009-2024 by Stephen Anthony <sa666666@gmail.com>
+// Copyright (c) 2009-2025 by Stephen Anthony <sa666666@gmail.com>
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -21,14 +21,12 @@
 #include <QProgressBar>
 #include <QThread>
 #include <QDir>
-#include <sstream>
 
 #include "Cart.hxx"
 #include "SerialPortManager.hxx"
 #include "FindHarmonyThread.hxx"
 #include "ui_harmonycartwindow.h"
 
-#include "OSystem.hxx"
 #if defined(BSPF_UNIX)
   #include "OSystemUNIX.hxx"
 #elif defined(BSPF_WINDOWS)
