@@ -75,6 +75,7 @@ unix:!macx {
         docs \
         arm \
         desktop
+    QMAKE_CXXFLAGS += -std=c++20
     QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter
 }
 macx {
