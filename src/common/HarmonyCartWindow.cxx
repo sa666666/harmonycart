@@ -133,11 +133,11 @@ void HarmonyCartWindow::setupConnections()
   connect(group2, SIGNAL(triggered(QAction*)), this, SLOT(slotRetry(QAction*)));
 
   connect(ui->actionShowLogAfterDownload, &QAction::toggled, this,
-      [=](bool checked){ showLog(checked); });
+      [=, this](bool checked){ showLog(checked); });
   connect(ui->actionF4CompressionNoBank0, &QAction::toggled, this,
-      [=](bool checked){ myCart.skipF4CompressionOnBank0(checked); });
+      [=, this](bool checked){ myCart.skipF4CompressionOnBank0(checked); });
   connect(ui->actionAddDelayAfterWrites, &QAction::toggled, this,
-      [=](bool checked){ myManager.port().addDelayAfterWrite(checked); });
+      [=, this](bool checked){ myManager.port().addDelayAfterWrite(checked); });
 
   // Help menu
   connect(ui->actAbout, SIGNAL(triggered()), this, SLOT(slotAbout()));
@@ -160,8 +160,8 @@ void HarmonyCartWindow::setupConnections()
   connect(ui->openRomButton, SIGNAL(clicked()), this, SLOT(slotOpenROM()));
   connect(ui->downloadButton, SIGNAL(clicked()), this, SLOT(slotDownloadROM()));
 
-  connect(ui->openARMPathButton, &QAbstractButton::clicked, [=](){ slotSelectARMPath(); });
-  connect(ui->defaultARMPathButton, &QAbstractButton::clicked, [=]() {
+  connect(ui->openARMPathButton, &QAbstractButton::clicked, [=, this](){ slotSelectARMPath(); });
+  connect(ui->defaultARMPathButton, &QAbstractButton::clicked, [=, this]() {
       ui->armpathFileEdit->setText(myOSystem.defaultARMPath());
   });
 
@@ -178,11 +178,11 @@ void HarmonyCartWindow::setupConnections()
   {
     myQPGroup->addButton(qpButtons[i], i+1);
     // Double-click event is added to each button
-    connect(qpButtons[i], &QDoubleClickButton::doubleClicked, [=](QDoubleClickButton* b){ assignToQPButton(b, i+1); });
+    connect(qpButtons[i], &QDoubleClickButton::doubleClicked, [=, this](QDoubleClickButton* b){ assignToQPButton(b, i+1); });
   }
   // Left-click event is added to the button group itself
   connect(myQPGroup, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked),
-    [=](QAbstractButton* b){ qpButtonClicked(b, myQPGroup->id(b)); });
+    [=, this](QAbstractButton* b){ qpButtonClicked(b, myQPGroup->id(b)); });
 
   // Debugging
 //  connect(ui->romBSType, QOverload<int>::of(&QComboBox::currentIndexChanged),
