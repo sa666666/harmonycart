@@ -1,5 +1,6 @@
 TARGET = HarmonyCart
 TEMPLATE = app
+CONFIG += c++20
 
 SOURCES += src/common/main.cxx \
     src/common/Bankswitch.cxx \
@@ -34,7 +35,6 @@ RESOURCES += resources.qrc
 DEFINES += CUSTOM_ARM
 INCLUDEPATH += src/common
 QT += widgets
-QMAKE_CXXFLAGS += -std=c++20
 
 windows {
 #  Uncomment the following to create a commandline-compatible Windows build
