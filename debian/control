@@ -1,9 +1,9 @@
 Source: harmonycart
-Section: games
+Section: utils
 Priority: optional
 Maintainer: Stephen Anthony <sa666666@gmail.com>
 Standards-Version: 3.7.2
-Build-Depends: debhelper, qt5-default
+Build-Depends: debhelper, qtbase5-dev, libgtest-dev
 
 Package: harmonycart
 Architecture: any
@@ -23,4 +23,4 @@ Description: Harmony Cartridge programming tool for Linux/macOS/Windows.
  program the Harmony Cartridge.  Both GUI and commandline usage is
  supported.
  .
- Homepage: http://harmony.atariage.com
+ Homepage: https://github.com/sa666666/harmonycart

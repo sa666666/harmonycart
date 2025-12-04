@@ -67,9 +67,9 @@ unix:!macx {
     arm.path = /usr/share/harmonycart
     arm.files = arm/*
     desktop.path = /usr/share/applications
-    desktop.files = unix/harmonycart.desktop
+    desktop.files = src/unix/harmonycart.desktop
     icon.path = /usr/share/icons
-    icon.files = unix/harmonycart.png
+    icon.files = src/unix/harmonycart.png
     INSTALLS += target \
         icon \
         docs \
