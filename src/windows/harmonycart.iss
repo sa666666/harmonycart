@@ -43,7 +43,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 [Files]
 Source: "..\..\Release\HarmonyCart.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\..\Release\HarmonyCart.com.exe"; DestDir: "{app}"; DestName: "HarmonyCart.com"; Flags: ignoreversion
-Source: "..\..\Release\*.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\Release\qt*.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\..\Release\platforms\*.dll"; DestDir: "{app}\platforms"; Flags: ignoreversion
 Source: "..\..\arm\*"; DestDir: "{app}\arm"; Flags: ignoreversion
 Source: "..\..\*.txt"; DestDir: "{app}\docs"; Flags: ignoreversion;  AfterInstall: ConvertLineEndings
