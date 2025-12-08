@@ -8,31 +8,25 @@
 //  SS  SS   tt   ee      ll   ll  aa  aa
 //   SSSS     ttt  eeeee llll llll  aaaaa
 //
-// Copyright (c) 1995-2024 by Bradford W. Mott, Stephen Anthony
+// Copyright (c) 1995-2025 by Bradford W. Mott, Stephen Anthony
 // and the Stella Team
 //
 // See the file "License.txt" for information on usage and redistribution of
 // this file, and for a DISCLAIMER OF ALL WARRANTIES.
 //============================================================================
 
-#if defined(RETRON77)
-  #define ROOT_DIR "/mnt/games/"
-#else
-  #define ROOT_DIR "/"
-#endif
-
 #include "FSNodePOSIX.hxx"
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 FSNodePOSIX::FSNodePOSIX()
-  : _path{ROOT_DIR},
+  : _path{"/"},
     _displayName{_path}
 {
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 FSNodePOSIX::FSNodePOSIX(string_view path, bool verify)
-  : _path{path.length() > 0 ? path : "~"}  // Default to home directory
+  : _path{!path.empty() ? path : "~"}  // Default to home directory
 {
   // Expand '~' to the HOME environment variable
   if (_path[0] == '~')
@@ -56,7 +50,7 @@ FSNodePOSIX::FSNodePOSIX(string_view path, bool verify)
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 bool FSNodePOSIX::setFlags()
 {
-  struct stat st;
+  struct stat st{};
   if (stat(_path.c_str(), &st) == 0)
   {
     _isDirectory = S_ISDIR(st.st_mode);
@@ -64,7 +58,7 @@ bool FSNodePOSIX::setFlags()
     _size = st.st_size;
 
     // Add a trailing slash, if necessary
-    if (_isDirectory && _path.length() > 0 &&
+    if (_isDirectory && !_path.empty() &&
         _path.back() != FSNode::PATH_SEPARATOR)
       _path += FSNode::PATH_SEPARATOR;
 
@@ -102,7 +96,7 @@ size_t FSNodePOSIX::getSize() const
 {
   if (_size == 0 && _isFile)
   {
-    struct stat st;
+    struct stat st{};
     _size = (stat(_path.c_str(), &st) == 0) ? st.st_size : 0;
   }
   return _size;
@@ -111,13 +105,13 @@ size_t FSNodePOSIX::getSize() const
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 bool FSNodePOSIX::hasParent() const
 {
-  return !_path.empty() && _path != ROOT_DIR;
+  return !_path.empty() && _path != "/";
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 AbstractFSNodePtr FSNodePOSIX::getParent() const
 {
-  if (_path == ROOT_DIR)
+  if (_path == "/")
     return nullptr;
 
   return make_unique<FSNodePOSIX>(stemPathComponent(_path));
@@ -142,7 +136,7 @@ bool FSNodePOSIX::getChildren(AbstractFSList& myList, ListMode mode) const
       continue;
 
     string newPath(_path);
-    if (newPath.length() > 0 && newPath.back() != FSNode::PATH_SEPARATOR)
+    if (!newPath.empty() && newPath.back() != FSNode::PATH_SEPARATOR)
       newPath += FSNode::PATH_SEPARATOR;
     newPath += dp->d_name;
 
