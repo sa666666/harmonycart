@@ -15,13 +15,12 @@
 #ifndef SERIALPORT_MANAGER_HXX
 #define SERIALPORT_MANAGER_HXX
 
+#include "bspf.hxx"
 #include "Cart.hxx"
 
 #if defined(BSPF_WINDOWS)
   #include "SerialPortWINDOWS.hxx"
-#elif defined(BSPF_MACOS)
-  #include "SerialPortMACOS.hxx"
-#elif defined(BSPF_UNIX)
+#elif defined(BSPF_MACOS) || defined(BSPF_UNIX)
   #include "SerialPortUNIX.hxx"
 #else
   #error Unsupported platform!
@@ -50,9 +49,7 @@ class SerialPortManager
   private:
   #if defined(BSPF_WINDOWS)
     SerialPortWINDOWS myPort;
-  #elif defined(BSPF_MACOS)
-    SerialPortMACOS myPort;
-  #elif defined(BSPF_UNIX)
+  #elif defined(BSPF_MACOS) || defined(BSPF_UNIX)
     SerialPortUNIX myPort;
   #endif
 

@@ -27,8 +27,7 @@ HEADERS += src/common/HarmonyCartWindow.hxx \
     src/common/SerialPort.hxx \
     src/common/Version.hxx \
     src/common/FindHarmonyThread.hxx \
-    src/common/AboutDialog.hxx \
-    src/windows/HomeFinder.hxx
+    src/common/AboutDialog.hxx
 FORMS += harmonycartwindow.ui \
     aboutdialog.ui
 
@@ -81,11 +80,12 @@ unix:!macx {
 macx {
     DEFINES += BSPF_MACOS
     INCLUDEPATH += src/macos src/unix
-    SOURCES += src/unix/FSNodePOSIX.cxx src/macos/SerialPortMACOS.cxx src/macos/OSystemMACOS.cxx
-    HEADERS += src/unix/FSNodePOSIX.hxx src/macos/SerialPortMACOS.hxx src/macos/OSystemMACOS.hxx
+    SOURCES += src/unix/FSNodePOSIX.cxx src/unix/SerialPortUNIX.cxx src/macos/OSystemMACOS.cxx
+    HEADERS += src/unix/FSNodePOSIX.hxx src/unix/SerialPortUNIX.hxx src/macos/OSystemMACOS.hxx
     LIBS += -framework CoreFoundation -framework IOKit
     ICON = src/macos/Harmony_icon.icns
-    QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter
+    QMAKE_CXXFLAGS += -std=c++20
+    QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter -Wno-deprecated-declarations
 }
 
 DISTFILES += \
