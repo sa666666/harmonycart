@@ -6,7 +6,7 @@
 //  H   H  A   A  R R    M   M  O   O  N  NN    Y
 //  H   H  A   A  R  R   M   M   OOO   N   N    Y
 //
-// Copyright (c) 2009-2024 by Stephen Anthony <sa666666@gmail.com>
+// Copyright (c) 2009-2025 by Stephen Anthony <sa666666@gmail.com>
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -18,16 +18,26 @@
   #include <sys/errno.h>
 #endif
 
-#include <sys/types.h>
-#include <sys/stat.h>
+#if defined(BSPF_MACOS)
+  #include <sys/filio.h>
+  #include <CoreFoundation/CoreFoundation.h>
+  #include <IOKit/IOKitLib.h>
+  #include <IOKit/serial/IOSerialKeys.h>
+  #include <IOKit/IOBSD.h>
+#else
+  #include <sys/stat.h>
+  #include <sys/param.h>
+  #include <dirent.h>
+#endif
+
+#include <cstdio>
+#include <cstring>
 #include <fcntl.h>
-#include <unistd.h>
+#include <sys/ioctl.h>
 #include <sys/termios.h>
 #include <sys/types.h>
-#include <sys/ioctl.h>
-#include <sys/param.h>
-#include <dirent.h>
-#include <cstring>
+#include <sys/time.h>
+#include <unistd.h>
 
 #include "FSNode.hxx"
 #include "SerialPortUNIX.hxx"
@@ -273,8 +283,12 @@ const StringList& SerialPortUNIX::getPortNames()
 
   // Get all possible devices in the '/dev' directory
   FSNode::NameFilter filter = [](const FSNode& node) {
+#if defined(BSPF_MACOS)
+    return BSPF::startsWithIgnoreCase(node.getPath(), "/dev/tty.usb");
+#else
     return BSPF::startsWithIgnoreCase(node.getPath(), "/dev/ttyS") ||
            BSPF::startsWithIgnoreCase(node.getPath(), "/dev/ttyUSB");
+#endif
   };
   FSList portList;
   portList.reserve(8);
