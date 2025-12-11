@@ -117,7 +117,8 @@ bool SerialPortUNIX::openPort(const string& device)
   tcflush(myHandle, TCIFLUSH);
   if(tcsetattr(myHandle, TCSANOW, &myNewtio))
   {
-    cerr << "Could not change serial port behaviour (wrong baudrate?)\n";
+    cerr << "Could not change serial port behaviour for "
+         << device << " (tcsetattr failed)\n";
     return false;
   }
 
@@ -284,14 +285,15 @@ const StringList& SerialPortUNIX::getPortNames()
   // Get all possible devices in the '/dev' directory
   FSNode::NameFilter filter = [](const FSNode& node) {
 #if defined(BSPF_MACOS)
-    return BSPF::startsWithIgnoreCase(node.getPath(), "/dev/tty.usb");
+    return BSPF::startsWithIgnoreCase(node.getPath(), "/dev/cu.usb") ||
+           BSPF::startsWithIgnoreCase(node.getPath(), "/dev/tty.usb");
 #else
     return BSPF::startsWithIgnoreCase(node.getPath(), "/dev/ttyS") ||
            BSPF::startsWithIgnoreCase(node.getPath(), "/dev/ttyUSB");
 #endif
   };
   FSList portList;
-  portList.reserve(8);
+  portList.reserve(32);
 
   FSNode dev("/dev/");
   dev.getChildren(portList, FSNode::ListMode::All, filter, false);
