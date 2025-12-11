@@ -82,7 +82,6 @@ macx {
     INCLUDEPATH += src/macos src/unix
     SOURCES += src/unix/FSNodePOSIX.cxx src/unix/SerialPortUNIX.cxx src/macos/OSystemMACOS.cxx
     HEADERS += src/unix/FSNodePOSIX.hxx src/unix/SerialPortUNIX.hxx src/macos/OSystemMACOS.hxx
-    LIBS += -framework CoreFoundation -framework IOKit
     ICON = src/macos/Harmony_icon.icns
     QMAKE_CXXFLAGS += -std=c++20
     QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter -Wno-deprecated-declarations

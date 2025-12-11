@@ -125,7 +125,7 @@ class SerialPortUNIX : public SerialPort
     // File descriptor for serial connection
     int myHandle{0};
 
-    struct termios myOldtio, myNewtio;
+    struct termios myOldtio{}, myNewtio{};
 
   private:
     // Following constructors and assignment operators not supported

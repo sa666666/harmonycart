@@ -18,22 +18,13 @@
   #include <sys/errno.h>
 #endif
 
-#if defined(BSPF_MACOS)
-  #include <sys/filio.h>
-  #include <CoreFoundation/CoreFoundation.h>
-  #include <IOKit/IOKitLib.h>
-  #include <IOKit/serial/IOSerialKeys.h>
-  #include <IOKit/IOBSD.h>
-#else
-  #include <sys/stat.h>
-  #include <sys/param.h>
-  #include <dirent.h>
-#endif
 
 #include <cstdio>
 #include <cstring>
 #include <fcntl.h>
 #include <sys/ioctl.h>
+#include <sys/stat.h>
+#include <sys/param.h>
 #include <sys/termios.h>
 #include <sys/types.h>
 #include <sys/time.h>
@@ -68,7 +59,7 @@ bool SerialPortUNIX::openPort(const string& device)
 
   tcgetattr(myHandle, &myOldtio); // save current port settings
 
-  memset(&myNewtio, 0, sizeof(struct termios));
+  myNewtio = myOldtio;
   myNewtio.c_cflag = CS8 | CLOCAL | CREAD;
 
 #if defined(__FreeBSD__) || defined(__OpenBSD__)
