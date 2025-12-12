@@ -544,7 +544,7 @@ void HarmonyCartWindow::slotAbout()
         << "<li><a href=\"http://stella-emu.github.io\">Stella</a>: bankswitch autodetection code and various other classes</li>"
         << "</ul></p>"
 
-        << "<p>Version 2.0 (Dec. xx, 2025):</p>"
+        << "<p>Version 2.0 (Dec. 17, 2025):</p>"
         << "<ul>"
         << "<li>Updated lpc21isp code to version 1.97 (last released version since 2015).</li>"
         << "<li>Completely reworked serial port autodetection for Mac and Windows ports.</li>"

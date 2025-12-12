@@ -10,7 +10,7 @@
                              Release History
 ===========================================================================
 
-2.0: (Dec. xx, 2025)
+2.0: (Dec. 17, 2025)
 
   * Updated lpc21isp code to version 1.97 (last released version
     since 2015).

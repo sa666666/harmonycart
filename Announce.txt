@@ -25,13 +25,12 @@ program the Harmony Cartridge.  Both GUI and commandline usage is
 supported.
 
 This is the 2.0 release of HarmonyCart for Linux, macOS and Windows.
-The distributions currently available are:
 
-  * Binary installer for 64-bit Windows 7/8/10:
+  * Binary installer for 64-bit Windows 10/11:
       HarmonyCart-2.0-x64.exe
 
-  * Binary distribution for macOS 10.7 and above:
-      HarmonyCart-2.0-macos.dmg
+  * Binary distribution for macOS 10.15 and above:
+      HarmonyCart-2.0-macos.dmg (ARM M1)
 
   * Binary distribution in 64-bit Ubuntu DEB format:
       harmonycart_2.0-1_amd64.deb
