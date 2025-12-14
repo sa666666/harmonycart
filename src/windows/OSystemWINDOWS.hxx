@@ -15,12 +15,19 @@
 #ifndef OSYSTEM_WINDOWS_HXX
 #define OSYSTEM_WINDOWS_HXX
 
+#include <QCoreApplication>
+
 #include "OSystem.hxx"
 
 class OSystemWindows : public OSystem
 {
   public:
-    OSystemWindows();
+    OSystemWindows() : OSystem()
+    {
+      QDir dir = QDir(QCoreApplication::applicationDirPath());
+      dir.cd("arm");
+      myARMPath = dir.absolutePath();
+    }
     ~OSystemWindows() override = default;
 
   private:

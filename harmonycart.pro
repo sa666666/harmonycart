@@ -49,7 +49,7 @@ windows {
     DEFINES += _CRT_SECURE_NO_WARNINGS BSPF_WINDOWS NOMINMAX
     INCLUDEPATH += src/windows
     LIBS += -lAdvapi32 -lShell32 -lWinmm
-    SOURCES += src/windows/FSNodeWINDOWS.cxx src/windows/SerialPortWINDOWS.cxx src/windows/OSystemWINDOWS.cxx
+    SOURCES += src/windows/FSNodeWINDOWS.cxx src/windows/SerialPortWINDOWS.cxx
     HEADERS += src/windows/FSNodeWINDOWS.hxx src/windows/SerialPortWINDOWS.hxx src/windows/OSystemWINDOWS.hxx src/windows/HomeFinder.hxx src/windows/Windows.hxx
     RC_FILE = src/windows/HarmonyCart.rc
     QMAKE_CXXFLAGS_WARN_ON += -wd4100
