@@ -9,6 +9,7 @@ SOURCES += src/common/main.cxx \
     src/common/Cart.cxx \
     src/common/CartDetector.cxx \
     src/common/CartDetectorWrapper.cxx \
+    src/common/CartProgrammer.cxx \
     src/common/FSNode.cxx \
     src/common/Logger.cxx \
     src/common/SerialPortManager.cxx \
@@ -20,21 +21,25 @@ HEADERS += src/common/HarmonyCartWindow.hxx \
     src/common/Cart.hxx \
     src/common/CartDetector.hxx \
     src/common/CartDetectorWrapper.hxx \
+    src/common/CartProgrammer.hxx \
     src/common/FSNode.hxx \
     src/common/Logger.hxx \
+    src/common/Progress.hxx \
     src/common/OSystem.hxx \
     src/common/SerialPortManager.hxx \
     src/common/SerialPort.hxx \
     src/common/Version.hxx \
     src/common/FindHarmonyThread.hxx \
     src/common/AboutDialog.hxx
-FORMS += harmonycartwindow.ui \
-    aboutdialog.ui
+FORMS += src/common/harmonycartwindow.ui src/common/aboutdialog.ui
 
-RESOURCES += resources.qrc
+RESOURCES += src/resources.qrc
 DEFINES += CUSTOM_ARM
 INCLUDEPATH += src/common
 QT += widgets
+MOC_DIR = obj
+OBJECTS_DIR = obj
+UI_DIR = obj
 
 windows {
 #  Uncomment the following to create a commandline-compatible Windows build
