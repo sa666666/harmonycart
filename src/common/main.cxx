@@ -6,7 +6,7 @@
 //  H   H  A   A  R R    M   M  O   O  N  NN    Y
 //  H   H  A   A  R  R   M   M   OOO   N   N    Y
 //
-// Copyright (c) 2009-2025 by Stephen Anthony <sa666666@gmail.com>
+// Copyright (c) 2009-2026 by Stephen Anthony <sa666666@gmail.com>
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -38,7 +38,7 @@ void usage()
        << "              (default is 'auto')\n"
        << "  -help       Displays the message you're now reading\n"
        << '\n'
-       << "This software is Copyright (c) 2009-2024 Stephen Anthony, and is released\n"
+       << "This software is Copyright (c) 2009-2026 Stephen Anthony, and is released\n"
        << "under the GNU GPL version 3.\n"
        << '\n';
 }

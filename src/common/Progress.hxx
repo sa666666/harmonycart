@@ -6,7 +6,7 @@
 //  H   H  A   A  R R    M   M  O   O  N  NN    Y
 //  H   H  A   A  R  R   M   M   OOO   N   N    Y
 //
-// Copyright (c) 2009-2025 by Stephen Anthony <sa666666@gmail.com>
+// Copyright (c) 2009-2026 by Stephen Anthony <sa666666@gmail.com>
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -16,7 +16,6 @@
 #define PROGRESS_HXX
 
 #include <QApplication>
-#include <QDir>
 #include <QIcon>
 #include <QPixmap>
 #include <QProgressDialog>

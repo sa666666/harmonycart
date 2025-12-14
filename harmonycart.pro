@@ -57,7 +57,7 @@ windows {
 unix:!macx {
     DEFINES += BSPF_UNIX
     INCLUDEPATH += src/unix
-    SOURCES += src/unix/FSNodePOSIX.cxx src/unix/SerialPortUNIX.cxx src/unix/OSystemUNIX.cxx
+    SOURCES += src/unix/FSNodePOSIX.cxx src/unix/SerialPortUNIX.cxx
     HEADERS += src/unix/FSNodePOSIX.hxx src/unix/SerialPortUNIX.hxx src/unix/OSystemUNIX.hxx
     TARGET = harmonycart
     target.path = /usr/bin

@@ -6,15 +6,16 @@
 //  H   H  A   A  R R    M   M  O   O  N  NN    Y
 //  H   H  A   A  R  R   M   M   OOO   N   N    Y
 //
-// Copyright (c) 2009-2025 by Stephen Anthony <sa666666@gmail.com>
+// Copyright (c) 2009-2026 by Stephen Anthony <sa666666@gmail.com>
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 //=========================================================================
 
-#include <ostream>
-#include <time.h>
+#include <QDir>
+#include <QString>
 
+#include "bspf.hxx"
 #include "Bankswitch.hxx"
 #include "Cart.hxx"
 #include "CartDetectorWrapper.hxx"
@@ -28,7 +29,7 @@ string Cart::autodetectHarmony(SerialPort& port)
 
   // Get the version #, if any
   string result = myProgrammer.chipVersion(port);
-  if (strncmp(result.c_str(), "ERROR:", 6) == 0)
+  if(result.starts_with("ERROR:"))
   {
     *myLog << result.c_str() << '\n';
     return result;

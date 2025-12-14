@@ -6,7 +6,7 @@
 //  H   H  A   A  R R    M   M  O   O  N  NN    Y
 //  H   H  A   A  R  R   M   M   OOO   N   N    Y
 //
-// Copyright (c) 2009-2025 by Stephen Anthony <sa666666@gmail.com>
+// Copyright (c) 2009-2026 by Stephen Anthony <sa666666@gmail.com>
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -534,7 +534,7 @@ void HarmonyCartWindow::slotAbout()
   ostringstream about;
   about << "<center>"
         << "<p><b>Harmony Programming Tool v" << HARMONY_VERSION << "</b></p>"
-        << "<p>Copyright &copy; 2009-2025 <a href=\"mailto:sa666666@gmail.com\">Stephen Anthony</a><br>"
+        << "<p>Copyright &copy; 2009-2026 <a href=\"mailto:sa666666@gmail.com\">Stephen Anthony</a><br>"
         << "Check for updates at <a href=\"https://github.com/sa666666/harmonycart\">https://github.com/sa666666/harmonycart</a><p>"
         << "</center>"
         << "<p>This software is released under the GNU GPLv3, and includes items from the following projects:</p>"

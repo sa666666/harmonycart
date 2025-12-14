@@ -8,7 +8,7 @@
 //  SS  SS   tt   ee      ll   ll  aa  aa
 //   SSSS     ttt  eeeee llll llll  aaaaa
 //
-// Copyright (c) 1995-2024 by Bradford W. Mott, Stephen Anthony
+// Copyright (c) 1995-2026 by Bradford W. Mott, Stephen Anthony
 // and the Stella Team
 //
 // See the file "License.txt" for information on usage and redistribution of
@@ -20,7 +20,7 @@
 
 class AbstractFSNode;
 
-#if defined(ZIP_SUPPORT)
+#ifdef ZIP_SUPPORT
   #include "FSNodeZIP.hxx"
 #endif
 #if defined(BSPF_UNIX) || defined(BSPF_MACOS)
@@ -41,7 +41,7 @@ class AbstractFSNode;
 class FSNodeFactory
 {
   public:
-    enum class Type { SYSTEM, ZIP };
+    enum class Type: uInt8 { SYSTEM, ZIP };
 
   public:
     static unique_ptr<AbstractFSNode> create(string_view path, Type type)
@@ -58,17 +58,20 @@ class FSNodeFactory
         #endif
           break;
         case Type::ZIP:
-        #if defined(ZIP_SUPPORT)
+        #ifdef ZIP_SUPPORT
           return make_unique<FSNodeZIP>(path);
         #endif
           break;
+        default:
+          break;
       }
-      return nullptr;
+      return nullptr;  // satisfy compiler
     }
 
   private:
     // Following constructors and assignment operators not supported
     FSNodeFactory() = delete;
+    ~FSNodeFactory() = delete;
     FSNodeFactory(const FSNodeFactory&) = delete;
     FSNodeFactory(FSNodeFactory&&) = delete;
     FSNodeFactory& operator=(const FSNodeFactory&) = delete;

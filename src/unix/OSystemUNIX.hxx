@@ -6,7 +6,7 @@
 //  H   H  A   A  R R    M   M  O   O  N  NN    Y
 //  H   H  A   A  R  R   M   M   OOO   N   N    Y
 //
-// Copyright (c) 2009-2024 by Stephen Anthony <sa666666@gmail.com>
+// Copyright (c) 2009-2026 by Stephen Anthony <sa666666@gmail.com>
 //
 // See the file "License.txt" for information on usage and redistribution
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -20,7 +20,12 @@
 class OSystemUNIX : public OSystem
 {
   public:
-    OSystemUNIX();
+    OSystemUNIX()
+    {
+      // Hardcoded for now, since that's what the installer always uses
+      // At some point, it would be better to query the OS directly
+      myARMPath = "/usr/share/harmonycart/";
+    }
     ~OSystemUNIX() override = default;
 
   private:
