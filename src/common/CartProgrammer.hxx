@@ -32,7 +32,7 @@ class SerialPort;
 class CartProgrammer
 {
   public:
-    CartProgrammer();
+    CartProgrammer() = default;
     ~CartProgrammer() = default;
 
     /**

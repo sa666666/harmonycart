@@ -373,7 +373,7 @@ cleanup:
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ByteBuffer Cart::readFile(const string& filename, size_t& size)
 {
-  *myLog << "Reading from file: \'" << filename.c_str() << "\' ... ";
+  *myLog << "Reading from file: \'" << filename << "\' ... ";
 
   // Read file into buffer
   FSNode file(filename);

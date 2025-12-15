@@ -80,7 +80,7 @@ void runCommandlineApp(HarmonyCartWindow& win, int ac, char* av[])
   manager.connectHarmonyCart(cart);
   if(manager.harmonyCartAvailable())
   {
-    cout << "Harmony \'" << manager.versionID().c_str() << "\' @ \'" << manager.portName().c_str() << "\'\n";
+    cout << "Harmony \'" << manager.versionID() << "\' @ \'" << manager.portName() << "\'\n";
   }
   else
   {
@@ -94,7 +94,7 @@ void runCommandlineApp(HarmonyCartWindow& win, int ac, char* av[])
     cout << "Downloading BIOS file...\n";
     if(datafile == "" || !QFile::exists(QString(datafile.c_str())))
     {
-      cout << "Couldn't find BIOS file \'" << datafile.c_str() << "\'\n";
+      cout << "Couldn't find BIOS file \'" << datafile << "\'\n";
       return;
     }
 
@@ -113,7 +113,7 @@ void runCommandlineApp(HarmonyCartWindow& win, int ac, char* av[])
     cout << "Downloading single-load ROM file...\n";
     if(datafile == "" || !QFile::exists(QString(datafile.c_str())))
     {
-      cout << "Couldn't find ROM file \'" << datafile.c_str() << "\'\n";
+      cout << "Couldn't find ROM file \'" << datafile << "\'\n";
       return;
     }
 

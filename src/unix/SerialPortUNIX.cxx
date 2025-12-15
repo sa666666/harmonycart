@@ -18,7 +18,6 @@
   #include <sys/errno.h>
 #endif
 
-
 #include <cstdio>
 #include <cstring>
 #include <fcntl.h>
@@ -214,14 +213,9 @@ void SerialPortUNIX::controlModemLines(bool DTR, bool RTS)
 {
   // Handle whether to swap the control lines
   if(myControlLinesSwapped)
-  {
-    bool tempRTS;
-    tempRTS = RTS;
-    RTS = DTR;
-    DTR = tempRTS;
-  }
+    std::swap(DTR, RTS);
 
-  int status;
+  int status = 0;
   if(ioctl(myHandle, TIOCMGET, &status) != 0)
     cerr << "ioctl get failed, status = " << status << '\n';
 

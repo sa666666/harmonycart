@@ -18,7 +18,7 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 AboutDialog::AboutDialog(QWidget* parent, const QString& title, const QString& info)
   : QDialog(parent),
-    m_ui(new Ui::AboutDialog)
+    m_ui{new Ui::AboutDialog}
 {
   m_ui->setupUi(this);
   setWindowTitle(title);

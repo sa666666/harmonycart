@@ -16,11 +16,6 @@
 #include "CartProgrammer.hxx"
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-CartProgrammer::CartProgrammer()
-{
-}
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void CartProgrammer::reset(SerialPort& port)
 {
   // Reset and jump to boot loader

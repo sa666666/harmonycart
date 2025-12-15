@@ -12,6 +12,7 @@
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 //=========================================================================
 
+#include "CartDetector.hxx"
 #include "CartDetectorWrapper.hxx"
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

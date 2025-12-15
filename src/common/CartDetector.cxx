@@ -29,7 +29,7 @@ Bankswitch::Type CartDetector::autodetectType(const ByteBuffer& image, size_t si
   Bankswitch::Type type = Bankswitch::Type::_AUTO;
 
   if (isProbablyELF(image, size)) {
-    type =Bankswitch::Type::_ELF;
+    type = Bankswitch::Type::_ELF;
   }
   else if ((size % 8448) == 0 || size == 6_KB)
   {
@@ -764,27 +764,8 @@ bool CartDetector::isProbablyMVC(const ByteBuffer& image, size_t size)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-size_t CartDetector::isProbablyMVC(const FSNode& rom)
+size_t CartDetector::isProbablyMVC(const FSNode&)
 {
-#if 0
-  constexpr size_t frameSize = 2 * CartridgeMVC::MVC_FIELD_SIZE;
-
-  if(Bankswitch::typeFromExtension(rom) == Bankswitch::Type::_MVC)
-    return frameSize;
-
-  Serializer s(rom.getPath(), Serializer::Mode::ReadOnly);
-  if(s)
-  {
-    if(s.size() < frameSize)
-      return 0;
-
-    uInt8 image[frameSize];
-    s.getByteArray(image, frameSize);
-
-    static constexpr uInt8 sig[] = { 'M', 'V', 'C', 0 };  // MVC version 0
-    return searchForBytes(image, frameSize, sig, 4) ? frameSize : 0;
-  }
-#endif
   return 0;
 }
 
@@ -862,27 +843,8 @@ bool CartDetector::isProbablyX07(const ByteBuffer& image, size_t size)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool CartDetector::isProbablyELF(const ByteBuffer& image, size_t size)
+bool CartDetector::isProbablyELF(const ByteBuffer&, size_t)
 {
-#if 0
-  // Min ELF header size
-  if (size < 52) return false;
-
-  // Must start with ELF magic
-  static constexpr uInt8 signature[] = { 0x7f, 'E', 'L', 'F' };
-  if (!searchForBytes(image, 2 * sizeof(signature), signature, sizeof(signature), 1)) return false;
-
-  // We require little endian
-  if (image[0x05] != ElfParser::ENDIAN_LITTLE_ENDIAN) return false;
-
-  // Type must be ET_REL (relocatable ELF)
-  if (image[0x10] != ElfParser::ET_REL) return false;
-
-  // Arch must be ARM
-  if (image[0x12] != ElfParser::ARCH_ARM32) return false;
-
-  return true;
-#endif
   return false;
 }
 

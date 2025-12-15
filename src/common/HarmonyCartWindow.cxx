@@ -40,7 +40,7 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 HarmonyCartWindow::HarmonyCartWindow(QWidget* parent)
   : QMainWindow(parent),
-    ui(new Ui::HarmonyCartWindow)
+    ui{new Ui::HarmonyCartWindow}
 {
   // Create GUI
   ui->setupUi(this);

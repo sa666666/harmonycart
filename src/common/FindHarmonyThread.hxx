@@ -34,8 +34,8 @@ Q_OBJECT
   public:
     FindHarmonyThread(SerialPortManager& manager, Cart& cart)
       : QThread(),
-        myManager(manager),
-        myCart(cart)
+        myManager{manager},
+        myCart{cart}
     { }
     virtual ~FindHarmonyThread() = default;
 

@@ -28,7 +28,7 @@
         <string/>
        </property>
        <property name="pixmap">
-        <pixmap resource="resources.qrc">:/icons/pics/cart.png</pixmap>
+        <pixmap resource="../resources.qrc">:/icons/pics/cart.png</pixmap>
        </property>
       </widget>
      </item>
@@ -93,7 +93,7 @@
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources>
-  <include location="resources.qrc"/>
+  <include location="../resources.qrc"/>
  </resources>
  <connections>
   <connection>

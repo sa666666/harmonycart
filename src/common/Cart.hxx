@@ -35,12 +35,6 @@ class Cart
     ~Cart() = default;
 
     /**
-      Log all output to the given stream.
-    */
-    void setLogger(ostream* out);
-
-  public:
-    /**
       Attempt to locate the Harmony cart on the given serial port.  If
       found, return the version info, otherwise return the empty string.
     */
@@ -77,6 +71,11 @@ class Cart
     void skipF4CompressionOnBank0(bool skip) {
       myF4FirstCompressionBank = skip ? 1 : 0;
     }
+
+    /**
+      Log all output to the given stream.
+    */
+    void setLogger(ostream* out);
 
   private:
     /**

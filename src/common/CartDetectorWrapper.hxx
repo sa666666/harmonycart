@@ -15,7 +15,8 @@
 #ifndef CARTRIDGE_DETECTOR_WRAPPER_HXX
 #define CARTRIDGE_DETECTOR_WRAPPER_HXX
 
-#include "CartDetector.hxx"
+#include "bspf.hxx"
+#include "Bankswitch.hxx"
 
 /**
   A wrapper class so that we can use CartDetector class from Stella directly.

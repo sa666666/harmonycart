@@ -12,7 +12,7 @@
    <string>Harmony Programming Tool</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="resources.qrc">
+   <iconset resource="../resources.qrc">
     <normaloff>:/icons/pics/appicon.png</normaloff>:/icons/pics/appicon.png</iconset>
   </property>
   <property name="unifiedTitleAndToolBarOnMac">
@@ -70,7 +70,7 @@
                <string/>
               </property>
               <property name="pixmap">
-               <pixmap resource="resources.qrc">:/icons/pics/romchip.png</pixmap>
+               <pixmap resource="../resources.qrc">:/icons/pics/romchip.png</pixmap>
               </property>
              </widget>
             </item>
@@ -202,7 +202,7 @@ EEPROM</string>
                <string/>
               </property>
               <property name="pixmap">
-               <pixmap resource="resources.qrc">:/icons/pics/sdcard.png</pixmap>
+               <pixmap resource="../resources.qrc">:/icons/pics/sdcard.png</pixmap>
               </property>
              </widget>
             </item>
@@ -372,7 +372,7 @@ HBIOS</string>
              <string/>
             </property>
             <property name="pixmap">
-             <pixmap resource="resources.qrc">:/icons/pics/cart_tiny.png</pixmap>
+             <pixmap resource="../resources.qrc">:/icons/pics/cart_tiny.png</pixmap>
             </property>
            </widget>
           </item>
@@ -424,7 +424,7 @@ HBIOS</string>
              <string/>
             </property>
             <property name="pixmap">
-             <pixmap resource="resources.qrc">:/icons/pics/romchip.png</pixmap>
+             <pixmap resource="../resources.qrc">:/icons/pics/romchip.png</pixmap>
             </property>
            </widget>
           </item>
@@ -1041,7 +1041,6 @@ Double-click to store a different ROM.</string>
   <widget class="QStatusBar" name="statusbar">
    <property name="font">
     <font>
-     <weight>75</weight>
      <bold>true</bold>
     </font>
    </property>
@@ -1249,7 +1248,7 @@ Double-click to store a different ROM.</string>
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="resources.qrc"/>
+  <include location="../resources.qrc"/>
  </resources>
  <connections/>
 </ui>

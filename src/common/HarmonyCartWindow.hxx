@@ -45,7 +45,7 @@ class HarmonyCartWindow : public QMainWindow
 Q_OBJECT
   public:
     HarmonyCartWindow(QWidget* parent = nullptr);
-    virtual ~HarmonyCartWindow() override;
+    ~HarmonyCartWindow() override;
 
   public:
     Cart& cart() { return myCart; }

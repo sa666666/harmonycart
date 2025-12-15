@@ -40,10 +40,13 @@ class Progress
     void setEnabled(bool enabled) { myEnabled = enabled; }
 
     void initialize(const QString& title, int minimum, int maximum) {
-      myDlg.setWindowTitle(title);
-      myDlg.setRange(minimum, maximum);
-      myDlg.setMinimumDuration(0);
-      myDlg.setValue(0);
+      if(myEnabled)
+      {
+        myDlg.setWindowTitle(title);
+        myDlg.setRange(minimum, maximum);
+        myDlg.setMinimumDuration(0);
+        myDlg.setValue(0);
+      }
     }
 
     void updateText(const QString& text) {
