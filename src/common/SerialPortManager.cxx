@@ -12,7 +12,7 @@
 // of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 //=========================================================================
 
-#include <QMessageBox>
+#include <QSerialPortInfo>
 
 #include "Cart.hxx"
 #include "SerialPortManager.hxx"
@@ -79,7 +79,19 @@ bool SerialPortManager::detect(const string& device, Cart& cart)
     {
       myFoundHarmonyCart = true;
       myPortName = device;
-      myVersionID = version;
+
+      const auto serialPortInfos = QSerialPortInfo::availablePorts();
+      string cartDescription = "Harmony";
+      for(const auto& portInfo : serialPortInfos)
+      {
+        if(portInfo.portName().toStdString() == myPortName ||
+           portInfo.systemLocation().toStdString() == myPortName)
+        {
+          cartDescription = portInfo.description().toStdString();
+          break;
+        }
+      }
+      myVersionID = cartDescription + " [" + version + "] @ '" + myPortName + "'";
     }
   }
   myPort.closePort();

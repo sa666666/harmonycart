@@ -15,6 +15,6 @@
 #ifndef VERSION_HXX
 #define VERSION_HXX
 
-#define HARMONY_VERSION "2.1_pre"
+#define HARMONY_VERSION "2.0"
 
 #endif // VERSION_HXX

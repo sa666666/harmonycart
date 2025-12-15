@@ -80,7 +80,7 @@ void runCommandlineApp(HarmonyCartWindow& win, int ac, char* av[])
   manager.connectHarmonyCart(cart);
   if(manager.harmonyCartAvailable())
   {
-    cout << "Harmony \'" << manager.versionID() << "\' @ \'" << manager.portName() << "\'\n";
+    cout << manager.versionID() << "\n";
   }
   else
   {

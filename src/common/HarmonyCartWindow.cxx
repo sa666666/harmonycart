@@ -338,11 +338,7 @@ void HarmonyCartWindow::slotUpdateFindHarmonyStatus()
 {
   if(myManager.harmonyCartAvailable())
   {
-    myHarmonyCartMessage = "Harmony \'";
-    myHarmonyCartMessage.append(myManager.versionID().c_str());
-    myHarmonyCartMessage.append("\' @ \'");
-    myHarmonyCartMessage.append(myManager.portName().c_str());
-    myHarmonyCartMessage.append("\'.");
+    myHarmonyCartMessage = myManager.versionID().c_str();
     myLED->setPixmap(QPixmap(":icons/pics/ledon.png"));
   }
   else
