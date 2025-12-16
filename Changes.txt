@@ -34,6 +34,9 @@
 
   * Included NTSC HBIOS 1.06.
 
+  * The Harmony description in the UI now clearly shows the cart type
+    (normal vs. Encore, etc).
+
   * Updated bankswitch autodetection code to latest from Stella 7.0.
 
   * Codebase ported to (and now requires at least) Qt 5.15.

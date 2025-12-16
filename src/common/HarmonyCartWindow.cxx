@@ -554,6 +554,7 @@ void HarmonyCartWindow::slotAbout()
         << "<li>Added option to delay after each write, to help with bad UARTs.</li>"
         << "<li>Added option to specify the number of connection attempts.</li>"
         << "<li>Included NTSC HBIOS 1.06.</li>"
+        << "<li>The Harmony description in the UI now clearly shows the cart type (normal vs. Encore, etc).</li>"
         << "<li>Updated bankswitch autodetection code to latest from Stella 7.0.</li>"
         << "<li>Codebase ported to (and now requires at least) Qt 5.15.</li>"
         << "</ul>"
