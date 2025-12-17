@@ -48,7 +48,7 @@ SerialPortUNIX::~SerialPortUNIX()
 bool SerialPortUNIX::openPort(const string& device)
 {
   myHandle = open(device.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);
-  if(myHandle < 0)
+  if(!isOpen())
     return false;
 
   // clear input & output buffers, then switch to "blocking mode"
@@ -118,28 +118,28 @@ bool SerialPortUNIX::openPort(const string& device)
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void SerialPortUNIX::closePort()
 {
-  if(myHandle)
+  if(isOpen())
   {
     tcflush(myHandle, TCOFLUSH);
     tcflush(myHandle, TCIFLUSH);
     tcsetattr(myHandle, TCSANOW, &myOldtio);
 
     close(myHandle);
-    myHandle = 0;
+    myHandle = -1;
   }
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 bool SerialPortUNIX::isOpen()
 {
-  return myHandle > 0;
+  return myHandle != -1;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 size_t SerialPortUNIX::receiveBlock(void* answer, size_t max_size)
 {
   size_t result = 0;
-  if(myHandle)
+  if(isOpen())
   {
     result = read(myHandle, answer, max_size);
     if(result == 0)
@@ -176,7 +176,7 @@ size_t SerialPortUNIX::receiveBlock(void* answer, size_t max_size)
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 size_t SerialPortUNIX::sendBlock(const void* data, size_t size)
 {
-  return myHandle ? write(myHandle, data, size) : 0;
+  return isOpen() ? write(myHandle, data, size) : 0;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

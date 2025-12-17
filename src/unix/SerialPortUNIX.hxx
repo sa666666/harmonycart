@@ -123,7 +123,7 @@ class SerialPortUNIX : public SerialPort
 
   private:
     // File descriptor for serial connection
-    int myHandle{0};
+    int myHandle{-1};
 
     struct termios myOldtio{}, myNewtio{};
 

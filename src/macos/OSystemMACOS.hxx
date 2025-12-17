@@ -15,12 +15,22 @@
 #ifndef OSYSTEM_UNIX_HXX
 #define OSYSTEM_UNIX_HXX
 
+#include <QCoreApplication>
+#include <QDir>
+
 #include "OSystem.hxx"
 
 class OSystemMACOS : public OSystem
 {
   public:
-    OSystemMACOS();
+    OSystemMACOS()
+    {
+      QDir dir = QDir(QCoreApplication::applicationDirPath());
+      dir.cdUp();
+      dir.cdUp();
+      dir.cd("arm");
+      myARMPath = dir.absolutePath();
+    }
     ~OSystemMACOS() override = default;
 
   private:

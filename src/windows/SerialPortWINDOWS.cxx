@@ -33,7 +33,7 @@ SerialPortWINDOWS::~SerialPortWINDOWS()
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 bool SerialPortWINDOWS::openPort(const string& device)
 {
-  if(myHandle == INVALID_HANDLE_VALUE)
+  if(isOpen())
     closePort();
 
   DCB dcb;
@@ -46,7 +46,7 @@ bool SerialPortWINDOWS::openPort(const string& device)
   const string& portname = string("\\\\.\\") + device;
   myHandle = CreateFile(portname.c_str(), GENERIC_READ|GENERIC_WRITE,
                         0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-  if(myHandle == INVALID_HANDLE_VALUE)
+  if(!isOpen())
     return false;
 
   GetCommState(myHandle, &dcb);
@@ -101,7 +101,7 @@ bool SerialPortWINDOWS::openPort(const string& device)
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void SerialPortWINDOWS::closePort()
 {
-  if(myHandle != INVALID_HANDLE_VALUE)
+  if(isOpen())
   {
     CloseHandle(myHandle);
     myHandle = INVALID_HANDLE_VALUE;
@@ -121,7 +121,7 @@ bool SerialPortWINDOWS::isOpen()
 size_t SerialPortWINDOWS::receiveBlock(void* answer, size_t max_size)
 {
   DWORD result = 0;
-  if(myHandle != INVALID_HANDLE_VALUE)
+  if(isOpen())
   {
     ReadFile(myHandle, answer, static_cast<DWORD>(max_size), &result, NULL);
     if(result == 0)
@@ -134,7 +134,7 @@ size_t SerialPortWINDOWS::receiveBlock(void* answer, size_t max_size)
 size_t SerialPortWINDOWS::sendBlock(const void* data, size_t size)
 {
   DWORD result = 0;
-  if(myHandle != INVALID_HANDLE_VALUE)
+  if(isOpen())
     WriteFile(myHandle, data, static_cast<DWORD>(size), &result, NULL);
 
   return result;
@@ -163,12 +163,7 @@ void SerialPortWINDOWS::controlModemLines(bool DTR, bool RTS)
 {
   // Handle whether to swap the control lines
   if(myControlLinesSwapped)
-  {
-    bool tempRTS;
-    tempRTS = RTS;
-    RTS = DTR;
-    DTR = tempRTS;
-  }
+    std::swap(DTR, RTS);
 
   if (DTR) EscapeCommFunction(myHandle, SETDTR);
   else     EscapeCommFunction(myHandle, CLRDTR);
