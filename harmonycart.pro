@@ -85,7 +85,7 @@ unix:!macx {
 macx {
     DEFINES += BSPF_MACOS
     INCLUDEPATH += src/macos src/unix
-    SOURCES += src/unix/FSNodePOSIX.cxx src/unix/SerialPortUNIX.cxx src/macos/OSystemMACOS.cxx
+    SOURCES += src/unix/FSNodePOSIX.cxx src/unix/SerialPortUNIX.cxx
     HEADERS += src/unix/FSNodePOSIX.hxx src/unix/SerialPortUNIX.hxx src/macos/OSystemMACOS.hxx
     ICON = src/macos/Harmony_icon.icns
     QMAKE_CXXFLAGS += -std=c++20
